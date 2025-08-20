@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(lsof:*)",
+      "WebSearch",
+      "Bash(npx:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(node:*)",
+      "Bash(claude --version)",
+      "Bash(claude mcp add chrome-devtools --scope user:*)",
+      "Bash(claude mcp:*)",
+      "mcp__chrome-devtools__start_chrome_and_connect",
+      "mcp__chrome-devtools__navigate_to_url",
+      "mcp__chrome-devtools__connect_to_browser",
+      "mcp__chrome-devtools__get_console_logs",
+      "mcp__chrome-devtools__search_elements",
+      "mcp__chrome-devtools__execute_javascript",
+      "mcp__chrome-devtools__get_page_info",
+      "mcp__chrome-devtools__start_chrome",
+      "mcp__chrome-devtools__get_document",
+      "mcp__chrome-devtools__get_performance_metrics",
+      "mcp__chrome-devtools__describe_element",
+      "mcp__chrome-devtools__get_network_requests",
+      "mcp__chrome-devtools__disconnect_from_browser",
+      "Bash(cat:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "Bash(claude config get mcp)",
+      "mcp__playwright__browser_close",
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_tab_new",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
