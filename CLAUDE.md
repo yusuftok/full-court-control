@@ -71,6 +71,12 @@ await mcp__playwright__browser_navigate("http://localhost:3000")
 - Viewport resize: Forces artificial dimensions (e.g., 1920x1080)
 - Result: Content overflow and hidden interface elements
 
+**Testing Strategy:**
+- **Default approach**: Code analysis + dev server logs (faster)
+- **Playwright usage**: Only when user explicitly requests visual testing
+- **Efficiency**: Most fixes can be validated through code review and compile success
+- **User feedback**: Primary validation method for UI/UX changes
+
 ## Notes for Future Development
 
 - All user-facing text must remain in Turkish
