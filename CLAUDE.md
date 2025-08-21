@@ -52,17 +52,24 @@ npm run lint         # ESLint check
 ## Playwright Browser Configuration
 
 **Browser Window Settings:**
-- Browser MUST be maximized on every launch
-- Default maximize size: 1920x1080 (desktop standard)
-- Use `mcp__playwright__browser_resize(1920, 1080)` after each navigation
+- Browser MUST be manually maximized before use
+- Let browser use native maximize size (no viewport override)
+- DO NOT use `mcp__playwright__browser_resize()` - causes viewport mismatch
 - Configuration file: `.claude/playwright-config.js`
 
 **Usage Pattern:**
 ```javascript
-// Always follow this pattern for Playwright browser usage:
+// Correct pattern for Playwright browser usage:
+// 1. Manually maximize browser window first
+// 2. Then navigate without viewport changes
 await mcp__playwright__browser_navigate("http://localhost:3000")
-await mcp__playwright__browser_resize(1920, 1080)  // Maximize immediately
+// NO resize needed - browser uses natural maximize size
 ```
+
+**Why no viewport resize:**
+- Manual maximize: Uses actual screen dimensions (e.g., 1440x900 MacBook)
+- Viewport resize: Forces artificial dimensions (e.g., 1920x1080)
+- Result: Content overflow and hidden interface elements
 
 ## Notes for Future Development
 
