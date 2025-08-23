@@ -5,16 +5,13 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { 
   Building2, 
-  LayoutDashboard, 
-  FolderTree, 
-  ListTodo, 
+  Command, 
+  Wrench, 
   Users, 
-  BarChart3, 
-  FileText, 
   Settings,
   Menu,
   X,
-  GitBranch
+  FolderTree
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -22,55 +19,37 @@ import { Button } from "@/components/ui/button"
 
 const navigationItems = [
   {
-    title: "Komuta Merkezi",
+    title: "Operasyon Merkezi",
     href: "/dashboard",
-    icon: LayoutDashboard,
+    icon: Command,
     emoji: "🏗️"
   },
   {
-    title: "Aktif Şantiyeler",
+    title: "Projeler",
     href: "/projects",
     icon: Building2,
     emoji: "🏢"
   },
   {
-    title: "Proje Bölümleri",
-    href: "/divisions",
-    icon: GitBranch,
-    emoji: "🏗️"
-  },
-  {
-    title: "Bölüm Şablonları",
-    href: "/templates",
-    icon: FolderTree,
-    emoji: "📋"
-  },
-  {
-    title: "İş Emirleri",
+    title: "İşler",
     href: "/tasks",
-    icon: ListTodo,
+    icon: Wrench,
     emoji: "🔨"
   },
   {
-    title: "Ekip Yönetimi",
+    title: "Ekip",
     href: "/subcontractors",
     icon: Users,
     emoji: "👷"
   },
   {
-    title: "Şantiye Metrikleri",
-    href: "/analytics",
-    icon: BarChart3,
-    emoji: "📈"
+    title: "Şablonlar",
+    href: "/settings/templates",
+    icon: FolderTree,
+    emoji: "📋"
   },
   {
-    title: "Saha Raporları",
-    href: "/reports",
-    icon: FileText,
-    emoji: "📄"
-  },
-  {
-    title: "Araçlar",
+    title: "Ayarlar",
     href: "/settings",
     icon: Settings,
     emoji: "⚙️"
@@ -86,18 +65,38 @@ interface SidebarProps {
 
 export function Sidebar({ className, isMobile = false, isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname()
+  const [logoClickCount, setLogoClickCount] = React.useState(0)
+  const [showEasterEgg, setShowEasterEgg] = React.useState(false)
+  
+  const handleLogoClick = () => {
+    setLogoClickCount(prev => prev + 1)
+    if (logoClickCount === 4) { // 5 clicks total (0-4)
+      setShowEasterEgg(true)
+      setTimeout(() => {
+        setShowEasterEgg(false)
+        setLogoClickCount(0)
+      }, 3000)
+    }
+  }
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
       {/* Logo and Brand */}
-      <div className="h-16 flex items-center justify-between px-6 border-b">
-        <div className="flex items-center gap-3 group">
-          <div className="size-8 bg-primary rounded-lg flex items-center justify-center construction-hover group-hover:animate-hammer-swing">
+      <div className="h-16 flex items-center justify-between px-6 border-b border-white/10">
+        <div className="flex items-center gap-3 group cursor-pointer" onClick={handleLogoClick}>
+          <div className={cn(
+            "size-8 gradient-primary rounded-xl flex items-center justify-center modern-hover",
+            showEasterEgg && "mega-celebration animate-tada"
+          )} style={{ animation: 'float 6s ease-in-out infinite' }}>
             <Building2 className="size-5 text-primary-foreground" />
           </div>
           <div className="flex flex-col">
-            <span className="font-semibold text-sm group-hover:text-primary transition-colors">Full Court Control Pro</span>
-            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">İnşaat Yönetim Platformu</span>
+            <span className="font-semibold text-sm group-hover:text-primary transition-colors">
+              {showEasterEgg ? "Süper İnşaat Üstadı! 🏆" : "Full Court Control Pro"}
+            </span>
+            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
+              {showEasterEgg ? "Gizli modu keşfettin! 🎉" : "İnşaat Yönetim Platformu"}
+            </span>
           </div>
         </div>
         {isMobile && onClose && (
@@ -110,7 +109,14 @@ export function Sidebar({ className, isMobile = false, isOpen = false, onClose }
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto p-4 space-y-2">
         {navigationItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
+          // More specific active check to prevent multiple items being active
+          const isActive = pathname === item.href || 
+            (pathname.startsWith(item.href + "/") && 
+             !navigationItems.some(otherItem => 
+               otherItem.href !== item.href && 
+               otherItem.href.startsWith(item.href) && 
+               pathname.startsWith(otherItem.href)
+             ))
           const Icon = item.icon
           
           return (
@@ -119,19 +125,18 @@ export function Sidebar({ className, isMobile = false, isOpen = false, onClose }
               href={item.href}
               onClick={isMobile ? onClose : undefined}
               className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group",
-                "hover:bg-accent hover:text-accent-foreground construction-hover",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                "flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-300 group",
+                "modern-hover modern-focus",
                 isActive
-                  ? "bg-primary text-primary-foreground hover:bg-primary/90 animate-build-up"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "gradient-primary text-primary-foreground shadow-soft animate-spring-in"
+                  : "text-muted-foreground hover:text-foreground hover:bg-white/10"
               )}
             >
               <Icon className="size-4 shrink-0 group-hover:scale-110 transition-transform" />
               <span className="flex items-center gap-2">
                 {item.title}
                 {item.emoji && (
-                  <span className="opacity-0 group-hover:opacity-100 transition-opacity text-xs">
+                  <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 text-xs transform group-hover:scale-125 group-hover:animate-bounce">
                     {item.emoji}
                   </span>
                 )}
@@ -142,9 +147,10 @@ export function Sidebar({ className, isMobile = false, isOpen = false, onClose }
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t">
-        <div className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-default">
-          © 2025 Full Court Control Pro tarafından geliştirildi
+      <div className="p-4 border-t border-white/10">
+        <div className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-default group">
+          <div className="group-hover:hidden">© 2025 Full Court Control Pro tarafından geliştirildi</div>
+          <div className="hidden group-hover:block animate-pulse">🔨 Her gün daha iyi inşa ediyoruz! 🏗️</div>
         </div>
       </div>
     </div>
@@ -163,7 +169,7 @@ export function Sidebar({ className, isMobile = false, isOpen = false, onClose }
         {/* Mobile sidebar */}
         <div
           className={cn(
-            "fixed inset-y-0 left-0 z-50 w-72 bg-background border-r transition-transform duration-200 ease-in-out lg:hidden",
+            "fixed inset-y-0 left-0 z-50 w-72 glass shadow-glass transition-transform duration-200 ease-in-out lg:hidden",
             isOpen ? "translate-x-0" : "-translate-x-full",
             className
           )}
@@ -175,7 +181,7 @@ export function Sidebar({ className, isMobile = false, isOpen = false, onClose }
   }
 
   return (
-    <div className={cn("w-72 h-full bg-background border-r", className)}>
+    <div className={cn("w-72 h-full glass shadow-glass", className)}>
       {sidebarContent}
     </div>
   )

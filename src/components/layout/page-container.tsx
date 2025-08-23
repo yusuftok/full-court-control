@@ -56,13 +56,13 @@ export function PageHeader({
   return (
     <div 
       className={cn(
-        "flex flex-col gap-4 pb-6 border-b mb-6 animate-build-up",
+        "flex flex-col gap-1 pb-2 border-b mb-2 animate-build-up",
         "sm:flex-row sm:items-center sm:justify-between",
         className
       )}
       {...props}
     >
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-0">
         <h1 className="text-2xl font-semibold tracking-tight hover:text-primary transition-colors cursor-default">
           {title}
         </h1>

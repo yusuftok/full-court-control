@@ -550,10 +550,12 @@ export default function ProjectDivisionsPage() {
             description="Proje için bölüm yapısını tanımlayın ve yönetin"
           />
 
-          <Card>
+          <Card className="glass-card modern-hover">
             <CardContent className="flex flex-col items-center justify-center py-16">
-              <GitBranch className="size-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">Proje Seçin</h3>
+              <div className="size-16 gradient-primary rounded-2xl flex items-center justify-center mb-6 animate-float-tools">
+                <GitBranch className="size-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Proje Seçin 🏗️</h3>
               <p className="text-muted-foreground text-center mb-6 max-w-md">
                 Bölüm yapısını tanımlamak istediğiniz projeyi seçin.
               </p>
@@ -584,20 +586,20 @@ export default function ProjectDivisionsPage() {
       <PageContent>
         <Breadcrumbs items={breadcrumbItems} className="mb-4" />
         
-        <PageHeader
-          title={
-            <div className="flex items-center gap-3">
-              <div>
-                <h1 className="text-2xl font-semibold">Proje Bölümleri</h1>
-                <div className="flex items-center gap-2 mt-1">
-                  <Building2 className="size-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">
-                    {mockProjects.find(p => p.id === selectedProject)?.name}
-                  </span>
-                </div>
-              </div>
+        <div className="flex items-center gap-3 mb-6">
+          <div>
+            <h1 className="text-2xl font-semibold">Proje Bölümleri</h1>
+            <div className="flex items-center gap-2 mt-1">
+              <Building2 className="size-4 text-muted-foreground" />
+              <span className="text-muted-foreground">
+                {mockProjects.find(p => p.id === selectedProject)?.name}
+              </span>
             </div>
-          }
+          </div>
+        </div>
+        
+        <PageHeader
+          title="Bölüm Yönetimi"
           action={
             <div className="flex items-center gap-2">
               <Select value={selectedProject} onValueChange={setSelectedProject}>
@@ -617,10 +619,12 @@ export default function ProjectDivisionsPage() {
         />
 
         {!currentStructure ? (
-          <Card>
+          <Card className="glass-card modern-hover">
             <CardContent className="flex flex-col items-center justify-center py-16">
-              <GitBranch className="size-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">Bölüm Yapısı Tanımlanmamış</h3>
+              <div className="size-16 gradient-primary rounded-2xl flex items-center justify-center mb-6 animate-float-tools">
+                <GitBranch className="size-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">İnşaat Planı Hazır Değil 📋</h3>
               <p className="text-muted-foreground text-center mb-6 max-w-md">
                 Bu proje için henüz bölüm yapısı tanımlanmamış. Nasıl başlamak istersiniz?
               </p>
@@ -694,16 +698,18 @@ export default function ProjectDivisionsPage() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Structure Editor */}
-            <Card>
+            <Card className="glass-card modern-hover">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
-                    <GitBranch className="size-5" />
-                    Bölüm Yapısı
+                  <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                    <div className="size-8 gradient-primary rounded-lg flex items-center justify-center">
+                      <GitBranch className="size-4 text-white" />
+                    </div>
+                    İnşaat Bölüm Yapısı
                   </CardTitle>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleAddChild(null)}>
-                      <Plus className="size-3 mr-1" />
+                    <Button variant="outline" size="sm" onClick={() => handleAddChild(null)} className="modern-button gradient-primary text-white border-0 hover:scale-105 group">
+                      <Plus className="size-3 mr-1 group-hover:rotate-90 transition-transform" />
                       Ana Bölüm Ekle
                     </Button>
                   </div>
@@ -727,12 +733,12 @@ export default function ProjectDivisionsPage() {
                 />
                 
                 <div className="flex items-center gap-2 mt-4 pt-4 border-t">
-                  <Button size="sm" variant="outline" onClick={handleSaveAsTemplate}>
-                    <Save className="size-3 mr-1" />
+                  <Button size="sm" variant="outline" onClick={handleSaveAsTemplate} className="modern-button group border-2 border-primary/20 hover:border-primary/40 hover:scale-105">
+                    <Save className="size-3 mr-1 group-hover:scale-110 transition-transform" />
                     Şablon Kaydet
                   </Button>
-                  <Button size="sm" variant="outline">
-                    <FileText className="size-3 mr-1" />
+                  <Button size="sm" variant="outline" className="modern-button group border-2 border-primary/20 hover:border-primary/40 hover:scale-105" onClick={() => alert('📊 Yapı Dışa Aktarma\n\n📋 CSV formatı\n📊 Excel raporu\n🖼️ Görsel hiyerarşi\n\n✅ Dışa aktarma özelliği yakında!')}>
+                    <FileText className="size-3 mr-1 group-hover:scale-110 transition-transform" />
                     Yapıyı Dışa Aktar
                   </Button>
                 </div>
@@ -740,11 +746,13 @@ export default function ProjectDivisionsPage() {
             </Card>
 
             {/* Division Instances */}
-            <Card>
+            <Card className="glass-card modern-hover">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Building2 className="size-5" />
-                  Proje Bölümleri (Instances)
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                  <div className="size-8 gradient-primary rounded-lg flex items-center justify-center">
+                    <Building2 className="size-4 text-white" />
+                  </div>
+                  Aktif İnşaat Bölümleri
                 </CardTitle>
                 <div className="text-sm text-muted-foreground">
                   Toplam {currentStructure.instances.length} bölüm instance'ı

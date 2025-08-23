@@ -25,9 +25,9 @@ export function Breadcrumbs({
 }: BreadcrumbsProps) {
   // Add home item if requested and not already present
   const allItems = React.useMemo(() => {
-    if (homeIcon && items[0]?.label !== "Kontrol Paneli") {
+    if (homeIcon && items[0]?.label !== "Operasyon Merkezi") {
       return [
-        { label: "Kontrol Paneli", href: "/dashboard", icon: Home },
+        { label: "Operasyon Merkezi", href: "/dashboard", icon: Home },
         ...items
       ]
     }

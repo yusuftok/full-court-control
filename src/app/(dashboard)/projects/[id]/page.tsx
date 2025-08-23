@@ -215,7 +215,17 @@ const teamColumns: Column<TeamMember>[] = [
   {
     id: "status",
     header: "Durum",
-    accessor: (row) => <StatusBadge status={row.status} />,
+    accessor: (row) => (
+      <span className={cn(
+        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+        row.status === "active" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" :
+        row.status === "on-leave" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400" :
+        "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
+      )}>
+        {row.status === "active" ? "Aktif" :
+         row.status === "on-leave" ? "İzinli" : "Saha Dışı"}
+      </span>
+    ),
     sortable: true,
   }
 ]
@@ -255,24 +265,24 @@ export default function ProjectDashboardPage() {
   return (
     <PageContainer>
       <PageContent>
-        <PageHeader
-          title={
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="sm" asChild className="construction-hover">
-                <a href="/dashboard">
-                  <ArrowLeft className="size-4" />
-                </a>
-              </Button>
-              <div>
-                <h1 className="text-2xl font-semibold">{project.name}</h1>
-                <div className="flex items-center gap-2 mt-1">
-                  <StatusBadge status={project.status} />
-                  <span className="text-sm text-muted-foreground">•</span>
-                  <span className="text-sm text-muted-foreground">{project.location}</span>
-                </div>
-              </div>
+        <div className="flex items-center gap-3 mb-6">
+          <Button variant="ghost" size="sm" asChild className="construction-hover">
+            <a href="/dashboard">
+              <ArrowLeft className="size-4" />
+            </a>
+          </Button>
+          <div>
+            <h1 className="text-2xl font-semibold">{project.name}</h1>
+            <div className="flex items-center gap-2 mt-1">
+              <StatusBadge status={project.status} />
+              <span className="text-sm text-muted-foreground">•</span>
+              <span className="text-sm text-muted-foreground">{project.location}</span>
             </div>
-          }
+          </div>
+        </div>
+        
+        <PageHeader
+          title="Proje Kontrol Paneli"
           description={`${project.contractor} • ${project.teamSize} kişilik ekip`}
           action={
             <div className="flex items-center gap-2">

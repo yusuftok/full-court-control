@@ -1,25 +1,20 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Home, ArrowLeft, Wrench } from "lucide-react"
 
 export default function NotFound() {
-  const router = useRouter()
-
   const handleGoBack = () => {
-    if (typeof window !== 'undefined' && window.history.length > 1) {
-      router.back()
-    } else {
-      router.push('/dashboard')
+    if (typeof window !== 'undefined') {
+      window.history.back()
     }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="max-w-lg w-full construction-hover animate-build-up">
+      <Card className="max-w-lg w-full hover:shadow-lg transition-shadow animate-build-up">
         <CardContent className="p-8 text-center">
           <div className="mb-6">
             <div className="text-6xl mb-4 animate-construction-bounce">🏗️</div>
@@ -52,16 +47,16 @@ export default function NotFound() {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
-              <Button asChild className="flex-1 construction-hover group">
+              <Button asChild className="flex-1 group">
                 <Link href="/dashboard">
                   <Home className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
-                  Komuta Merkezine Dön
+                  Operasyon Merkezine Dön
                 </Link>
               </Button>
               <Button 
                 variant="outline" 
                 onClick={handleGoBack}
-                className="flex-1 construction-hover group"
+                className="flex-1 group"
               >
                 <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
                 Önceki Sayfa

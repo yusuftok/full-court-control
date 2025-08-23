@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Plus, Search, Filter, Building2, MoreHorizontal } from "lucide-react"
+import { Plus, Search, Filter, Building2, MoreHorizontal, AlertTriangle, CheckCircle, Clock, Star, TrendingUp, DollarSign } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,27 +9,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PageContainer, PageHeader, PageContent } from "@/components/layout/page-container"
 import { DataTable, Column, StatusBadge, TableAction } from "@/components/data/data-table"
 import { Breadcrumbs } from "@/components/navigation/breadcrumbs"
+import { ProjectCard, type Project } from "@/components/projects/project-card"
 import { cn } from "@/lib/utils"
 
-interface Project {
-  id: string
-  name: string
-  status: "active" | "inactive" | "pending" | "completed" | "cancelled"
-  startDate: string
-  endDate?: string
-  progress: number
-  subcontractors: number
-  totalTasks: number
-  completedTasks: number
-  location: string
-  budget: number
-  manager: string
-}
+// Project interface now imported from shared component
 
 const mockProjects: Project[] = [
   {
     id: "1",
-    name: "Downtown Office Complex",
+    name: "Şehir Merkezi Ofis Kompleksi",
     status: "active",
     startDate: "2024-01-15",
     progress: 68,
@@ -38,11 +26,16 @@ const mockProjects: Project[] = [
     completedTasks: 84,
     location: "Istanbul, Turkey",
     budget: 2500000,
-    manager: "Ahmet Yılmaz"
+    manager: "Ahmet Yılmaz",
+    budgetSpent: 65,
+    daysRemaining: 45,
+    riskLevel: "low",
+    qualityScore: 4.2,
+    healthStatus: "healthy"
   },
   {
     id: "2",
-    name: "Residential Tower A",
+    name: "Konut Kulesi A",
     status: "active",
     startDate: "2024-02-01",
     progress: 45,
@@ -51,11 +44,16 @@ const mockProjects: Project[] = [
     completedTasks: 40,
     location: "Ankara, Turkey",
     budget: 1800000,
-    manager: "Fatma Demir"
+    manager: "Fatma Demir",
+    budgetSpent: 52,
+    daysRemaining: 78,
+    riskLevel: "medium",
+    qualityScore: 3.8,
+    healthStatus: "warning"
   },
   {
     id: "3",
-    name: "Shopping Mall Extension",
+    name: "Alışveriş Merkezi Genişletme",
     status: "pending",
     startDate: "2024-03-10",
     progress: 12,
@@ -64,11 +62,16 @@ const mockProjects: Project[] = [
     completedTasks: 19,
     location: "Izmir, Turkey",
     budget: 3200000,
-    manager: "Mehmet Kaya"
+    manager: "Mehmet Kaya",
+    budgetSpent: 8,
+    daysRemaining: 120,
+    riskLevel: "low",
+    qualityScore: 4.0,
+    healthStatus: "healthy"
   },
   {
     id: "4",
-    name: "Highway Bridge Renovation", 
+    name: "Otoyol Köprüsü Yenileme", 
     status: "completed",
     startDate: "2023-08-20",
     endDate: "2024-01-15",
@@ -78,11 +81,16 @@ const mockProjects: Project[] = [
     completedTasks: 67,
     location: "Bursa, Turkey",
     budget: 950000,
-    manager: "Ayşe Özkan"
+    manager: "Ayşe Özkan",
+    budgetSpent: 98,
+    daysRemaining: 0,
+    riskLevel: "low",
+    qualityScore: 4.7,
+    healthStatus: "healthy"
   },
   {
     id: "5",
-    name: "Hospital Wing Construction",
+    name: "Hastane Ek Binası İnşaatı",
     status: "active",
     startDate: "2023-11-01",
     progress: 89,
@@ -91,7 +99,12 @@ const mockProjects: Project[] = [
     completedTasks: 181,
     location: "Istanbul, Turkey",
     budget: 4100000,
-    manager: "Can Bulut"
+    manager: "Can Bulut",
+    budgetSpent: 95,
+    daysRemaining: 12,
+    riskLevel: "high",
+    qualityScore: 3.5,
+    healthStatus: "critical"
   }
 ]
 
@@ -165,19 +178,25 @@ const projectColumns: Column<Project>[] = [
     header: "",
     accessor: (row) => (
       <TableAction
-        onView={() => console.log("View project", row.id)}
-        onEdit={() => console.log("Edit project", row.id)}
-        onDelete={() => console.log("Delete project", row.id)}
+        onView={() => window.location.href = `/projects/${row.id}`}
+        onEdit={() => alert(`📝 ${row.name} projesini düzenleme modal'ı açılacak`)}
+        onDelete={() => {
+          if (confirm(`⚠️ ${row.name} projesini silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz!`)) {
+            alert(`🗑️ ${row.name} projesi silindi`)
+          }
+        }}
       />
     ),
     width: "100px",
   },
 ]
 
+
 export default function ProjectsPage() {
   const [searchTerm, setSearchTerm] = React.useState("")
-  const [statusFilter, setStatusFilter] = React.useState<string>("all")
+  const [statusFilter, setStatusFilter] = React.useState<string>("active")
   const [sortConfig, setSortConfig] = React.useState<{ key: string; direction: "asc" | "desc" } | undefined>(undefined)
+  const [searchFocused, setSearchFocused] = React.useState(false)
 
   const breadcrumbItems = [
     { label: "Projeler", href: "/projects" }
@@ -227,13 +246,13 @@ export default function ProjectsPage() {
   }
 
   const handleProjectClick = (project: Project) => {
-    console.log("Navigate to project:", project.id)
-    // TODO: Navigate to project detail page
+    // Navigate to project detail page (simulated)
+    window.location.href = `/projects/${project.id}`
   }
 
   const handleCreateProject = () => {
-    console.log("Create new project")
-    // TODO: Open project creation modal/page
+    // Open project creation modal (simulated)
+    alert("🚀 Yeni Proje Oluşturma\n\n📋 Proje adı girin\n📅 Başlangıç tarihi seçin\n👷 Ekip yöneticisi atayın\n💰 Bütçe belirleyin\n\n✅ Bu modal yakında aktif olacak!")
   }
 
   return (
@@ -242,110 +261,73 @@ export default function ProjectsPage() {
         <Breadcrumbs items={breadcrumbItems} className="mb-4" />
         
         <PageHeader
-          title="Aktif İnşaat Şantiyeleri 🏗️"
-          description="Tüm inşaat operasyonlarınızın komuta merkezi - temelden son denetleme kadar"
+          title="Projeler 🏗️"
+          description="İnşaat projelerinizi başlangıçtan teslime kadar tek yerden yönetin."
           action={
-            <Button onClick={handleCreateProject} className="group construction-hover">
+            <Button onClick={handleCreateProject} className="modern-button group button-enhanced">
               <Plus className="size-4 mr-2 group-hover:rotate-90 transition-transform" />
-              Yeni İnşaata Başla
+              <span className="group-hover:hidden">Yeni İnşaata Başla</span>
+              <span className="hidden group-hover:inline">Hadi Başlayalım! 🚀</span>
             </Button>
           }
         />
 
         {/* Filters and Search */}
-        <Card className="mb-6 construction-hover animate-build-up">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              🔍 Şantiye Bulucu
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
-                <Input
-                  placeholder="Şantiye, konum, şef arayın... 🔍"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 construction-hover"
-                />
-              </div>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className={cn(
-                  "h-9 px-3 rounded-md border border-input bg-background text-sm construction-hover",
-                  "focus:outline-none focus:ring-2 focus:ring-ring"
-                )}
-              >
-                <option value="all">🏭 Tüm Şantiyeler</option>
-                <option value="active">🔨 İnşaat Halinde</option>
-                <option value="pending">📋 Planlama Aşaması</option>
-                <option value="completed">✅ Tamamlandı & Denetlendi</option>
-                <option value="cancelled">❌ İptal Edildi</option>
-              </select>
+        <div className="mb-6 p-4 glass rounded-xl border border-white/10 overflow-hidden">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
+              <Input
+                placeholder={searchFocused ? "Projeyle ilişkili ipucu verin. Örn: ofis kompleksi, Istanbul, Ahmet..." : "Tüm projeler arasında arayın..."}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
+                className="h-10 pl-10 bg-background/90 backdrop-blur-sm border-2 border-muted/40 rounded-xl modern-focus hover:border-primary/40 focus:border-primary/60 transition-colors shadow-sm"
+              />
             </div>
-          </CardContent>
-        </Card>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className={cn(
+                "h-10 px-3 rounded-xl bg-background/90 backdrop-blur-sm border-2 border-muted/40 text-sm modern-focus",
+                "hover:border-primary/40 focus:border-primary/60 transition-colors shadow-sm min-w-[180px]"
+              )}
+            >
+              <option value="all">🏭 Tüm Şantiyeler</option>
+              <option value="active">🔨 İnşaat Halinde</option>
+              <option value="pending">📋 Planlama Aşaması</option>
+              <option value="completed">✅ Tamamlandı & Denetlendi</option>
+              <option value="cancelled">❌ İptal Edildi</option>
+            </select>
+          </div>
+        </div>
 
         {/* Projects Grid for Mobile */}
         <div className="lg:hidden space-y-4 mb-6">
-          {filteredProjects.map((project) => (
-            <Card 
-              key={project.id} 
-              className="cursor-pointer construction-hover animate-build-up transition-all duration-200"
-              onClick={() => handleProjectClick(project)}
-            >
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-base">{project.name}</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {project.location} • {project.manager}
-                    </p>
-                  </div>
-                  <StatusBadge status={project.status} />
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-muted-foreground">İlerleme</span>
-                      <span className="text-sm font-medium">{project.progress}%</span>
-                    </div>
-                    <div className="h-2 bg-secondary rounded-full construction-progress">
-                      <div 
-                        className="h-full bg-primary rounded-full transition-all duration-500"
-                        style={{ width: `${project.progress}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Görevler:</span> {project.completedTasks}/{project.totalTasks}
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Bütçe:</span> ₺{(project.budget / 1000).toFixed(0)}K
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          {filteredProjects.map((project, index) => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              onClick={handleProjectClick}
+              index={index}
+              className="h-auto" // Override height for mobile
+            />
           ))}
         </div>
 
-        {/* Projects Table for Desktop */}
+        {/* Projects Grid for Desktop - Modern Masonry Layout */}
         <div className="hidden lg:block">
-          <DataTable
-            data={filteredProjects}
-            columns={projectColumns}
-            loading={false}
-            sortConfig={sortConfig}
-            onSort={handleSort}
-            onRowClick={handleProjectClick}
-            emptyMessage="Proje bulunamadı"
-          />
+          <div className="grid-responsive spacing-relaxed animate-stagger">
+            {filteredProjects.map((project, index) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                onClick={handleProjectClick}
+                index={index}
+              />
+            ))}
+          </div>
         </div>
       </PageContent>
     </PageContainer>

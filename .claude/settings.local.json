@@ -33,7 +33,12 @@
       "mcp__playwright__browser_tab_new",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "WebFetch(domain:www.procore.com)",
+      "Bash(npm run lint)",
+      "Bash(npm run build:*)",
+      "Bash(mkdir:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []
