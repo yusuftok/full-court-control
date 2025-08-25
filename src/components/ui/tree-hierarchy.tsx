@@ -433,7 +433,7 @@ export const TreeHierarchy: React.FC<TreeHierarchyProps> = ({
           dragOverNodeId={dragOverNodeId}
           dropPosition={dropPosition}
         />
-      )))
+      ))}
     </div>
   )
 }

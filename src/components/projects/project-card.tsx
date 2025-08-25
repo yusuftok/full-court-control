@@ -1,5 +1,5 @@
 import * as React from "react"
-import { DollarSign, Star, Clock, CheckCircle } from "lucide-react"
+import { Banknote, Star, Clock, CheckCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -172,7 +172,7 @@ export function ProjectCard({ project, onClick, index = 0, className }: ProjectC
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-caption">Bütçe Kullanımı</span>
-                <DollarSign className="size-4 opacity-60" />
+                <Banknote className="size-4 opacity-60" />
               </div>
               <div className="text-heading-md">{project.budgetSpent}%</div>
             </div>
@@ -225,13 +225,8 @@ export function ProjectCard({ project, onClick, index = 0, className }: ProjectC
             {/* Animated background */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700" />
             
-            <span className="relative flex items-center justify-center gap-2 group-hover/btn:gap-3 transition-all">
-              <span className="group-hover/btn:hidden">Projeyi Görüntüle</span>
-              <span className="hidden group-hover/btn:inline">
-                {project.status === "completed" ? "🏆 Projeyi İncele" : 
-                 project.status === "active" ? "🔨 Canlı İzle" :
-                 project.status === "pending" ? "📅 Planları Gör" : "👁️ Detaya Git"}
-              </span>
+            <span className="relative flex items-center justify-center gap-2 transition-all">
+              Projeyi Görüntüle
               <svg className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>

@@ -161,8 +161,7 @@ export default function DashboardPage() {
               </p>
               <Button onClick={handleCreateProject} disabled={isCreatingProject} className="modern-button group button-enhanced">
                 <Plus className={cn("size-4 mr-2 transition-transform", isCreatingProject && "animate-spin")} />
-                <span className="group-hover:hidden">{isCreatingProject ? "Temel Atılıyor..." : "İnşaata Başla"}</span>
-                <span className="hidden group-hover:inline">{isCreatingProject ? "Temel Atılıyor..." : "Haydi Başlayalım! 🏗️"}</span>
+                {isCreatingProject ? "Temel Atılıyor..." : "İnşaata Başla"}
               </Button>
             </div>
           </div>
@@ -764,8 +763,7 @@ export default function DashboardPage() {
               className="modern-button group"
               onClick={() => window.location.href = '/projects'}
             >
-              <span className="group-hover:hidden">Tüm Projeleri Gör</span>
-              <span className="hidden group-hover:inline">Detay Görünümü →</span>
+              Tüm Projeleri Gör
             </Button>
           </div>
           

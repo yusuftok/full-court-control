@@ -148,9 +148,8 @@ export function Sidebar({ className, isMobile = false, isOpen = false, onClose }
 
       {/* Footer */}
       <div className="p-4 border-t border-white/10">
-        <div className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-default group">
-          <div className="group-hover:hidden">© 2025 Full Court Control Pro tarafından geliştirildi</div>
-          <div className="hidden group-hover:block animate-pulse">🔨 Her gün daha iyi inşa ediyoruz! 🏗️</div>
+        <div className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-default">
+          © 2025 Full Court Control Pro tarafından geliştirildi
         </div>
       </div>
     </div>

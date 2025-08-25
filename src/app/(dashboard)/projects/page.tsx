@@ -9,187 +9,293 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PageContainer, PageHeader, PageContent } from "@/components/layout/page-container"
 import { DataTable, Column, StatusBadge, TableAction } from "@/components/data/data-table"
 import { Breadcrumbs } from "@/components/navigation/breadcrumbs"
-import { ProjectCard, type Project } from "@/components/projects/project-card"
+import { ProjectCard, type Project as ProjectCardProject } from "@/components/projects/project-card"
+import { ProjectStatus, Project } from "@/components/projects/types/project-types"
 import { cn } from "@/lib/utils"
 
 // Project interface now imported from shared component
 
+// Import ProjectCategory
+import { ProjectCategory } from "@/components/projects/types/project-types"
+
+// Mock projects for demo
 const mockProjects: Project[] = [
   {
-    id: "1",
-    name: "Şehir Merkezi Ofis Kompleksi",
-    status: "active",
-    startDate: "2024-01-15",
-    progress: 68,
-    subcontractors: 5,
-    totalTasks: 124,
-    completedTasks: 84,
-    location: "Istanbul, Turkey",
-    budget: 2500000,
-    manager: "Ahmet Yılmaz",
-    budgetSpent: 65,
-    daysRemaining: 45,
-    riskLevel: "low",
-    qualityScore: 4.2,
-    healthStatus: "healthy"
-  },
-  {
-    id: "2",
-    name: "Konut Kulesi A",
-    status: "active",
-    startDate: "2024-02-01",
+    id: 'project-1',
+    name: 'Ataşehir Ofis Kompleksi',
+    location: 'Ataşehir, İstanbul',
+    startDate: '2024-01-15',
+    endDate: '2024-12-20',
+    budget: 15000000,
+    description: 'Modern 25 katlı ofis kompleksi projesi',
+    status: ProjectStatus.ACTIVE,
     progress: 45,
-    subcontractors: 8,
-    totalTasks: 89,
-    completedTasks: 40,
-    location: "Ankara, Turkey",
-    budget: 1800000,
-    manager: "Fatma Demir",
-    budgetSpent: 52,
-    daysRemaining: 78,
-    riskLevel: "medium",
-    qualityScore: 3.8,
-    healthStatus: "warning"
-  },
-  {
-    id: "3",
-    name: "Alışveriş Merkezi Genişletme",
-    status: "pending",
-    startDate: "2024-03-10",
-    progress: 12,
-    subcontractors: 3,
-    totalTasks: 156,
-    completedTasks: 19,
-    location: "Izmir, Turkey",
-    budget: 3200000,
-    manager: "Mehmet Kaya",
-    budgetSpent: 8,
+    totalTasks: 24,
+    completedTasks: 11,
+    healthStatus: 'healthy',
+    riskLevel: 'low',
+    qualityScore: 4.2,
+    manager: 'Ahmet Yılmaz',
+    budgetSpent: 6750000,
     daysRemaining: 120,
-    riskLevel: "low",
-    qualityScore: 4.0,
-    healthStatus: "healthy"
+    createdBy: 'Demo User',
+    createdAt: '2024-01-10T00:00:00.000Z',
+    updatedAt: '2025-08-20T00:00:00.000Z',
+    mainContractorTeam: {
+      chiefEngineer: 'Ahmet Yılmaz',
+      civilEngineer: 'Mehmet Demir',
+      mechanicalEngineer: 'Ali Kaya',
+      electricalEngineer: 'Fatma Şahin'
+    },
+    subcontractors: {
+      constructionId: 'sub-1',
+      mechanicalId: 'sub-5',
+      electricalId: 'sub-8'
+    },
+    category: ProjectCategory.COMMERCIAL,
+    templateId: 'template-commercial-1',
+    divisions: []
   },
   {
-    id: "4",
-    name: "Otoyol Köprüsü Yenileme", 
-    status: "completed",
-    startDate: "2023-08-20",
-    endDate: "2024-01-15",
+    id: 'project-2', 
+    name: 'Bahçeşehir Konut Projesi',
+    location: 'Bahçeşehir, İstanbul',
+    startDate: '2024-03-01',
+    endDate: '2025-01-30',
+    budget: 8500000,
+    description: '12 blok lüks konut projesi',
+    status: ProjectStatus.ACTIVE,
+    progress: 25,
+    totalTasks: 18,
+    completedTasks: 5,
+    healthStatus: 'warning',
+    riskLevel: 'medium',
+    qualityScore: 3.8,
+    manager: 'Zeynep Koç',
+    budgetSpent: 2125000,
+    daysRemaining: 158,
+    createdBy: 'Demo User',
+    createdAt: '2024-02-25T00:00:00.000Z',
+    updatedAt: '2025-08-20T00:00:00.000Z',
+    mainContractorTeam: {
+      chiefEngineer: 'Zeynep Koç',
+      civilEngineer: 'Hasan Özkan',
+      mechanicalEngineer: 'Ayşe Tuncer',
+      electricalEngineer: 'Murat Arslan'
+    },
+    subcontractors: {
+      constructionId: 'sub-2',
+      mechanicalId: 'sub-6',
+      electricalId: 'sub-9'
+    },
+    category: ProjectCategory.RESIDENTIAL,
+    templateId: 'template-residential-1',
+    divisions: []
+  },
+  {
+    id: 'project-3',
+    name: 'Ankara Metro B2 Hattı',
+    location: 'Çankaya, Ankara', 
+    startDate: '2023-09-15',
+    endDate: '2025-06-30',
+    budget: 45000000,
+    description: 'Metro altyapı genişletme projesi - 8 km hat',
+    status: ProjectStatus.ACTIVE,
+    progress: 78,
+    totalTasks: 32,
+    completedTasks: 25,
+    healthStatus: 'healthy',
+    riskLevel: 'high',
+    qualityScore: 4.5,
+    manager: 'Engin Çelik',
+    budgetSpent: 35100000,
+    daysRemaining: 315,
+    createdBy: 'Demo User',
+    createdAt: '2023-08-10T00:00:00.000Z',
+    updatedAt: '2025-08-20T00:00:00.000Z',
+    mainContractorTeam: {
+      chiefEngineer: 'Engin Çelik',
+      civilEngineer: 'Burhan Aktaş',
+      mechanicalEngineer: 'Selma Yıldız',
+      electricalEngineer: 'İbrahim Güven'
+    },
+    subcontractors: {
+      constructionId: 'sub-3',
+      mechanicalId: 'sub-7',
+      electricalId: 'sub-10'
+    },
+    category: ProjectCategory.INFRASTRUCTURE,
+    templateId: 'template-infrastructure-1',
+    divisions: []
+  },
+  {
+    id: 'project-4',
+    name: 'İzmir Ege Rezidans',
+    location: 'Alsancak, İzmir',
+    startDate: '2024-06-01',
+    endDate: '2025-10-15',
+    budget: 12000000,
+    description: 'Deniz manzaralı lüks rezidans projesi',
+    status: ProjectStatus.PLANNED,
+    progress: 0,
+    totalTasks: 16,
+    completedTasks: 0,
+    healthStatus: 'healthy',
+    riskLevel: 'low',
+    qualityScore: 0,
+    manager: 'Selin Özdemir',
+    budgetSpent: 0,
+    daysRemaining: 450,
+    createdBy: 'Demo User',
+    createdAt: '2024-05-15T00:00:00.000Z',
+    updatedAt: '2025-08-20T00:00:00.000Z',
+    mainContractorTeam: {
+      chiefEngineer: 'Selin Özdemir',
+      civilEngineer: 'Can Yücel',
+      mechanicalEngineer: 'Pınar Avcı',
+      electricalEngineer: 'Kemal Ertürk'
+    },
+    subcontractors: {
+      constructionId: null,
+      mechanicalId: null,
+      electricalId: null
+    },
+    category: ProjectCategory.RESIDENTIAL,
+    templateId: 'template-residential-2',
+    divisions: []
+  },
+  {
+    id: 'project-5',
+    name: 'Beyoğlu Tarihi Bina Restorasyonu',
+    location: 'Galata, İstanbul',
+    startDate: '2023-12-01',
+    endDate: '2024-11-30',
+    budget: 3500000,
+    description: '1890 yapımı tarihi binanın restorasyon projesi',
+    status: ProjectStatus.COMPLETED,
     progress: 100,
-    subcontractors: 4,
-    totalTasks: 67,
-    completedTasks: 67,
-    location: "Bursa, Turkey",
-    budget: 950000,
-    manager: "Ayşe Özkan",
-    budgetSpent: 98,
+    totalTasks: 22,
+    completedTasks: 22,
+    healthStatus: 'healthy',
+    riskLevel: 'low',
+    qualityScore: 4.8,
+    manager: 'Orhan Pamuk',
+    budgetSpent: 3200000,
     daysRemaining: 0,
-    riskLevel: "low",
-    qualityScore: 4.7,
-    healthStatus: "healthy"
+    createdBy: 'Demo User',
+    createdAt: '2023-11-15T00:00:00.000Z',
+    updatedAt: '2024-12-01T00:00:00.000Z',
+    mainContractorTeam: {
+      chiefEngineer: 'Orhan Pamuk',
+      civilEngineer: 'Elif Şafak',
+      mechanicalEngineer: 'Aziz Nesin',
+      electricalEngineer: 'Yaşar Kemal'
+    },
+    subcontractors: {
+      constructionId: 'sub-4',
+      mechanicalId: 'sub-6',
+      electricalId: 'sub-9'
+    },
+    category: ProjectCategory.RENOVATION,
+    templateId: 'template-renovation-1',
+    divisions: []
   },
   {
-    id: "5",
-    name: "Hastane Ek Binası İnşaatı",
-    status: "active",
-    startDate: "2023-11-01",
-    progress: 89,
-    subcontractors: 12,
-    totalTasks: 203,
-    completedTasks: 181,
-    location: "Istanbul, Turkey",
-    budget: 4100000,
-    manager: "Can Bulut",
-    budgetSpent: 95,
-    daysRemaining: 12,
-    riskLevel: "high",
-    qualityScore: 3.5,
-    healthStatus: "critical"
+    id: 'project-6',
+    name: 'Antalya Mega AVM Projesi',
+    location: 'Lara, Antalya',
+    startDate: '2024-02-15',
+    endDate: '2025-08-30',
+    budget: 28000000,
+    description: '80 dükkan ve sinema kompleksi',
+    status: ProjectStatus.ON_HOLD,
+    progress: 15,
+    totalTasks: 35,
+    completedTasks: 5,
+    healthStatus: 'critical',
+    riskLevel: 'high',
+    qualityScore: 2.1,
+    manager: 'Cem Karaca',
+    budgetSpent: 4200000,
+    daysRemaining: 200,
+    createdBy: 'Demo User',
+    createdAt: '2024-01-20T00:00:00.000Z',
+    updatedAt: '2025-08-20T00:00:00.000Z',
+    mainContractorTeam: {
+      chiefEngineer: 'Cem Karaca',
+      civilEngineer: 'Barış Manço',
+      mechanicalEngineer: 'Fikret Kızılok',
+      electricalEngineer: 'Erkin Koray'
+    },
+    subcontractors: {
+      constructionId: 'sub-1',
+      mechanicalId: 'sub-5',
+      electricalId: 'sub-8'
+    },
+    category: ProjectCategory.COMMERCIAL,
+    templateId: 'template-commercial-2',
+    divisions: []
+  },
+  {
+    id: 'project-7',
+    name: 'Bursa Spor Kompleksi',
+    location: 'Osmangazi, Bursa',
+    startDate: '2024-01-10',
+    endDate: '2024-10-25',
+    budget: 7500000,
+    description: 'Olimpik yüzme havuzu ve spor salonu',
+    status: ProjectStatus.CANCELLED,
+    progress: 8,
+    totalTasks: 20,
+    completedTasks: 2,
+    healthStatus: 'critical',
+    riskLevel: 'high',
+    qualityScore: 1.5,
+    manager: 'Fatih Terim',
+    budgetSpent: 600000,
+    daysRemaining: 0,
+    createdBy: 'Demo User',
+    createdAt: '2023-12-20T00:00:00.000Z',
+    updatedAt: '2025-08-20T00:00:00.000Z',
+    mainContractorTeam: {
+      chiefEngineer: 'Fatih Terim',
+      civilEngineer: 'Şenol Güneş',
+      mechanicalEngineer: 'Abdullah Avcı',
+      electricalEngineer: 'Ersun Yanal'
+    },
+    subcontractors: {
+      constructionId: 'sub-2',
+      mechanicalId: null,
+      electricalId: null
+    },
+    category: ProjectCategory.INFRASTRUCTURE,
+    templateId: 'template-infrastructure-2',
+    divisions: []
   }
 ]
 
-const projectColumns: Column<Project>[] = [
-  {
-    id: "name",
-    header: "Proje Adı",
-    accessor: (row) => (
-      <div>
-        <div className="font-medium">{row.name}</div>
-        <div className="text-sm text-muted-foreground">{row.location}</div>
-      </div>
-    ),
-    sortable: true,
-  },
-  {
-    id: "status",
-    header: "Durum",
-    accessor: (row) => <StatusBadge status={row.status} />,
-    sortable: true,
-  },
-  {
-    id: "progress",
-    header: "İlerleme",
-    accessor: (row) => (
-      <div className="flex items-center gap-2 min-w-[120px]">
-        <div className="flex-1 h-2 bg-secondary rounded-full">
-          <div 
-            className="h-full bg-primary rounded-full transition-all duration-300"
-            style={{ width: `${row.progress}%` }}
-          />
-        </div>
-        <span className="text-sm font-medium">{row.progress}%</span>
-      </div>
-    ),
-    sortable: true,
-  },
-  {
-    id: "tasks",
-    header: "Görevler",
-    accessor: (row) => (
-      <div>
-        <div className="font-medium">{row.completedTasks}/{row.totalTasks}</div>
-        <div className="text-xs text-muted-foreground">
-          {row.totalTasks - row.completedTasks} kalan
-        </div>
-      </div>
-    ),
-    sortable: true,
-  },
-  {
-    id: "budget",
-    header: "Bütçe",
-    accessor: (row) => `₺${(row.budget / 1000).toFixed(0)}K`,
-    sortable: true,
-  },
-  {
-    id: "manager",
-    header: "Proje Yöneticisi",
-    accessor: "manager",
-    sortable: true,
-  },
-  {
-    id: "startDate",
-    header: "Başlangıç Tarihi",
-    accessor: (row) => new Date(row.startDate).toLocaleDateString(),
-    sortable: true,
-  },
-  {
-    id: "actions",
-    header: "",
-    accessor: (row) => (
-      <TableAction
-        onView={() => window.location.href = `/projects/${row.id}`}
-        onEdit={() => alert(`📝 ${row.name} projesini düzenleme modal'ı açılacak`)}
-        onDelete={() => {
-          if (confirm(`⚠️ ${row.name} projesini silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz!`)) {
-            alert(`🗑️ ${row.name} projesi silindi`)
-          }
-        }}
-      />
-    ),
-    width: "100px",
-  },
-]
+// Convert Project to ProjectCardProject for display
+const convertToCardProject = (project: Project): ProjectCardProject => ({
+  id: project.id,
+  name: project.name,
+  status: project.status as any, // Type conversion needed
+  startDate: project.startDate,
+  endDate: project.endDate,
+  progress: project.progress,
+  subcontractors: 3, // Static for now - could calculate from project.subcontractors
+  totalTasks: project.totalTasks,
+  completedTasks: project.completedTasks,
+  location: project.location,
+  budget: project.budget,
+  manager: project.manager,
+  budgetSpent: project.budgetSpent,
+  daysRemaining: project.daysRemaining,
+  riskLevel: project.riskLevel,
+  qualityScore: project.qualityScore,
+  healthStatus: project.healthStatus
+})
+
+// DataTable columns removed - using ProjectCard for display instead
 
 
 export default function ProjectsPage() {
@@ -197,13 +303,14 @@ export default function ProjectsPage() {
   const [statusFilter, setStatusFilter] = React.useState<string>("active")
   const [sortConfig, setSortConfig] = React.useState<{ key: string; direction: "asc" | "desc" } | undefined>(undefined)
   const [searchFocused, setSearchFocused] = React.useState(false)
+  const [projects, setProjects] = React.useState<Project[]>(mockProjects)
 
   const breadcrumbItems = [
     { label: "Projeler", href: "/projects" }
   ]
 
   const filteredProjects = React.useMemo(() => {
-    let filtered = mockProjects
+    let filtered = projects
 
     // Search filter
     if (searchTerm) {
@@ -245,15 +352,16 @@ export default function ProjectsPage() {
     }))
   }
 
-  const handleProjectClick = (project: Project) => {
+  const handleProjectClick = (project: ProjectCardProject) => {
     // Navigate to project detail page (simulated)
     window.location.href = `/projects/${project.id}`
   }
 
   const handleCreateProject = () => {
-    // Open project creation modal (simulated)
-    alert("🚀 Yeni Proje Oluşturma\n\n📋 Proje adı girin\n📅 Başlangıç tarihi seçin\n👷 Ekip yöneticisi atayın\n💰 Bütçe belirleyin\n\n✅ Bu modal yakında aktif olacak!")
+    // Navigate to new project page
+    window.location.href = '/projects/new'
   }
+
 
   return (
     <PageContainer>
@@ -266,8 +374,7 @@ export default function ProjectsPage() {
           action={
             <Button onClick={handleCreateProject} className="modern-button group button-enhanced">
               <Plus className="size-4 mr-2 group-hover:rotate-90 transition-transform" />
-              <span className="group-hover:hidden">Yeni İnşaata Başla</span>
-              <span className="hidden group-hover:inline">Hadi Başlayalım! 🚀</span>
+              Yeni İnşaata Başla
             </Button>
           }
         />
@@ -308,8 +415,8 @@ export default function ProjectsPage() {
           {filteredProjects.map((project, index) => (
             <ProjectCard
               key={project.id}
-              project={project}
-              onClick={handleProjectClick}
+              project={convertToCardProject(project)}
+              onClick={() => handleProjectClick(convertToCardProject(project))}
               index={index}
               className="h-auto" // Override height for mobile
             />
@@ -322,14 +429,15 @@ export default function ProjectsPage() {
             {filteredProjects.map((project, index) => (
               <ProjectCard
                 key={project.id}
-                project={project}
-                onClick={handleProjectClick}
+                project={convertToCardProject(project)}
+                onClick={() => handleProjectClick(convertToCardProject(project))}
                 index={index}
               />
             ))}
           </div>
         </div>
       </PageContent>
+
     </PageContainer>
   )
 }

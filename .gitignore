@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+src/components/examples/
+src/components/templates/project-tree-editor.tsx*
+src/components/ui/tree-hierarchy-advanced.tsx*

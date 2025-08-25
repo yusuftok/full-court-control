@@ -195,12 +195,12 @@ export function InteractiveDivisionTree({
             {/* Drop zone indicators - clean and minimal */}
             {isDragOver && dropPosition === 'before' && (
               <div className="absolute -top-1 left-0 right-0 z-50 pointer-events-none">
-                <div className="h-1 bg-blue-400 rounded-full animate-pulse" />
+                <div className="h-2 bg-blue-500 rounded-full animate-pulse shadow-lg opacity-90" />
               </div>
             )}
             {isDragOver && dropPosition === 'after' && (
               <div className="absolute -bottom-1 left-0 right-0 z-50 pointer-events-none">
-                <div className="h-1 bg-blue-400 rounded-full animate-pulse" />
+                <div className="h-2 bg-blue-500 rounded-full animate-pulse shadow-lg opacity-90" />
               </div>
             )}
             
@@ -208,9 +208,9 @@ export function InteractiveDivisionTree({
             <div 
               className={`group relative p-1.5 mx-0.5 rounded border transition-all ${
                 isSelected ? 'bg-primary/10 border-primary' :
-                isDragOver && dropPosition === 'inside' ? 'bg-green-50 border-green-300' : 
+                isDragOver && dropPosition === 'inside' ? 'bg-green-100 border-green-400 border-2 shadow-lg' : 
                 'border-gray-200 hover:border-gray-300'
-              }`}
+              } ${isDragged ? 'opacity-30' : ''}`}
               draggable={!isEditing}
               onClick={() => handleNodeClick(division.id)}
               onDoubleClick={() => handleEditStart(division.id, division.name)}
@@ -218,9 +218,15 @@ export function InteractiveDivisionTree({
                 onDragStateChange?.(division.id, null, null)
                 e.dataTransfer.effectAllowed = 'move'
                 e.dataTransfer.setData('text/plain', division.id)
+                // Lower opacity during drag
+                const element = e.currentTarget as HTMLElement
+                element.style.opacity = '0.3'
               }}
-              onDragEnd={() => {
+              onDragEnd={(e) => {
                 onDragStateChange?.(null, null, null)
+                // Restore opacity after drag
+                const element = e.currentTarget as HTMLElement
+                element.style.opacity = '1'
               }}
               onDragOver={(e) => {
                 e.preventDefault()
