@@ -81,30 +81,32 @@ export function LoadingState({
   const [currentMessageIndex, setCurrentMessageIndex] = React.useState(0)
   const [showTools, setShowTools] = React.useState(false)
 
+  const messages = [
+    { text: 'Temel atılıyor...', emoji: '🏗️' },
+    { text: 'Beton karıştırılıyor...', emoji: '🪣' },
+    { text: 'Projeler okunuyor...', emoji: '📜' },
+    { text: 'Güvenlik protokolleri kontrol ediliyor...', emoji: '🧡' },
+    { text: 'Ekiple koordinasyon sağlanıyor...', emoji: '📞' },
+    { text: 'İki kez ölç, bir kez kes...', emoji: '📏' },
+    { text: 'Kalite kontrolü devam ediyor...', emoji: '✅' },
+    { text: 'Planlar çiziliyor...', emoji: '📊' },
+    { text: 'Malzemeler sayılıyor...', emoji: '🪣' },
+    { text: 'Kahve hazırlanıyor... Şaka! 😄', emoji: '☕' },
+  ]
+
+  // Rotate messages every 2 seconds when loading
+  React.useEffect(() => {
+    if (!isLoading) return
+    
+    const interval = setInterval(() => {
+      setCurrentMessageIndex(prev => (prev + 1) % messages.length)
+      setShowTools(prev => !prev)
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [isLoading, messages.length])
+
   if (isLoading) {
-    const messages = [
-      { text: 'Temel atılıyor...', emoji: '🏗️' },
-      { text: 'Beton karıştırılıyor...', emoji: '🪣' },
-      { text: 'Projeler okunuyor...', emoji: '📜' },
-      { text: 'Güvenlik protokolleri kontrol ediliyor...', emoji: '🧡' },
-      { text: 'Ekiple koordinasyon sağlanıyor...', emoji: '📞' },
-      { text: 'İki kez ölç, bir kez kes...', emoji: '📏' },
-      { text: 'Kalite kontrolü devam ediyor...', emoji: '✅' },
-      { text: 'Planlar çiziliyor...', emoji: '📊' },
-      { text: 'Malzemeler sayılıyor...', emoji: '🪣' },
-      { text: 'Kahve hazırlanıyor... Şaka! 😄', emoji: '☕' },
-    ]
-
     const currentMessage = messages[currentMessageIndex]
-
-    // Rotate messages every 2 seconds
-    React.useEffect(() => {
-      const interval = setInterval(() => {
-        setCurrentMessageIndex(prev => (prev + 1) % messages.length)
-        setShowTools(prev => !prev)
-      }, 2000)
-      return () => clearInterval(interval)
-    }, [])
 
     return (
       <div
@@ -155,7 +157,7 @@ export function ConstructionCrew({
       setCurrentWorker(prev => (prev + 1) % workers.length)
     }, 800)
     return () => clearInterval(interval)
-  }, [])
+  }, [workers.length])
 
   return (
     <div className="flex items-center gap-3 animate-spring-in">
@@ -202,7 +204,7 @@ export function EmptyStateConstruction({
       setCurrentTool(prev => (prev + 1) % tools.length)
     }, 1500)
     return () => clearInterval(interval)
-  }, [])
+  }, [tools.length])
 
   return (
     <div

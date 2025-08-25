@@ -92,10 +92,10 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
   const handleNodeEdit = (nodeId: string, newName: string) => {
     // Update the division name in formData
     const updateDivisionName = (
-      divisions: any[],
+      divisions: DivisionNode[],
       targetId: string,
       newName: string
-    ): any[] => {
+    ): DivisionNode[] => {
       return divisions.map(division => ({
         ...division,
         name: division.id === targetId ? newName : division.name,
@@ -124,7 +124,7 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
       name: 'Yeni Bölüm',
     }
 
-    const addToNodes = (nodes: any[]): any[] => {
+    const addToNodes = (nodes: DivisionNode[]): DivisionNode[] => {
       if (parentId === null) {
         // Add as root level
         return [...nodes, newNode]
@@ -153,7 +153,7 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
 
   // Delete node handler
   const handleNodeDelete = (nodeId: string) => {
-    const deleteFromNodes = (nodes: any[]): any[] => {
+    const deleteFromNodes = (nodes: DivisionNode[]): DivisionNode[] => {
       return nodes
         .filter(node => node.id !== nodeId)
         .map(node => ({
@@ -182,7 +182,7 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
     let draggedNode: DivisionNode | null = null
 
     // 1. Extract dragged node
-    const extractNode = (nodes: any[]): any[] => {
+    const extractNode = (nodes: DivisionNode[]): DivisionNode[] => {
       return nodes.reduce((acc, node) => {
         if (node.id === draggedNodeId) {
           draggedNode = node
@@ -199,7 +199,7 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
     }
 
     // 2. Insert node at target position
-    const insertNodeAtTarget = (nodes: any[]): any[] => {
+    const insertNodeAtTarget = (nodes: DivisionNode[]): DivisionNode[] => {
       return nodes.map(node => {
         const updatedNode = { ...node }
         if (node.children && node.children.length > 0) {
@@ -239,7 +239,7 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
     }
 
     // 3. Handle root level
-    const insertAtRootLevel = (nodes: any[]): any[] => {
+    const insertAtRootLevel = (nodes: DivisionNode[]): DivisionNode[] => {
       const targetIndex = nodes.findIndex(
         (node: any) => node.id === targetNodeId
       )
@@ -360,5 +360,3 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
   )
 }
 
-// Export the dropdown for use in button areas
-export { ModificationChoiceDropdown }

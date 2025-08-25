@@ -1,20 +1,13 @@
 'use client'
 
 import * as React from 'react'
-import { useTranslations } from 'next-intl'
 import {
   Plus,
   Building2,
-  Calendar,
   Users,
-  TrendingUp,
   Clock,
   CheckCircle,
   AlertTriangle,
-  BarChart3,
-  DollarSign,
-  Star,
-  Wrench,
   Target,
   Activity,
   Timer,
@@ -31,8 +24,6 @@ import {
 } from '@/components/layout/page-container'
 import { Breadcrumbs } from '@/components/navigation/breadcrumbs'
 import { ProjectCard, type Project } from '@/components/projects/project-card'
-import { AnalyticsMetricCard } from '@/components/data/stat-card'
-import { CircularMetricCard } from '@/components/data/circular-metric-card'
 
 // Mock data uses Project type from component
 
@@ -328,7 +319,7 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-heading-md text-red-700 dark:text-red-400 flex items-center gap-2">
                   <Clock className="size-5" />
-                  Kritik Deadline'lar
+                  Kritik Deadline&apos;lar
                 </CardTitle>
                 <div className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded-full text-caption font-bold animate-pulse">
                   🔴 ACİL

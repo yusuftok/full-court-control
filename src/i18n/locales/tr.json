@@ -22,7 +22,8 @@
     "success": "Başarılı",
     "error": "Hata",
     "warning": "Uyarı",
-    "info": "Bilgi"
+    "info": "Bilgi",
+    "tryDemo": "Demo'yu Dene"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -107,6 +108,12 @@
       "title": "Proje Bilgileri",
       "description": "Projenin temel bilgilerini girin. Bu bilgiler projenin kimliğini oluşturacak.",
       "nameHelper": "Projenizi tanımlayıcı net bir isim verin"
+    },
+    "create": {
+      "preview": {
+        "allCompleted": "Tüm bilgiler tamamlandı. Aşağıdaki özeti kontrol edin ve \"Projeyi Oluştur\" butonuna tıklayın.",
+        "createButton": "\"Projeyi Oluştur\" butonuna tıklayarak projeyi kaydetebilirsiniz."
+      }
     }
   },
   "divisions": {
@@ -188,6 +195,9 @@
     "exportQueueFailed": "Dışa aktarım kuyruğu hatası",
     "whatsappWebhookError": "WhatsApp webhook hatası",
     "processMessageError": "Mesaj işleme hatası",
-    "sendWhatsappError": "WhatsApp mesaj gönderme hatası"
+    "sendWhatsappError": "WhatsApp mesaj gönderme hatası",
+    "foreman": {
+      "reassurance": "Merak etmeyin şefim! Bu bölümü çok kısa sürede tamamlarız. Bu arada üs kampına geri dönmeye ne dersiniz?"
+    }
   }
 }

@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { FormProvider, useForm } from 'react-hook-form'
+import { vi } from 'vitest'
 import {
   FormField,
   TextField,
@@ -10,13 +11,13 @@ import {
 } from './form-field'
 
 // Mock UI components
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', () => ({
   Input: ({ className, ...props }: any) => (
     <input data-testid="input" className={className} {...props} />
   ),
 }))
 
-jest.mock('@/components/ui/label', () => ({
+vi.mock('@/components/ui/label', () => ({
   Label: ({ children, ...props }: any) => <label {...props}>{children}</label>,
 }))
 
@@ -33,21 +34,21 @@ function TestFormWrapper({
   errors = {},
 }: TestFormWrapperProps) {
   const mockForm = {
-    register: jest.fn((name: string) => ({
+    register: vi.fn((name: string) => ({
       name,
-      onChange: jest.fn(),
-      onBlur: jest.fn(),
+      onChange: vi.fn(),
+      onBlur: vi.fn(),
     })),
     formState: { errors },
-    handleSubmit: jest.fn(),
-    watch: jest.fn(),
-    setValue: jest.fn(),
-    getValues: jest.fn(),
-    reset: jest.fn(),
+    handleSubmit: vi.fn(),
+    watch: vi.fn(),
+    setValue: vi.fn(),
+    getValues: vi.fn(),
+    reset: vi.fn(),
   }
 
   // Mock useFormContext to return our mock form
-  jest
+  vi
     .spyOn(require('react-hook-form'), 'useFormContext')
     .mockReturnValue(mockForm)
 
@@ -56,7 +57,7 @@ function TestFormWrapper({
 
 describe('FormField Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('Basic Rendering', () => {
@@ -313,7 +314,7 @@ describe('FormField Component', () => {
 
 describe('TextField Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('Input Types', () => {
@@ -371,7 +372,7 @@ describe('TextField Component', () => {
 
 describe('TextAreaField Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('renders textarea element', () => {
@@ -444,7 +445,7 @@ describe('TextAreaField Component', () => {
 
 describe('NumberField Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('renders number input', () => {

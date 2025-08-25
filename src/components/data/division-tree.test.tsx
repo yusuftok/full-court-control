@@ -1,9 +1,10 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { vi } from 'vitest'
 import { DivisionTree, DivisionNode } from './division-tree'
 
 // Mock UI components
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, className, ...props }: any) => (
     <button onClick={onClick} className={className} {...props}>
       {children}
@@ -11,7 +12,7 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }))
 
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', () => ({
   Input: ({ value, onChange, onBlur, onKeyDown, className, ...props }: any) => (
     <input
       value={value}
@@ -25,7 +26,7 @@ jest.mock('@/components/ui/input', () => ({
   ),
 }))
 
-jest.mock('@/components/ui/context-menu', () => ({
+vi.mock('@/components/ui/context-menu', () => ({
   ContextMenu: ({ children }: any) => <div>{children}</div>,
   ContextMenuTrigger: ({ children }: any) => <div>{children}</div>,
   ContextMenuContent: ({ children }: any) => (
@@ -73,7 +74,7 @@ const sampleData: DivisionNode[] = [
 ]
 
 describe('DivisionTree Component', () => {
-  const mockOnChange = jest.fn()
+  const mockOnChange = vi.fn()
 
   beforeEach(() => {
     mockOnChange.mockClear()
@@ -384,7 +385,7 @@ describe('DivisionTree Component', () => {
       let mockTime = 1000000
 
       // Mock Date.now to return predictable values
-      Date.now = jest.fn(() => ++mockTime)
+      Date.now = vi.fn(() => ++mockTime)
 
       render(<DivisionTree data={[]} onChange={mockOnChange} />)
 

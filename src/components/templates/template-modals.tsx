@@ -26,7 +26,6 @@ import {
 import {
   DivisionTemplate,
   TemplateFormData,
-  ProjectData,
 } from './template-types'
 import { mockProjects } from './template-data'
 
@@ -98,7 +97,7 @@ export function CreateTemplateModal({
               onChange={e =>
                 onTemplateFormChange({
                   ...templateForm,
-                  category: e.target.value as any,
+                  category: e.target.value as 'residential' | 'commercial' | 'infrastructure' | 'renovation',
                 })
               }
             >
@@ -148,7 +147,7 @@ interface ApplyToProjectModalProps {
 export function ApplyToProjectModal({
   isOpen,
   onOpenChange,
-  selectedTemplate,
+  selectedTemplate: _selectedTemplate,
   onConfirmApply,
 }: ApplyToProjectModalProps) {
   return (

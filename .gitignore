@@ -66,3 +66,5 @@ storybook-static/
 
 # monitoring
 .sentryclirc
+
+*storybook.log

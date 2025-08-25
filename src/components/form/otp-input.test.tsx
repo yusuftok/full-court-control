@@ -1,15 +1,16 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { vi } from 'vitest'
 import { OTPInput } from './otp-input'
 
 describe('OTPInput Component', () => {
   const defaultProps = {
     value: '',
-    onChange: jest.fn(),
+    onChange: vi.fn(),
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('Basic Rendering', () => {
@@ -149,7 +150,7 @@ describe('OTPInput Component', () => {
   describe('User Input Behavior', () => {
     it('calls onChange when user types a digit', async () => {
       const user = userEvent.setup()
-      const mockOnChange = jest.fn()
+      const mockOnChange = vi.fn()
 
       render(<OTPInput value="" onChange={mockOnChange} />)
 
@@ -161,7 +162,7 @@ describe('OTPInput Component', () => {
 
     it('ignores non-digit characters', async () => {
       const user = userEvent.setup()
-      const mockOnChange = jest.fn()
+      const mockOnChange = vi.fn()
 
       render(<OTPInput value="" onChange={mockOnChange} />)
 
@@ -173,7 +174,7 @@ describe('OTPInput Component', () => {
 
     it('only accepts last digit when multiple characters are typed', async () => {
       const user = userEvent.setup()
-      const mockOnChange = jest.fn()
+      const mockOnChange = vi.fn()
 
       render(<OTPInput value="" onChange={mockOnChange} />)
 
@@ -186,7 +187,7 @@ describe('OTPInput Component', () => {
 
     it('automatically focuses next input after digit entry', async () => {
       const user = userEvent.setup()
-      const mockOnChange = jest.fn()
+      const mockOnChange = vi.fn()
 
       render(<OTPInput value="" onChange={mockOnChange} />)
 
@@ -198,7 +199,7 @@ describe('OTPInput Component', () => {
 
     it('does not focus beyond last input', async () => {
       const user = userEvent.setup()
-      const mockOnChange = jest.fn()
+      const mockOnChange = vi.fn()
 
       render(<OTPInput value="12345" onChange={mockOnChange} length={6} />)
 
@@ -210,87 +211,97 @@ describe('OTPInput Component', () => {
   })
 
   describe('Backspace Behavior', () => {
-    it('clears current input on backspace', async () => {
-      const user = userEvent.setup()
-      const mockOnChange = jest.fn()
+    it('clears current input on backspace', () => {
+      const mockOnChange = vi.fn()
 
       render(<OTPInput value="1" onChange={mockOnChange} />)
 
       const firstInput = screen.getAllByRole('textbox')[0]
       firstInput.focus()
-      await user.keyboard('{Backspace}')
+      
+      act(() => {
+        fireEvent.keyDown(firstInput, { key: 'Backspace', code: 'Backspace' })
+      })
 
       expect(mockOnChange).toHaveBeenCalledWith('')
     })
 
-    it('moves to previous input and clears it when current is empty', async () => {
-      const user = userEvent.setup()
-      const mockOnChange = jest.fn()
+    it('moves to previous input and clears it when current is empty', () => {
+      const mockOnChange = vi.fn()
 
       render(<OTPInput value="1" onChange={mockOnChange} />)
 
       const inputs = screen.getAllByRole('textbox')
       inputs[1].focus()
-      await user.keyboard('{Backspace}')
+      
+      act(() => {
+        fireEvent.keyDown(inputs[1], { key: 'Backspace', code: 'Backspace' })
+      })
 
       expect(document.activeElement).toBe(inputs[0])
       expect(mockOnChange).toHaveBeenCalledWith('')
     })
 
-    it('does not move before first input', async () => {
-      const user = userEvent.setup()
-      const mockOnChange = jest.fn()
+    it('does not move before first input', () => {
+      const mockOnChange = vi.fn()
 
       render(<OTPInput value="" onChange={mockOnChange} />)
 
       const firstInput = screen.getAllByRole('textbox')[0]
       firstInput.focus()
-      await user.keyboard('{Backspace}')
+      
+      act(() => {
+        fireEvent.keyDown(firstInput, { key: 'Backspace', code: 'Backspace' })
+      })
 
       expect(document.activeElement).toBe(firstInput)
     })
   })
 
   describe('Arrow Key Navigation', () => {
-    it('moves to previous input on ArrowLeft', async () => {
-      const user = userEvent.setup()
-
+    it('moves to previous input on ArrowLeft', () => {
       render(<OTPInput {...defaultProps} />)
 
       const inputs = screen.getAllByRole('textbox')
       inputs[1].focus()
-      await user.keyboard('{ArrowLeft}')
+      
+      act(() => {
+        fireEvent.keyDown(inputs[1], { key: 'ArrowLeft', code: 'ArrowLeft' })
+      })
 
       expect(document.activeElement).toBe(inputs[0])
     })
 
-    it('moves to next input on ArrowRight', async () => {
-      const user = userEvent.setup()
-
+    it('moves to next input on ArrowRight', () => {
       render(<OTPInput {...defaultProps} />)
 
       const inputs = screen.getAllByRole('textbox')
       inputs[0].focus()
-      await user.keyboard('{ArrowRight}')
+      
+      act(() => {
+        fireEvent.keyDown(inputs[0], { key: 'ArrowRight', code: 'ArrowRight' })
+      })
 
       expect(document.activeElement).toBe(inputs[1])
     })
 
-    it('does not move beyond boundaries with arrow keys', async () => {
-      const user = userEvent.setup()
-
+    it('does not move beyond boundaries with arrow keys', () => {
       render(<OTPInput {...defaultProps} length={3} />)
 
       const inputs = screen.getAllByRole('textbox')
 
       // Test left boundary
       inputs[0].focus()
-      await user.keyboard('{ArrowLeft}')
+      act(() => {
+        fireEvent.keyDown(inputs[0], { key: 'ArrowLeft', code: 'ArrowLeft' })
+      })
       expect(document.activeElement).toBe(inputs[0])
 
       // Test right boundary
       inputs[2].focus()
-      await user.keyboard('{ArrowRight}')
+      act(() => {
+        fireEvent.keyDown(inputs[2], { key: 'ArrowRight', code: 'ArrowRight' })
+      })
       expect(document.activeElement).toBe(inputs[2])
     })
   })
@@ -327,7 +338,7 @@ describe('OTPInput Component', () => {
   describe('Paste Functionality', () => {
     it('handles pasted OTP code', async () => {
       const user = userEvent.setup()
-      const mockOnChange = jest.fn()
+      const mockOnChange = vi.fn()
 
       render(<OTPInput value="" onChange={mockOnChange} />)
 
@@ -349,7 +360,7 @@ describe('OTPInput Component', () => {
 
     it('filters non-digit characters from pasted content', async () => {
       const user = userEvent.setup()
-      const mockOnChange = jest.fn()
+      const mockOnChange = vi.fn()
 
       render(<OTPInput value="" onChange={mockOnChange} />)
 
@@ -370,7 +381,7 @@ describe('OTPInput Component', () => {
 
     it('limits pasted content to input length', async () => {
       const user = userEvent.setup()
-      const mockOnChange = jest.fn()
+      const mockOnChange = vi.fn()
 
       render(<OTPInput value="" onChange={mockOnChange} length={4} />)
 
@@ -391,7 +402,7 @@ describe('OTPInput Component', () => {
 
     it('focuses appropriate input after paste', async () => {
       const user = userEvent.setup()
-      const mockOnChange = jest.fn()
+      const mockOnChange = vi.fn()
 
       render(<OTPInput value="" onChange={mockOnChange} length={6} />)
 
@@ -414,12 +425,12 @@ describe('OTPInput Component', () => {
 
   describe('Completion Callback', () => {
     it('calls onComplete when value reaches target length', () => {
-      const mockOnComplete = jest.fn()
+      const mockOnComplete = vi.fn()
 
       const { rerender } = render(
         <OTPInput
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           onComplete={mockOnComplete}
           length={4}
         />
@@ -428,7 +439,7 @@ describe('OTPInput Component', () => {
       rerender(
         <OTPInput
           value="1234"
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           onComplete={mockOnComplete}
           length={4}
         />
@@ -438,12 +449,12 @@ describe('OTPInput Component', () => {
     })
 
     it('does not call onComplete when value is shorter than target length', () => {
-      const mockOnComplete = jest.fn()
+      const mockOnComplete = vi.fn()
 
       const { rerender } = render(
         <OTPInput
           value=""
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           onComplete={mockOnComplete}
           length={4}
         />
@@ -452,7 +463,7 @@ describe('OTPInput Component', () => {
       rerender(
         <OTPInput
           value="123"
-          onChange={jest.fn()}
+          onChange={vi.fn()}
           onComplete={mockOnComplete}
           length={4}
         />
@@ -464,10 +475,10 @@ describe('OTPInput Component', () => {
     it('works without onComplete callback', () => {
       expect(() => {
         const { rerender } = render(
-          <OTPInput value="" onChange={jest.fn()} length={4} />
+          <OTPInput value="" onChange={vi.fn()} length={4} />
         )
 
-        rerender(<OTPInput value="1234" onChange={jest.fn()} length={4} />)
+        rerender(<OTPInput value="1234" onChange={vi.fn()} length={4} />)
       }).not.toThrow()
     })
   })
@@ -484,7 +495,7 @@ describe('OTPInput Component', () => {
 
     it('prevents input when disabled', async () => {
       const user = userEvent.setup()
-      const mockOnChange = jest.fn()
+      const mockOnChange = vi.fn()
 
       render(<OTPInput value="" onChange={mockOnChange} disabled />)
 
@@ -502,7 +513,7 @@ describe('OTPInput Component', () => {
 
     it('handles undefined value gracefully', () => {
       expect(() =>
-        render(<OTPInput value={undefined as any} onChange={jest.fn()} />)
+        render(<OTPInput value={undefined as any} onChange={vi.fn()} />)
       ).not.toThrow()
     })
 

@@ -4,31 +4,15 @@ import * as React from 'react'
 import {
   Plus,
   Search,
-  Filter,
-  Building2,
-  MoreHorizontal,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Star,
-  TrendingUp,
-  DollarSign,
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   PageContainer,
   PageHeader,
   PageContent,
 } from '@/components/layout/page-container'
-import {
-  DataTable,
-  Column,
-  StatusBadge,
-  TableAction,
-} from '@/components/data/data-table'
 import { Breadcrumbs } from '@/components/navigation/breadcrumbs'
 import {
   ProjectCard,
@@ -305,7 +289,7 @@ const mockProjects: Project[] = [
 const convertToCardProject = (project: Project): ProjectCardProject => ({
   id: project.id,
   name: project.name,
-  status: project.status as any, // Type conversion needed
+  status: project.status, // Both types should be compatible
   startDate: project.startDate,
   endDate: project.endDate,
   progress: project.progress,
@@ -331,7 +315,7 @@ export default function ProjectsPage() {
     { key: string; direction: 'asc' | 'desc' } | undefined
   >(undefined)
   const [searchFocused, setSearchFocused] = React.useState(false)
-  const [projects, setProjects] = React.useState<Project[]>(mockProjects)
+  const [projects, _setProjects] = React.useState<Project[]>(mockProjects)
 
   const breadcrumbItems = [{ label: 'Projeler', href: '/projects' }]
 
@@ -356,16 +340,25 @@ export default function ProjectsPage() {
     // Sort
     if (sortConfig) {
       filtered = [...filtered].sort((a, b) => {
-        const aValue = a[sortConfig.key as keyof Project] as any
-        const bValue = b[sortConfig.key as keyof Project] as any
+        const aValue = a[sortConfig.key as keyof Project]
+        const bValue = b[sortConfig.key as keyof Project]
 
-        if (aValue < bValue) {
-          return sortConfig.direction === 'asc' ? -1 : 1
+        // Handle different types of values for sorting
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          const result = aValue.localeCompare(bValue)
+          return sortConfig.direction === 'asc' ? result : -result
         }
-        if (aValue > bValue) {
-          return sortConfig.direction === 'asc' ? 1 : -1
+        
+        if (typeof aValue === 'number' && typeof bValue === 'number') {
+          const result = aValue - bValue
+          return sortConfig.direction === 'asc' ? result : -result
         }
-        return 0
+        
+        // Fallback for other types
+        const aStr = String(aValue)
+        const bStr = String(bValue)
+        const result = aStr.localeCompare(bStr)
+        return sortConfig.direction === 'asc' ? result : -result
       })
     }
 

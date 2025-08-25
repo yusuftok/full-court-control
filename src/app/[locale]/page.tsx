@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import {
   Building2,
   BarChart3,
@@ -11,6 +12,7 @@ import {
 } from 'lucide-react'
 
 export default function Home() {
+  const t = useTranslations('common')
   return (
     <div className="min-h-screen flex items-center justify-center glass-background overflow-hidden">
       {/* Background Elements */}
@@ -127,7 +129,7 @@ export default function Home() {
               </p>
             </div>
             <div className="opacity-0 group-hover:opacity-100 text-xs text-primary font-medium transition-opacity">
-              Demo'yu Dene →
+              {t('tryDemo')} →
             </div>
           </Link>
 

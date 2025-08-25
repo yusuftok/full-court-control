@@ -1,9 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { vi } from 'vitest'
 import { Header } from './header'
 
 // Mock the MobileMenuButton component
-jest.mock('./sidebar', () => ({
+vi.mock('./sidebar', () => ({
   MobileMenuButton: ({ onClick }: { onClick: () => void }) => (
     <button data-testid="mobile-menu-button" onClick={onClick}>
       Menu
@@ -72,7 +73,7 @@ describe('Header Component', () => {
 
   describe('Mobile Menu Integration', () => {
     it('renders mobile menu button when onMobileMenuToggle is provided', () => {
-      const mockToggle = jest.fn()
+      const mockToggle = vi.fn()
       render(<Header onMobileMenuToggle={mockToggle} />)
 
       const mobileMenuButton = screen.getByTestId('mobile-menu-button')
@@ -87,7 +88,7 @@ describe('Header Component', () => {
     })
 
     it('calls onMobileMenuToggle when mobile menu button is clicked', () => {
-      const mockToggle = jest.fn()
+      const mockToggle = vi.fn()
       render(<Header onMobileMenuToggle={mockToggle} />)
 
       const mobileMenuButton = screen.getByTestId('mobile-menu-button')
@@ -257,7 +258,7 @@ describe('Header Component', () => {
     })
 
     it('left side contains search and mobile menu', () => {
-      const mockToggle = jest.fn()
+      const mockToggle = vi.fn()
       render(<Header onMobileMenuToggle={mockToggle} />)
 
       const mobileMenuButton = screen.getByTestId('mobile-menu-button')

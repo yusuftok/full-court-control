@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import { StatCard, StatCardGrid, ProgressStatCard } from './stat-card'
 
 // Mock UI components
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', () => ({
   Card: ({ children, className }: any) => (
     <div data-testid="card" className={className}>
       {children}
