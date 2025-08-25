@@ -990,7 +990,6 @@
   }
 }
 
-
 @keyframes build-up {
   0% {
     transform: translateY(20px) scale(0.8);
@@ -1010,7 +1009,6 @@
     background-position: 100% 0;
   }
 }
-
 
 @keyframes progress-crane {
   0% {
@@ -1157,7 +1155,6 @@
   }
 }
 
-
 /* Confetti celebration animations */
 @keyframes confetti-fall {
   0% {
@@ -1194,7 +1191,6 @@
   }
 }
 
-
 @keyframes project-complete {
   0% {
     transform: scale(1);
@@ -1216,7 +1212,6 @@
   animation: confetti-fall 3s ease-out;
 }
 
-
 .animate-project-complete {
   animation: project-complete 0.8s ease-in-out;
 }
@@ -1224,7 +1219,6 @@
 .animate-build-up {
   animation: build-up 0.4s ease-out;
 }
-
 
 .animate-progress-crane {
   animation: progress-crane 3s ease-in-out infinite;
@@ -1443,6 +1437,62 @@
   box-shadow: 0 20px 60px rgba(16, 185, 129, 0.4);
 }
 
+/* Horizontal Step Navigation Styles */
+.horizontal-stepper-mobile {
+  @apply overflow-x-auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.horizontal-stepper-mobile::-webkit-scrollbar {
+  display: none;
+}
+
+.horizontal-stepper-mobile .step-container {
+  @apply flex-nowrap min-w-max;
+}
+
+/* Step progress line animation */
+@keyframes step-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.step-progress-line {
+  animation: step-progress 0.5s ease-in-out;
+  transform-origin: left;
+}
+
+/* Pulse animation for active step */
+@keyframes step-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.1);
+  }
+}
+
+.step-active {
+  animation: step-pulse 2s infinite;
+}
+
+/* Construction blueprint pattern */
+.construction-progress {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 8px,
+    rgba(59, 130, 246, 0.3) 8px,
+    rgba(59, 130, 246, 0.3) 10px
+  );
+}
+
 /* Fun hover states for construction theme */
 .construction-fun:hover {
   transform: rotate(1deg) scale(1.02);
@@ -1510,6 +1560,233 @@
   animation: blueprint-scan 0.5s infinite;
 }
 
+/* Step Navigation Enhanced Animations */
+@keyframes step-completion-celebration {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(34, 197, 94, 0);
+  }
+  25% {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.8);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+@keyframes particle-burst {
+  0% {
+    transform: scale(0) translateX(0) translateY(0);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateX(var(--random-x, 20px))
+      translateY(var(--random-y, -30px));
+    opacity: 0;
+  }
+}
+
+@keyframes construction-progress-fill {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes turkish-construction-pride {
+  0% {
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+  25% {
+    transform: scale(1.05) rotate(1deg);
+    filter: brightness(1.1);
+  }
+  50% {
+    transform: scale(1.02) rotate(-0.5deg);
+    filter: brightness(1.05);
+  }
+  75% {
+    transform: scale(1.03) rotate(0.5deg);
+    filter: brightness(1.08);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+}
+
+@keyframes step-hover-glow {
+  0% {
+    box-shadow: 0 0 0 rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow:
+      0 0 15px rgba(59, 130, 246, 0.4),
+      0 0 25px rgba(59, 130, 246, 0.2);
+  }
+}
+
+.animate-step-completion {
+  animation: step-completion-celebration 0.8s ease-out;
+}
+
+.animate-particle-burst {
+  animation: particle-burst 1s ease-out;
+}
+
+.animate-turkish-construction-pride {
+  animation: turkish-construction-pride 0.6s ease-in-out;
+}
+
+.animate-step-hover-glow {
+  animation: step-hover-glow 0.3s ease-out forwards;
+}
+
+/* Enhanced shimmer for construction theme */
+@keyframes construction-shimmer {
+  0% {
+    background-position: -200% 0;
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    background-position: 200% 0;
+    opacity: 0.3;
+  }
+}
+
+.construction-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(59, 130, 246, 0.4),
+    rgba(34, 197, 94, 0.4),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: construction-shimmer 2s infinite;
+}
+
+/* Professional celebration effects for Turkish construction */
+.turkish-success {
+  position: relative;
+  overflow: visible;
+}
+
+.turkish-success::before {
+  content: '🇹🇷 Tebrikler! 🏗️';
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: bold;
+  white-space: nowrap;
+  animation: happy-bounce 1.2s;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+.turkish-flag-wave {
+  background: linear-gradient(
+    45deg,
+    #e74c3c 0%,
+    #c0392b 25%,
+    #e74c3c 50%,
+    #c0392b 75%,
+    #e74c3c 100%
+  );
+  background-size: 20px 20px;
+  animation: blueprint-scan 3s ease-in-out infinite;
+}
+
+/* Professional delight - subtle but meaningful */
+.professional-delight {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.professional-delight:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.professional-delight:active {
+  transform: translateY(0) scale(0.98);
+  transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Construction milestone celebrations */
+.milestone-celebration {
+  position: relative;
+}
+
+.milestone-celebration.foundation-complete::after {
+  content: '🏗️ Temel atıldı!';
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--gradient-primary);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: bold;
+  animation: happy-bounce 1.2s;
+  z-index: 100;
+}
+
+.milestone-celebration.structure-complete::after {
+  content: '🔨 Yapı tamamlandı!';
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--gradient-warning);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: bold;
+  animation: happy-bounce 1.2s;
+  z-index: 100;
+}
+
+.milestone-celebration.finishing-complete::after {
+  content: '✨ Finişler bitti!';
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--gradient-success);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: bold;
+  animation: happy-bounce 1.2s;
+  z-index: 100;
+}
+
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   .animate-build-up,
@@ -1526,12 +1803,18 @@
   .animate-tada,
   .animate-confetti-fall,
   .animate-project-complete,
-  .blueprint-scan {
+  .animate-step-completion,
+  .animate-particle-burst,
+  .animate-turkish-construction-pride,
+  .animate-step-hover-glow,
+  .blueprint-scan,
+  .construction-shimmer {
     animation: none;
   }
 
   .construction-hover:hover,
-  .whimsy-hover:hover {
+  .whimsy-hover:hover,
+  .professional-delight:hover {
     transform: none;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }

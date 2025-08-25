@@ -28,6 +28,7 @@ import { TemplateSelectionStep } from '@/components/projects/steps/template-sele
 import { ModificationChoiceDropdown } from '@/components/projects/modification-choice-dropdown'
 import { DivisionSetupStep } from '@/components/projects/steps/division-setup-step'
 import { PreviewStep } from '@/components/projects/steps/preview-step'
+import { HorizontalStepIndicator } from '@/components/projects/horizontal-step-indicator'
 
 const stepConfig = [
   {
@@ -173,6 +174,12 @@ export default function CreateProjectPage() {
     }
   }
 
+  const handleStepClick = (stepId: number) => {
+    if (stepId <= currentStep) {
+      setCurrentStep(stepId)
+    }
+  }
+
   const handleBack = () => {
     if (canGoBack()) {
       setCurrentStep(current => current - 1)
@@ -243,108 +250,43 @@ export default function CreateProjectPage() {
           description="Adım adım proje bilgilerini girin ve ekip atamasını tamamlayın."
         />
 
-        <div className="grid grid-cols-12 gap-6">
-          {/* Sol Sidebar - Step Navigation */}
-          <div className="col-span-12 lg:col-span-3">
-            <div className="sticky top-6 space-y-4">
-              {/* Progress Overview */}
-              <div className="glass rounded-xl p-4 border border-white/10">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-medium">
-                    Adım {currentStep + 1} / {stepConfig.length}
-                  </span>
-                  <span className="text-sm font-medium text-primary">
-                    {getProgressPercentage()}% Tamamlandı
-                  </span>
-                </div>
-                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mb-4">
-                  <div
-                    className="bg-primary h-2 rounded-full transition-all duration-300 ease-in-out"
-                    style={{ width: `${getProgressPercentage()}%` }}
-                  />
-                </div>
-              </div>
+        {/* Horizontal Step Navigation */}
+        <HorizontalStepIndicator
+          steps={stepConfig}
+          currentStep={currentStep}
+          onStepClick={handleStepClick}
+        />
 
-              {/* Step List */}
-              <div className="glass rounded-xl border border-white/10 overflow-hidden">
-                <div className="p-3 border-b border-white/10">
-                  <h3 className="font-medium text-sm">
-                    Proje Oluşturma Adımları
-                  </h3>
-                </div>
-                <div className="space-y-1 p-2">
-                  {stepConfig.map((step, index) => (
-                    <div
-                      key={step.id}
-                      className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
-                        currentStep === step.id
-                          ? 'bg-primary/10 border border-primary/20 text-primary'
-                          : currentStep > step.id
-                            ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                            : 'text-muted-foreground hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                      }`}
-                    >
-                      <div
-                        className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
-                          currentStep === step.id
-                            ? 'bg-primary text-primary-foreground'
-                            : currentStep > step.id
-                              ? 'bg-green-500 text-white'
-                              : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
-                        }`}
-                      >
-                        {currentStep > step.id ? (
-                          <Check className="w-3 h-3" />
-                        ) : (
-                          index + 1
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="font-medium text-sm truncate">
-                          {step.title}
-                        </div>
-                        <div className="text-xs opacity-75 truncate">
-                          {step.description}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Ana İçerik - Current Step */}
-          <div className="col-span-12 lg:col-span-9 mb-20">
-            <div className="glass rounded-xl border border-white/10 overflow-visible">
-              {/* Step Content */}
-              <div className="p-6">
-                <CurrentStepComponent
-                  formData={formData}
-                  updateFormData={updateFormData}
-                  {...(currentStep === CreateProjectStep.TEMPLATE_SELECTION && {
-                    onStepValidityChange: setTemplateStepValid,
-                    onModificationStateChange: (
-                      hasModifications: boolean,
-                      modificationChoice: string | null
-                    ) => {
-                      console.log('Template modification state changed:', {
-                        hasModifications,
-                        modificationChoice,
-                      })
-                      setTemplateHasModifications(hasModifications)
-                      // Only update modificationChoice if it's a valid choice, ignore null from template step
-                      if (
-                        modificationChoice === 'update' ||
-                        modificationChoice === 'save-new' ||
-                        modificationChoice === 'project-only'
-                      ) {
-                        setTemplateModificationChoice(modificationChoice)
-                      }
-                    },
-                  })}
-                />
-              </div>
+        {/* Ana İçerik - Current Step */}
+        <div className="mb-20">
+          <div className="glass rounded-xl border border-white/10 overflow-visible">
+            {/* Step Content */}
+            <div className="p-6">
+              <CurrentStepComponent
+                formData={formData}
+                updateFormData={updateFormData}
+                {...(currentStep === CreateProjectStep.TEMPLATE_SELECTION && {
+                  onStepValidityChange: setTemplateStepValid,
+                  onModificationStateChange: (
+                    hasModifications: boolean,
+                    modificationChoice: string | null
+                  ) => {
+                    console.log('Template modification state changed:', {
+                      hasModifications,
+                      modificationChoice,
+                    })
+                    setTemplateHasModifications(hasModifications)
+                    // Only update modificationChoice if it's a valid choice, ignore null from template step
+                    if (
+                      modificationChoice === 'update' ||
+                      modificationChoice === 'save-new' ||
+                      modificationChoice === 'project-only'
+                    ) {
+                      setTemplateModificationChoice(modificationChoice)
+                    }
+                  },
+                })}
+              />
             </div>
           </div>
         </div>
@@ -353,68 +295,61 @@ export default function CreateProjectPage() {
       {/* Fixed Navigation Footer - Always at bottom of viewport */}
       <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t border-white/10 z-40">
         <div className="px-6 py-3">
-          <div className="grid grid-cols-12 gap-6">
-            {/* Left sidebar space */}
-            <div className="col-span-12 lg:col-span-3"></div>
+          {/* Navigation buttons - full width */}
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                onClick={handleBack}
+                disabled={!canGoBack()}
+                className="gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Geri
+              </Button>
 
-            {/* Navigation buttons - align with form content inside glass */}
-            <div className="col-span-12 lg:col-span-9">
-              <div className="pl-[246px] pr-[49px]">
-                <div className="flex items-center justify-between">
+              {/* Template Modification Choice - Inline */}
+              {currentStep === CreateProjectStep.TEMPLATE_SELECTION &&
+                templateHasModifications &&
+                formData.templateId && (
+                  <div className="flex-1 max-w-sm mx-4">
+                    <ModificationChoiceDropdown
+                      value={templateModificationChoice}
+                      onChange={choice => {
+                        console.log('Modification choice selected:', choice)
+                        setTemplateModificationChoice(choice)
+                      }}
+                      className="w-full"
+                    />
+                  </div>
+                )}
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/projects')}
+                >
+                  İptal
+                </Button>
+
+                {currentStep === CreateProjectStep.PREVIEW ? (
                   <Button
-                    variant="outline"
-                    onClick={handleBack}
-                    disabled={!canGoBack()}
+                    onClick={handleCreateProject}
+                    className="bg-green-600 hover:bg-green-700 gap-2"
+                  >
+                    <Check className="w-4 h-4" />
+                    Projeyi Oluştur
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleNext}
+                    disabled={!canGoNext()}
                     className="gap-2"
                   >
-                    <ArrowLeft className="w-4 h-4" />
-                    Geri
+                    İleri
+                    <ArrowLeft className="w-4 h-4 rotate-180" />
                   </Button>
-
-                  {/* Template Modification Choice - Inline */}
-                  {currentStep === CreateProjectStep.TEMPLATE_SELECTION &&
-                    templateHasModifications &&
-                    formData.templateId && (
-                      <div className="flex-1 max-w-sm mx-4">
-                        <ModificationChoiceDropdown
-                          value={templateModificationChoice}
-                          onChange={choice => {
-                            console.log('Modification choice selected:', choice)
-                            setTemplateModificationChoice(choice)
-                          }}
-                          className="w-full"
-                        />
-                      </div>
-                    )}
-
-                  <div className="flex gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => router.push('/projects')}
-                    >
-                      İptal
-                    </Button>
-
-                    {currentStep === CreateProjectStep.PREVIEW ? (
-                      <Button
-                        onClick={handleCreateProject}
-                        className="bg-green-600 hover:bg-green-700 gap-2"
-                      >
-                        <Check className="w-4 h-4" />
-                        Projeyi Oluştur
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={handleNext}
-                        disabled={!canGoNext()}
-                        className="gap-2"
-                      >
-                        İleri
-                        <ArrowLeft className="w-4 h-4 rotate-180" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
