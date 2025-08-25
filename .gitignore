@@ -64,8 +64,5 @@ storybook-static/
 .npm/
 .pnpm/
 
-# database and ORM
-drizzle/
-
 # monitoring
 .sentryclirc
