@@ -242,13 +242,16 @@ export default function CreateProjectPage() {
 
   return (
     <PageContainer>
-      <PageContent>
+      <PageContent className="p-4">
         <Breadcrumbs items={breadcrumbItems} className="mb-4" />
 
-        <PageHeader
-          title="Yeni Proje Oluştur 🏗️"
-          description="Adım adım proje bilgilerini girin ve ekip atamasını tamamlayın."
-        />
+        <div className="mb-3">
+          <PageHeader
+            title="Yeni Proje Oluştur 🏗️"
+            description="Adım adım proje bilgilerini girin ve ekip atamasını tamamlayın."
+            className="pb-1 mb-1"
+          />
+        </div>
 
         {/* Horizontal Step Navigation */}
         <HorizontalStepIndicator
@@ -258,10 +261,10 @@ export default function CreateProjectPage() {
         />
 
         {/* Ana İçerik - Current Step */}
-        <div className="mb-20">
+        <div className="mb-16">
           <div className="glass rounded-xl border border-white/10 overflow-visible">
             {/* Step Content */}
-            <div className="p-6">
+            <div className="p-5">
               <CurrentStepComponent
                 formData={formData}
                 updateFormData={updateFormData}

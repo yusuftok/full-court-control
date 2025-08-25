@@ -74,9 +74,9 @@ export function HorizontalStepIndicator({
   }
 
   return (
-    <div className={cn('w-full mb-8', className)}>
+    <div className={cn('w-full mb-4', className)}>
       {/* Progress Overview - Mobile/Tablet */}
-      <div className="glass rounded-xl p-4 border border-white/10 mb-6 lg:hidden">
+      <div className="glass rounded-xl p-3 border border-white/10 mb-4 lg:hidden">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-medium">
             Adım {currentStep + 1} / {steps.length}
@@ -110,7 +110,7 @@ export function HorizontalStepIndicator({
 
       {/* Horizontal Step Navigation - Desktop */}
       <div className="hidden lg:block glass rounded-xl border border-white/10 overflow-hidden">
-        <div className="p-6">
+        <div className="p-4">
           <div className="flex items-center justify-between relative">
             {steps.map((step, index) => (
               <React.Fragment key={step.id}>
@@ -322,38 +322,22 @@ export function HorizontalStepIndicator({
             ))}
           </div>
 
-          {/* Enhanced Progress Percentage */}
-          <div className="text-center mt-4">
-            <div
-              className={cn(
-                'text-sm font-medium transition-all duration-300',
-                currentStep === steps.length - 1
-                  ? 'text-green-600 font-semibold'
-                  : 'text-muted-foreground'
-              )}
-            >
-              {currentStep === steps.length - 1 ? (
+          {/* Final Step Completion Message Only */}
+          {currentStep === steps.length - 1 && (
+            <div className="text-center mt-3">
+              <div className="text-sm font-semibold text-green-600">
                 <span className="flex items-center justify-center gap-2">
                   <span>🎉 Proje Hazır!</span>
                 </span>
-              ) : (
-                <span>{getProgressPercentage()}% Tamamlandı</span>
-              )}
-            </div>
-
-            {/* Construction progress motivational text */}
-            {currentStep < steps.length - 1 && (
-              <div className="text-xs text-muted-foreground/75 mt-1 animate-pulse">
-                İnşaat süreci devam ediyor... 🏗️
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Tablet View - Simplified Horizontal */}
       <div className="hidden md:block lg:hidden glass rounded-xl border border-white/10 overflow-hidden">
-        <div className="p-4">
+        <div className="p-3">
           <div className="flex items-center justify-center space-x-8">
             {steps.map((step, index) => (
               <div
