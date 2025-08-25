@@ -53,8 +53,9 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const type = searchParams.get('type') as ExportOptions['type']
-    const format = searchParams.get('format') as ExportOptions['format'] || 'csv'
-    
+    const format =
+      (searchParams.get('format') as ExportOptions['format']) || 'csv'
+
     // Parse filters if provided
     let filters: Record<string, any> = {}
     const filtersParam = searchParams.get('filters')
@@ -62,7 +63,10 @@ export async function GET(request: NextRequest) {
       try {
         filters = JSON.parse(decodeURIComponent(filtersParam))
       } catch (e) {
-        return NextResponse.json({ error: 'Invalid filters format' }, { status: 400 })
+        return NextResponse.json(
+          { error: 'Invalid filters format' },
+          { status: 400 }
+        )
       }
     }
 
@@ -90,7 +94,10 @@ export async function GET(request: NextRequest) {
     }
 
     if (!type) {
-      return NextResponse.json({ error: 'Export type is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Export type is required' },
+        { status: 400 }
+      )
     }
 
     // Generate filename
@@ -102,19 +109,23 @@ export async function GET(request: NextRequest) {
 
     return new Response(stream, {
       headers: {
-        'Content-Type': format === 'csv' ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Type':
+          format === 'csv'
+            ? 'text/csv'
+            : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'Content-Disposition': `attachment; filename="${filename}"`,
         'Cache-Control': 'no-cache',
       },
     })
-
   } catch (error) {
     console.error('Export error:', error)
     return NextResponse.json({ error: 'errors.exportFailed' }, { status: 500 })
   }
 }
 
-async function createExportStream(options: ExportOptions): Promise<ReadableStream> {
+async function createExportStream(
+  options: ExportOptions
+): Promise<ReadableStream> {
   const { type, filters, columns, dateRange, format } = options
 
   return new ReadableStream({
@@ -122,7 +133,7 @@ async function createExportStream(options: ExportOptions): Promise<ReadableStrea
       try {
         // Get data based on type
         const data = await fetchDataForExport(type, filters, dateRange)
-        
+
         if (format === 'csv') {
           await streamCSV(controller, data, columns, type)
         } else {
@@ -163,28 +174,35 @@ async function streamCSV(
   const CHUNK_SIZE = 1000
   for (let i = 0; i < data.length; i += CHUNK_SIZE) {
     const chunk = data.slice(i, i + CHUNK_SIZE)
-    
-    const csvChunk = chunk
-      .map(row => 
-        exportColumns.map(col => {
-          const value = row[col]
-          if (value === null || value === undefined) return ''
-          
-          // Handle different data types
-          if (value instanceof Date) {
-            return value.toISOString()
-          }
-          
-          // Escape CSV special characters
-          const stringValue = String(value)
-          if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
-            return `"${stringValue.replace(/"/g, '""')}"`
-          }
-          
-          return stringValue
-        }).join(',')
-      )
-      .join('\n') + '\n'
+
+    const csvChunk =
+      chunk
+        .map(row =>
+          exportColumns
+            .map(col => {
+              const value = row[col]
+              if (value === null || value === undefined) return ''
+
+              // Handle different data types
+              if (value instanceof Date) {
+                return value.toISOString()
+              }
+
+              // Escape CSV special characters
+              const stringValue = String(value)
+              if (
+                stringValue.includes(',') ||
+                stringValue.includes('"') ||
+                stringValue.includes('\n')
+              ) {
+                return `"${stringValue.replace(/"/g, '""')}"`
+              }
+
+              return stringValue
+            })
+            .join(',')
+        )
+        .join('\n') + '\n'
 
     controller.enqueue(encoder.encode(csvChunk))
 
@@ -215,25 +233,39 @@ async function fetchDataForExport(
   }
 }
 
-async function fetchTasksData(filters?: Record<string, any>, dateRange?: ExportOptions['dateRange']): Promise<Task[]> {
+async function fetchTasksData(
+  filters?: Record<string, any>,
+  dateRange?: ExportOptions['dateRange']
+): Promise<Task[]> {
   // Mock task data generation
   const tasks: Task[] = []
   const count = 10000 // Large dataset to demonstrate streaming
 
   for (let i = 1; i <= count; i++) {
-    const createdAt = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000)
-    
+    const createdAt = new Date(
+      Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000
+    )
+
     tasks.push({
       id: `task-${i}`,
       name: `Task ${i}`,
       description: `This is task number ${i} with some description`,
-      status: ['pending', 'in-progress', 'completed', 'archived'][Math.floor(Math.random() * 4)] as any,
-      priority: ['low', 'medium', 'high', 'urgent'][Math.floor(Math.random() * 4)] as any,
+      status: ['pending', 'in-progress', 'completed', 'archived'][
+        Math.floor(Math.random() * 4)
+      ] as any,
+      priority: ['low', 'medium', 'high', 'urgent'][
+        Math.floor(Math.random() * 4)
+      ] as any,
       assignedTo: `user-${Math.floor(Math.random() * 10) + 1}`,
-      dueDate: new Date(createdAt.getTime() + Math.random() * 14 * 24 * 60 * 60 * 1000),
+      dueDate: new Date(
+        createdAt.getTime() + Math.random() * 14 * 24 * 60 * 60 * 1000
+      ),
       createdAt,
       updatedAt: createdAt,
-      tags: [`tag-${Math.floor(Math.random() * 5) + 1}`, `category-${Math.floor(Math.random() * 3) + 1}`],
+      tags: [
+        `tag-${Math.floor(Math.random() * 5) + 1}`,
+        `category-${Math.floor(Math.random() * 3) + 1}`,
+      ],
     })
   }
 
@@ -242,15 +274,15 @@ async function fetchTasksData(filters?: Record<string, any>, dateRange?: ExportO
 
   if (filters) {
     if (filters.status) {
-      filteredTasks = filteredTasks.filter(task => 
-        Array.isArray(filters.status) 
+      filteredTasks = filteredTasks.filter(task =>
+        Array.isArray(filters.status)
           ? filters.status.includes(task.status)
           : task.status === filters.status
       )
     }
 
     if (filters.priority) {
-      filteredTasks = filteredTasks.filter(task => 
+      filteredTasks = filteredTasks.filter(task =>
         Array.isArray(filters.priority)
           ? filters.priority.includes(task.priority)
           : task.priority === filters.priority
@@ -258,7 +290,9 @@ async function fetchTasksData(filters?: Record<string, any>, dateRange?: ExportO
     }
 
     if (filters.assignedTo) {
-      filteredTasks = filteredTasks.filter(task => task.assignedTo === filters.assignedTo)
+      filteredTasks = filteredTasks.filter(
+        task => task.assignedTo === filters.assignedTo
+      )
     }
   }
 
@@ -266,16 +300,19 @@ async function fetchTasksData(filters?: Record<string, any>, dateRange?: ExportO
   if (dateRange) {
     const startDate = new Date(dateRange.start)
     const endDate = new Date(dateRange.end)
-    
-    filteredTasks = filteredTasks.filter(task => 
-      task.createdAt >= startDate && task.createdAt <= endDate
+
+    filteredTasks = filteredTasks.filter(
+      task => task.createdAt >= startDate && task.createdAt <= endDate
     )
   }
 
   return filteredTasks
 }
 
-async function fetchUsersData(filters?: Record<string, any>, dateRange?: ExportOptions['dateRange']): Promise<User[]> {
+async function fetchUsersData(
+  filters?: Record<string, any>,
+  dateRange?: ExportOptions['dateRange']
+): Promise<User[]> {
   // Mock user data
   const users: User[] = []
   const count = 500
@@ -285,34 +322,47 @@ async function fetchUsersData(filters?: Record<string, any>, dateRange?: ExportO
       id: `user-${i}`,
       name: `User ${i}`,
       email: `user${i}@example.com`,
-      role: ['admin', 'manager', 'member', 'viewer'][Math.floor(Math.random() * 4)],
+      role: ['admin', 'manager', 'member', 'viewer'][
+        Math.floor(Math.random() * 4)
+      ],
       tasksCompleted: Math.floor(Math.random() * 100),
       hoursWorked: Math.floor(Math.random() * 160),
       efficiency: Math.floor(Math.random() * 100),
-      lastActive: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
+      lastActive: new Date(
+        Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000
+      ),
     })
   }
 
   return users
 }
 
-async function fetchProjectsData(filters?: Record<string, any>, dateRange?: ExportOptions['dateRange']): Promise<Project[]> {
+async function fetchProjectsData(
+  filters?: Record<string, any>,
+  dateRange?: ExportOptions['dateRange']
+): Promise<Project[]> {
   // Mock project data
   const projects: Project[] = []
   const count = 100
 
   for (let i = 1; i <= count; i++) {
-    const startDate = new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000)
-    
+    const startDate = new Date(
+      Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000
+    )
+
     projects.push({
       id: `project-${i}`,
       name: `Project ${i}`,
       description: `This is project number ${i}`,
-      status: ['active', 'completed', 'on-hold', 'cancelled'][Math.floor(Math.random() * 4)],
+      status: ['active', 'completed', 'on-hold', 'cancelled'][
+        Math.floor(Math.random() * 4)
+      ],
       completion: Math.floor(Math.random() * 100),
       budget: Math.floor(Math.random() * 1000000),
       startDate,
-      endDate: new Date(startDate.getTime() + Math.random() * 120 * 24 * 60 * 60 * 1000),
+      endDate: new Date(
+        startDate.getTime() + Math.random() * 120 * 24 * 60 * 60 * 1000
+      ),
       teamSize: Math.floor(Math.random() * 20) + 1,
     })
   }
@@ -320,14 +370,17 @@ async function fetchProjectsData(filters?: Record<string, any>, dateRange?: Expo
   return projects
 }
 
-async function fetchAnalyticsData(filters?: Record<string, any>, dateRange?: ExportOptions['dateRange']) {
+async function fetchAnalyticsData(
+  filters?: Record<string, any>,
+  dateRange?: ExportOptions['dateRange']
+) {
   // Mock analytics data
   const analytics = []
   const days = 90
 
   for (let i = 0; i < days; i++) {
     const date = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
-    
+
     analytics.push({
       date: date.toISOString().split('T')[0],
       tasksCreated: Math.floor(Math.random() * 50) + 10,
@@ -347,12 +400,15 @@ export async function POST(request: NextRequest) {
     const options: ExportOptions = await request.json()
 
     if (!options.type) {
-      return NextResponse.json({ error: 'Export type is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Export type is required' },
+        { status: 400 }
+      )
     }
 
     // For POST, we could queue the export job and return a job ID
     const jobId = `export-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    
+
     // In a real app, you'd queue this with a job processor like Bull or similar
     // await queueExportJob(jobId, options)
 
@@ -360,11 +416,13 @@ export async function POST(request: NextRequest) {
       jobId,
       message: 'Export job queued successfully',
       estimatedTime: '2-5 minutes',
-      downloadUrl: `/api/export/csv?type=${options.type}&jobId=${jobId}`
+      downloadUrl: `/api/export/csv?type=${options.type}&jobId=${jobId}`,
     })
-
   } catch (error) {
     console.error('Export queue error:', error)
-    return NextResponse.json({ error: 'errors.exportQueueFailed' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'errors.exportQueueFailed' },
+      { status: 500 }
+    )
   }
 }

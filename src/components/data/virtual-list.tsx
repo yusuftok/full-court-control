@@ -47,11 +47,14 @@ export function VirtualList<T>({
     }))
   }, [items, startIndex, endIndex])
 
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    const newScrollTop = e.currentTarget.scrollTop
-    setScrollTop(newScrollTop)
-    onScroll?.(newScrollTop)
-  }, [onScroll])
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const newScrollTop = e.currentTarget.scrollTop
+      setScrollTop(newScrollTop)
+      onScroll?.(newScrollTop)
+    },
+    [onScroll]
+  )
 
   return (
     <div
@@ -119,15 +122,26 @@ export function VirtualTable<T>({
   const headerHeight = 40
 
   const startIndex = useMemo(() => {
-    return Math.max(0, Math.floor((scrollTop - headerHeight) / itemHeight) - overscan)
+    return Math.max(
+      0,
+      Math.floor((scrollTop - headerHeight) / itemHeight) - overscan
+    )
   }, [scrollTop, itemHeight, overscan, headerHeight])
 
   const endIndex = useMemo(() => {
     return Math.min(
       items.length - 1,
-      Math.ceil((scrollTop + containerHeight - headerHeight) / itemHeight) + overscan
+      Math.ceil((scrollTop + containerHeight - headerHeight) / itemHeight) +
+        overscan
     )
-  }, [scrollTop, containerHeight, itemHeight, overscan, items.length, headerHeight])
+  }, [
+    scrollTop,
+    containerHeight,
+    itemHeight,
+    overscan,
+    items.length,
+    headerHeight,
+  ])
 
   const visibleItems = useMemo(() => {
     return items.slice(startIndex, endIndex + 1).map((item, index) => ({
@@ -136,11 +150,14 @@ export function VirtualTable<T>({
     }))
   }, [items, startIndex, endIndex])
 
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    const newScrollTop = e.currentTarget.scrollTop
-    setScrollTop(newScrollTop)
-    onScroll?.(newScrollTop)
-  }, [onScroll])
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const newScrollTop = e.currentTarget.scrollTop
+      setScrollTop(newScrollTop)
+      onScroll?.(newScrollTop)
+    },
+    [onScroll]
+  )
 
   return (
     <div className={cn('border rounded-lg overflow-hidden', className)}>
@@ -178,7 +195,9 @@ export function VirtualTable<T>({
                 rowClassName
               )}
               style={{
-                gridTemplateColumns: columns.map(col => col.width || '1fr').join(' '),
+                gridTemplateColumns: columns
+                  .map(col => col.width || '1fr')
+                  .join(' '),
                 top: index * itemHeight,
                 height: itemHeight,
               }}

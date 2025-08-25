@@ -1,23 +1,39 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { useParams } from "next/navigation"
-import { ArrowLeft, Building2, Calendar, Users, Clock, CheckCircle, AlertTriangle, TrendingUp, Truck, HardHat, Wrench } from "lucide-react"
-import { cn } from "@/lib/utils"
+import * as React from 'react'
+import { useParams } from 'next/navigation'
+import {
+  ArrowLeft,
+  Building2,
+  Calendar,
+  Users,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
+  TrendingUp,
+  Truck,
+  HardHat,
+  Wrench,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { PageContainer, PageHeader, PageContent } from "@/components/layout/page-container"
-import { StatCard, StatCardGrid } from "@/components/data/stat-card"
-import { DataTable, Column, StatusBadge } from "@/components/data/data-table"
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import {
+  PageContainer,
+  PageHeader,
+  PageContent,
+} from '@/components/layout/page-container'
+import { StatCard, StatCardGrid } from '@/components/data/stat-card'
+import { DataTable, Column, StatusBadge } from '@/components/data/data-table'
 
 // Mock project data - in real app this would come from API
 interface ProjectDetails {
   id: string
   name: string
-  status: "active" | "inactive" | "pending" | "completed" | "cancelled"
+  status: 'active' | 'inactive' | 'pending' | 'completed' | 'cancelled'
   startDate: string
   endDate: string
   progress: number
@@ -38,13 +54,13 @@ interface Milestone {
   id: string
   name: string
   dueDate: string
-  status: "completed" | "in-progress" | "pending" | "overdue"
+  status: 'completed' | 'in-progress' | 'pending' | 'overdue'
   progress: number
 }
 
 interface Activity {
   id: string
-  type: "task" | "milestone" | "issue" | "update"
+  type: 'task' | 'milestone' | 'issue' | 'update'
   title: string
   description: string
   timestamp: string
@@ -57,177 +73,184 @@ interface TeamMember {
   role: string
   tasksCompleted: number
   hoursWorked: number
-  status: "active" | "on-leave" | "off-site"
+  status: 'active' | 'on-leave' | 'off-site'
 }
 
 interface Equipment {
   id: string
   name: string
   type: string
-  status: "operational" | "maintenance" | "broken"
+  status: 'operational' | 'maintenance' | 'broken'
   location: string
   lastMaintenance: string
 }
 
 const mockProjectData: Record<string, ProjectDetails> = {
-  "1": {
-    id: "1",
-    name: "Şehir Merkezi Ofis Kompleksi",
-    status: "active",
-    startDate: "2024-01-15",
-    endDate: "2024-12-15",
+  '1': {
+    id: '1',
+    name: 'Şehir Merkezi Ofis Kompleksi',
+    status: 'active',
+    startDate: '2024-01-15',
+    endDate: '2024-12-15',
     progress: 68,
     budget: 25000000,
     spent: 17500000,
-    location: "İstanbul, Levent",
-    contractor: "Mega İnşaat A.Ş.",
+    location: 'İstanbul, Levent',
+    contractor: 'Mega İnşaat A.Ş.',
     teamSize: 45,
     completedTasks: 84,
     totalTasks: 124,
     upcomingMilestones: [
       {
-        id: "m1",
-        name: "Temel Atma Tamamlama",
-        dueDate: "2024-09-15",
-        status: "completed",
-        progress: 100
+        id: 'm1',
+        name: 'Temel Atma Tamamlama',
+        dueDate: '2024-09-15',
+        status: 'completed',
+        progress: 100,
       },
       {
-        id: "m2", 
-        name: "İskelet Yapı Bitirme",
-        dueDate: "2024-11-30",
-        status: "in-progress",
-        progress: 75
+        id: 'm2',
+        name: 'İskelet Yapı Bitirme',
+        dueDate: '2024-11-30',
+        status: 'in-progress',
+        progress: 75,
       },
       {
-        id: "m3",
-        name: "Dış Cephe Kaplama",
-        dueDate: "2024-12-15",
-        status: "pending",
-        progress: 0
-      }
+        id: 'm3',
+        name: 'Dış Cephe Kaplama',
+        dueDate: '2024-12-15',
+        status: 'pending',
+        progress: 0,
+      },
     ],
     recentActivities: [
       {
-        id: "a1",
-        type: "task",
-        title: "6. Kat Beton Döküm Tamamlandı",
-        description: "Kalite kontrol testleri başarılı",
-        timestamp: "2024-08-19T10:30:00Z",
-        user: "Murat Demir"
+        id: 'a1',
+        type: 'task',
+        title: '6. Kat Beton Döküm Tamamlandı',
+        description: 'Kalite kontrol testleri başarılı',
+        timestamp: '2024-08-19T10:30:00Z',
+        user: 'Murat Demir',
       },
       {
-        id: "a2",
-        type: "issue",
-        title: "Malzeme Teslimat Gecikmesi",
-        description: "Çelik konstrüksiyon malzemeleri 2 gün gecikecek",
-        timestamp: "2024-08-19T08:15:00Z",
-        user: "Ayşe Kaya"
+        id: 'a2',
+        type: 'issue',
+        title: 'Malzeme Teslimat Gecikmesi',
+        description: 'Çelik konstrüksiyon malzemeleri 2 gün gecikecek',
+        timestamp: '2024-08-19T08:15:00Z',
+        user: 'Ayşe Kaya',
       },
       {
-        id: "a3",
-        type: "milestone",
-        title: "İskelet Yapı %75 Tamamlandı",
-        description: "Planlanan sürede ilerliyor",
-        timestamp: "2024-08-18T16:45:00Z",
-        user: "Ali Özkan"
-      }
+        id: 'a3',
+        type: 'milestone',
+        title: 'İskelet Yapı %75 Tamamlandı',
+        description: 'Planlanan sürede ilerliyor',
+        timestamp: '2024-08-18T16:45:00Z',
+        user: 'Ali Özkan',
+      },
     ],
     teamMembers: [
       {
-        id: "t1",
-        name: "Murat Demir",
-        role: "Şantiye Şefi",
+        id: 't1',
+        name: 'Murat Demir',
+        role: 'Şantiye Şefi',
         tasksCompleted: 23,
         hoursWorked: 42,
-        status: "active"
+        status: 'active',
       },
       {
-        id: "t2",
-        name: "Ayşe Kaya", 
-        role: "İnşaat Mühendisi",
+        id: 't2',
+        name: 'Ayşe Kaya',
+        role: 'İnşaat Mühendisi',
         tasksCompleted: 18,
         hoursWorked: 38,
-        status: "active"
+        status: 'active',
       },
       {
-        id: "t3",
-        name: "Mehmet Yılmaz",
-        role: "Kalite Kontrol",
+        id: 't3',
+        name: 'Mehmet Yılmaz',
+        role: 'Kalite Kontrol',
         tasksCompleted: 15,
         hoursWorked: 35,
-        status: "active"
-      }
+        status: 'active',
+      },
     ],
     equipment: [
       {
-        id: "e1",
-        name: "Kule Vinç #1",
-        type: "Kaldırma",
-        status: "operational",
-        location: "Blok A",
-        lastMaintenance: "2024-08-01"
+        id: 'e1',
+        name: 'Kule Vinç #1',
+        type: 'Kaldırma',
+        status: 'operational',
+        location: 'Blok A',
+        lastMaintenance: '2024-08-01',
       },
       {
-        id: "e2",
-        name: "Beton Mikseri #3",
-        type: "Beton",
-        status: "maintenance",
-        location: "Santral",
-        lastMaintenance: "2024-08-15"
-      }
-    ]
-  }
+        id: 'e2',
+        name: 'Beton Mikseri #3',
+        type: 'Beton',
+        status: 'maintenance',
+        location: 'Santral',
+        lastMaintenance: '2024-08-15',
+      },
+    ],
+  },
 }
 
 const activityTypeConfig = {
-  task: { icon: CheckCircle, color: "text-green-600", bg: "bg-green-100" },
-  milestone: { icon: Calendar, color: "text-blue-600", bg: "bg-blue-100" },
-  issue: { icon: AlertTriangle, color: "text-red-600", bg: "bg-red-100" },
-  update: { icon: Clock, color: "text-gray-600", bg: "bg-gray-100" }
+  task: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-100' },
+  milestone: { icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-100' },
+  issue: { icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-100' },
+  update: { icon: Clock, color: 'text-gray-600', bg: 'bg-gray-100' },
 }
 
 const teamColumns: Column<TeamMember>[] = [
   {
-    id: "name",
-    header: "İsim",
-    accessor: "name",
+    id: 'name',
+    header: 'İsim',
+    accessor: 'name',
     sortable: true,
   },
   {
-    id: "role",
-    header: "Görev",
-    accessor: "role",
+    id: 'role',
+    header: 'Görev',
+    accessor: 'role',
     sortable: true,
   },
   {
-    id: "tasksCompleted",
-    header: "Tamamlanan",
-    accessor: "tasksCompleted",
+    id: 'tasksCompleted',
+    header: 'Tamamlanan',
+    accessor: 'tasksCompleted',
     sortable: true,
   },
   {
-    id: "hoursWorked",
-    header: "Saat",
-    accessor: (row) => `${row.hoursWorked}h`,
+    id: 'hoursWorked',
+    header: 'Saat',
+    accessor: row => `${row.hoursWorked}h`,
     sortable: true,
   },
   {
-    id: "status",
-    header: "Durum",
-    accessor: (row) => (
-      <span className={cn(
-        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-        row.status === "active" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" :
-        row.status === "on-leave" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400" :
-        "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
-      )}>
-        {row.status === "active" ? "Aktif" :
-         row.status === "on-leave" ? "İzinli" : "Saha Dışı"}
+    id: 'status',
+    header: 'Durum',
+    accessor: row => (
+      <span
+        className={cn(
+          'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+          row.status === 'active'
+            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+            : row.status === 'on-leave'
+              ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+              : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
+        )}
+      >
+        {row.status === 'active'
+          ? 'Aktif'
+          : row.status === 'on-leave'
+            ? 'İzinli'
+            : 'Saha Dışı'}
       </span>
     ),
     sortable: true,
-  }
+  },
 ]
 
 export default function ProjectDashboardPage() {
@@ -259,14 +282,23 @@ export default function ProjectDashboardPage() {
     )
   }
 
-  const budgetUsagePercentage = Math.round((project.spent / project.budget) * 100)
-  const taskCompletionPercentage = Math.round((project.completedTasks / project.totalTasks) * 100)
+  const budgetUsagePercentage = Math.round(
+    (project.spent / project.budget) * 100
+  )
+  const taskCompletionPercentage = Math.round(
+    (project.completedTasks / project.totalTasks) * 100
+  )
 
   return (
     <PageContainer>
       <PageContent>
         <div className="flex items-center gap-3 mb-6">
-          <Button variant="ghost" size="sm" asChild className="construction-hover">
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="construction-hover"
+          >
             <a href="/dashboard">
               <ArrowLeft className="size-4" />
             </a>
@@ -276,11 +308,13 @@ export default function ProjectDashboardPage() {
             <div className="flex items-center gap-2 mt-1">
               <StatusBadge status={project.status} />
               <span className="text-sm text-muted-foreground">•</span>
-              <span className="text-sm text-muted-foreground">{project.location}</span>
+              <span className="text-sm text-muted-foreground">
+                {project.location}
+              </span>
             </div>
           </div>
         </div>
-        
+
         <PageHeader
           title="Proje Kontrol Paneli"
           description={`${project.contractor} • ${project.teamSize} kişilik ekip`}
@@ -306,8 +340,8 @@ export default function ProjectDashboardPage() {
             icon={TrendingUp}
             change={{
               value: 5.2,
-              type: "increase",
-              period: "geçen haftaya göre"
+              type: 'increase',
+              period: 'geçen haftaya göre',
             }}
           />
           <StatCard
@@ -322,8 +356,8 @@ export default function ProjectDashboardPage() {
             icon={CheckCircle}
             change={{
               value: 12,
-              type: "increase",
-              period: "bu hafta tamamlanan"
+              type: 'increase',
+              period: 'bu hafta tamamlanan',
             }}
           />
           <StatCard
@@ -345,28 +379,43 @@ export default function ProjectDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {project.upcomingMilestones.map((milestone) => (
-                  <div key={milestone.id} className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg construction-hover">
-                    <div className={cn(
-                      "size-8 rounded-full flex items-center justify-center",
-                      milestone.status === "completed" ? "bg-green-100 dark:bg-green-900/30" :
-                      milestone.status === "in-progress" ? "bg-blue-100 dark:bg-blue-900/30" :
-                      milestone.status === "overdue" ? "bg-red-100 dark:bg-red-900/30" :
-                      "bg-gray-100 dark:bg-gray-900/30"
-                    )}>
-                      <Calendar className={cn(
-                        "size-4",
-                        milestone.status === "completed" ? "text-green-600 dark:text-green-400" :
-                        milestone.status === "in-progress" ? "text-blue-600 dark:text-blue-400" :
-                        milestone.status === "overdue" ? "text-red-600 dark:text-red-400" :
-                        "text-gray-600 dark:text-gray-400"
-                      )} />
+                {project.upcomingMilestones.map(milestone => (
+                  <div
+                    key={milestone.id}
+                    className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg construction-hover"
+                  >
+                    <div
+                      className={cn(
+                        'size-8 rounded-full flex items-center justify-center',
+                        milestone.status === 'completed'
+                          ? 'bg-green-100 dark:bg-green-900/30'
+                          : milestone.status === 'in-progress'
+                            ? 'bg-blue-100 dark:bg-blue-900/30'
+                            : milestone.status === 'overdue'
+                              ? 'bg-red-100 dark:bg-red-900/30'
+                              : 'bg-gray-100 dark:bg-gray-900/30'
+                      )}
+                    >
+                      <Calendar
+                        className={cn(
+                          'size-4',
+                          milestone.status === 'completed'
+                            ? 'text-green-600 dark:text-green-400'
+                            : milestone.status === 'in-progress'
+                              ? 'text-blue-600 dark:text-blue-400'
+                              : milestone.status === 'overdue'
+                                ? 'text-red-600 dark:text-red-400'
+                                : 'text-gray-600 dark:text-gray-400'
+                        )}
+                      />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
                         <h4 className="font-medium">{milestone.name}</h4>
                         <span className="text-sm text-muted-foreground">
-                          {new Date(milestone.dueDate).toLocaleDateString('tr-TR')}
+                          {new Date(milestone.dueDate).toLocaleDateString(
+                            'tr-TR'
+                          )}
                         </span>
                       </div>
                       <Progress value={milestone.progress} className="h-2" />
@@ -384,22 +433,36 @@ export default function ProjectDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {project.recentActivities.map((activity) => {
+                {project.recentActivities.map(activity => {
                   const config = activityTypeConfig[activity.type]
                   const Icon = config.icon
-                  
+
                   return (
-                    <div key={activity.id} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg construction-hover">
-                      <div className={cn("size-8 rounded-full flex items-center justify-center", config.bg)}>
-                        <Icon className={cn("size-4", config.color)} />
+                    <div
+                      key={activity.id}
+                      className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg construction-hover"
+                    >
+                      <div
+                        className={cn(
+                          'size-8 rounded-full flex items-center justify-center',
+                          config.bg
+                        )}
+                      >
+                        <Icon className={cn('size-4', config.color)} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm">{activity.title}</p>
-                        <p className="text-xs text-muted-foreground mb-1">{activity.description}</p>
+                        <p className="text-xs text-muted-foreground mb-1">
+                          {activity.description}
+                        </p>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span>{activity.user}</span>
                           <span>•</span>
-                          <span>{new Date(activity.timestamp).toLocaleString('tr-TR')}</span>
+                          <span>
+                            {new Date(activity.timestamp).toLocaleString(
+                              'tr-TR'
+                            )}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -437,21 +500,37 @@ export default function ProjectDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {project.equipment.map((equipment) => (
-                <div key={equipment.id} className="p-4 border rounded-lg construction-hover">
+              {project.equipment.map(equipment => (
+                <div
+                  key={equipment.id}
+                  className="p-4 border rounded-lg construction-hover"
+                >
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-medium">{equipment.name}</h4>
-                    <Badge variant={
-                      equipment.status === "operational" ? "default" :
-                      equipment.status === "maintenance" ? "secondary" : "destructive"
-                    }>
-                      {equipment.status === "operational" ? "Çalışıyor" :
-                       equipment.status === "maintenance" ? "Bakımda" : "Arızalı"}
+                    <Badge
+                      variant={
+                        equipment.status === 'operational'
+                          ? 'default'
+                          : equipment.status === 'maintenance'
+                            ? 'secondary'
+                            : 'destructive'
+                      }
+                    >
+                      {equipment.status === 'operational'
+                        ? 'Çalışıyor'
+                        : equipment.status === 'maintenance'
+                          ? 'Bakımda'
+                          : 'Arızalı'}
                     </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-1">{equipment.type} • {equipment.location}</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    {equipment.type} • {equipment.location}
+                  </p>
                   <p className="text-xs text-muted-foreground">
-                    Son bakım: {new Date(equipment.lastMaintenance).toLocaleDateString('tr-TR')}
+                    Son bakım:{' '}
+                    {new Date(equipment.lastMaintenance).toLocaleDateString(
+                      'tr-TR'
+                    )}
                   </p>
                 </div>
               ))}

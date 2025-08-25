@@ -5,7 +5,7 @@ import { getRequestConfig } from 'next-intl/server'
 export const locales = ['tr', 'en'] as const
 export const defaultLocale = 'tr' as const
 
-export type Locale = typeof locales[number]
+export type Locale = (typeof locales)[number]
 
 export default getRequestConfig(async ({ locale }) => {
   // Validate that the incoming `locale` parameter is valid
@@ -13,6 +13,6 @@ export default getRequestConfig(async ({ locale }) => {
 
   return {
     locale: locale as string,
-    messages: (await import(`./locales/${locale}.json`)).default
+    messages: (await import(`./locales/${locale}.json`)).default,
   }
 })

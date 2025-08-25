@@ -9,7 +9,7 @@ export default createMiddleware({
   defaultLocale,
 
   // Never redirect to locale prefix for default locale
-  localePrefix: 'as-needed'
+  localePrefix: 'as-needed',
 })
 
 export const config = {
@@ -24,6 +24,6 @@ export const config = {
 
     // Enable redirects that add missing locales
     // (e.g. `/pathnames` -> `/tr/pathnames`)
-    '/((?!api|_next|_vercel|.*\\..*).*)'
-  ]
+    '/((?!api|_next|_vercel|.*\\..*).*)',
+  ],
 }

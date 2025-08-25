@@ -1,15 +1,15 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Bell, Search, User } from "lucide-react"
+import * as React from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { Bell, Search, User } from 'lucide-react'
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { MobileMenuButton } from "./sidebar"
-import { SearchDropdown } from "@/components/ui/search-dropdown"
-import { searchItems, SearchItem } from "@/lib/global-search"
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { MobileMenuButton } from './sidebar'
+import { SearchDropdown } from '@/components/ui/search-dropdown'
+import { searchItems, SearchItem } from '@/lib/global-search'
 
 interface HeaderProps {
   className?: string
@@ -21,12 +21,12 @@ export function Header({ className, onMobileMenuToggle }: HeaderProps) {
   const [notificationCount] = React.useState(3) // Mock notification count
   const [searchFocused, setSearchFocused] = React.useState(false)
   const [bellShakeCount, setBellShakeCount] = React.useState(0)
-  const [searchQuery, setSearchQuery] = React.useState("")
+  const [searchQuery, setSearchQuery] = React.useState('')
   const [searchResults, setSearchResults] = React.useState<SearchItem[]>([])
   const [selectedIndex, setSelectedIndex] = React.useState(0)
   const [showResults, setShowResults] = React.useState(false)
   const searchRef = React.useRef<HTMLInputElement>(null)
-  
+
   const handleBellClick = () => {
     setBellShakeCount(prev => prev + 1)
     // Reset shake animation after it completes
@@ -51,7 +51,9 @@ export function Header({ className, onMobileMenuToggle }: HeaderProps) {
         break
       case 'ArrowUp':
         e.preventDefault()
-        setSelectedIndex(prev => (prev - 1 + searchResults.length) % searchResults.length)
+        setSelectedIndex(
+          prev => (prev - 1 + searchResults.length) % searchResults.length
+        )
         break
       case 'Enter':
         e.preventDefault()
@@ -68,7 +70,7 @@ export function Header({ className, onMobileMenuToggle }: HeaderProps) {
 
   const handleCloseSearch = () => {
     setShowResults(false)
-    setSearchQuery("")
+    setSearchQuery('')
     setSearchFocused(false)
     searchRef.current?.blur()
   }
@@ -79,14 +81,16 @@ export function Header({ className, onMobileMenuToggle }: HeaderProps) {
   }
 
   return (
-    <header className={cn("h-16 glass shadow-glass sticky top-0 z-50", className)}>
+    <header
+      className={cn('h-16 glass shadow-glass sticky top-0 z-50', className)}
+    >
       <div className="flex items-center justify-between h-full px-4 lg:px-6">
         {/* Left side - Mobile menu + Search */}
         <div className="flex items-center gap-4">
           {onMobileMenuToggle && (
             <MobileMenuButton onClick={onMobileMenuToggle} />
           )}
-          
+
           {/* Search - Hidden on mobile */}
           <div className="hidden md:flex items-center gap-2">
             <div className="relative">
@@ -95,9 +99,13 @@ export function Header({ className, onMobileMenuToggle }: HeaderProps) {
                 ref={searchRef}
                 type="search"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={e => setSearchQuery(e.target.value)}
                 onKeyDown={handleSearchKeyDown}
-                placeholder={searchFocused ? "Projeler, görevler, kişiler, şablonlar..." : "Aradığınız her şey burada..."}
+                placeholder={
+                  searchFocused
+                    ? 'Projeler, görevler, kişiler, şablonlar...'
+                    : 'Aradığınız her şey burada...'
+                }
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => {
                   // Delay blur to allow clicking on dropdown items
@@ -107,15 +115,15 @@ export function Header({ className, onMobileMenuToggle }: HeaderProps) {
                   }, 200)
                 }}
                 className={cn(
-                  "w-[28rem] h-10 pl-10 pr-12 rounded-xl bg-background/90 backdrop-blur-sm border-2 border-muted/40 transition-colors duration-300",
-                  "text-sm placeholder:text-muted-foreground shadow-sm",
-                  "modern-focus hover:border-primary/40 focus:border-primary/60"
+                  'w-[28rem] h-10 pl-10 pr-12 rounded-xl bg-background/90 backdrop-blur-sm border-2 border-muted/40 transition-colors duration-300',
+                  'text-sm placeholder:text-muted-foreground shadow-sm',
+                  'modern-focus hover:border-primary/40 focus:border-primary/60'
                 )}
               />
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center">
                 <Search className="size-4 text-muted-foreground/60" />
               </div>
-              
+
               <SearchDropdown
                 results={searchResults}
                 isOpen={showResults}
@@ -131,34 +139,44 @@ export function Header({ className, onMobileMenuToggle }: HeaderProps) {
         {/* Right side - Notifications + User */}
         <div className="flex items-center gap-2">
           {/* Notifications */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="relative modern-hover group rounded-xl"
             onClick={handleBellClick}
-            title={notificationCount > 0 ? `${notificationCount} acil şantiye uyarısı! 🚨` : "Hiç uyarı yok, harika! 👍"}
+            title={
+              notificationCount > 0
+                ? `${notificationCount} acil şantiye uyarısı! 🚨`
+                : 'Hiç uyarı yok, harika! 👍'
+            }
           >
-            <Bell 
+            <Bell
               className={cn(
-                "size-4 transition-transform",
-                bellShakeCount > 0 && "animate-construction-cheer"
-              )} 
-              style={{ 
-                animation: notificationCount > 0 ? 'pulse 2s ease-in-out infinite' : 'none' 
-              }} 
+                'size-4 transition-transform',
+                bellShakeCount > 0 && 'animate-construction-cheer'
+              )}
+              style={{
+                animation:
+                  notificationCount > 0
+                    ? 'pulse 2s ease-in-out infinite'
+                    : 'none',
+              }}
             />
             {notificationCount > 0 && (
-              <span className="absolute -top-1 -right-1 size-5 gradient-danger text-white text-xs rounded-full flex items-center justify-center animate-tada" style={{ animation: 'glow 3s ease-in-out infinite' }}>
-                {notificationCount > 9 ? "9+" : notificationCount}
+              <span
+                className="absolute -top-1 -right-1 size-5 gradient-danger text-white text-xs rounded-full flex items-center justify-center animate-tada"
+                style={{ animation: 'glow 3s ease-in-out infinite' }}
+              >
+                {notificationCount > 9 ? '9+' : notificationCount}
               </span>
             )}
             <span className="sr-only">Şantiye Uyarıları</span>
           </Button>
 
           {/* User Avatar */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="relative modern-hover group rounded-xl"
             title="Selam şef! İyi çalışmalar 👷"
           >

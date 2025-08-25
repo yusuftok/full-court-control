@@ -1,12 +1,12 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { useFormContext } from "react-hook-form"
-import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import * as React from 'react'
+import { useFormContext } from 'react-hook-form'
+import { cn } from '@/lib/utils'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
-interface FormFieldProps extends React.ComponentProps<"div"> {
+interface FormFieldProps extends React.ComponentProps<'div'> {
   name: string
   label?: string
   description?: string
@@ -26,38 +26,36 @@ export function FormField({
 }: FormFieldProps) {
   const {
     register,
-    formState: { errors }
+    formState: { errors },
   } = useFormContext()
-  
+
   const error = errors[name]
   const fieldId = `field-${name}`
   const descriptionId = `${fieldId}-description`
   const errorId = `${fieldId}-error`
 
   return (
-    <div className={cn("grid gap-2", className)} {...props}>
+    <div className={cn('grid gap-2', className)} {...props}>
       {label && (
-        <Label 
+        <Label
           htmlFor={fieldId}
           className={cn(
-            "text-sm font-medium",
-            error && "text-destructive",
-            required && "after:content-['*'] after:ml-0.5 after:text-destructive"
+            'text-sm font-medium',
+            error && 'text-destructive',
+            required &&
+              "after:content-['*'] after:ml-0.5 after:text-destructive"
           )}
         >
           {label}
         </Label>
       )}
-      
+
       {description && (
-        <p 
-          id={descriptionId}
-          className="text-sm text-muted-foreground"
-        >
+        <p id={descriptionId} className="text-sm text-muted-foreground">
           {description}
         </p>
       )}
-      
+
       <div className="relative">
         {children || (
           <Input
@@ -69,18 +67,15 @@ export function FormField({
             )}
             aria-invalid={!!error}
             className={cn(
-              error && "border-destructive focus:border-destructive focus:ring-destructive/20"
+              error &&
+                'border-destructive focus:border-destructive focus:ring-destructive/20'
             )}
           />
         )}
       </div>
-      
+
       {error && (
-        <p 
-          id={errorId}
-          className="text-sm text-destructive"
-          role="alert"
-        >
+        <p id={errorId} className="text-sm text-destructive" role="alert">
           {error.message as string}
         </p>
       )}
@@ -89,21 +84,21 @@ export function FormField({
 }
 
 // Specialized form fields
-interface TextFieldProps extends Omit<FormFieldProps, "children"> {
-  type?: "text" | "email" | "password" | "tel" | "url"
+interface TextFieldProps extends Omit<FormFieldProps, 'children'> {
+  type?: 'text' | 'email' | 'password' | 'tel' | 'url'
   placeholder?: string
   autoComplete?: string
 }
 
 export function TextField({
-  type = "text",
+  type = 'text',
   placeholder,
   autoComplete,
   name,
   ...props
 }: TextFieldProps) {
   const { register } = useFormContext()
-  
+
   return (
     <FormField name={name} {...props}>
       <Input
@@ -116,7 +111,7 @@ export function TextField({
   )
 }
 
-interface TextAreaFieldProps extends Omit<FormFieldProps, "children"> {
+interface TextAreaFieldProps extends Omit<FormFieldProps, 'children'> {
   placeholder?: string
   rows?: number
 }
@@ -128,7 +123,7 @@ export function TextAreaField({
   ...props
 }: TextAreaFieldProps) {
   const { register } = useFormContext()
-  
+
   return (
     <FormField name={name} {...props}>
       <textarea
@@ -136,22 +131,22 @@ export function TextAreaField({
         rows={rows}
         {...register(name)}
         className={cn(
-          "flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm",
-          "placeholder:text-muted-foreground",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent",
-          "disabled:cursor-not-allowed disabled:opacity-50",
-          "resize-none"
+          'flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm',
+          'placeholder:text-muted-foreground',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent',
+          'disabled:cursor-not-allowed disabled:opacity-50',
+          'resize-none'
         )}
       />
     </FormField>
   )
 }
 
-interface NumberFieldProps extends Omit<FormFieldProps, "children"> {
+interface NumberFieldProps extends Omit<FormFieldProps, 'children'> {
   placeholder?: string
   min?: number
   max?: number
-  step?: number | "any"
+  step?: number | 'any'
 }
 
 export function NumberField({
@@ -163,7 +158,7 @@ export function NumberField({
   ...props
 }: NumberFieldProps) {
   const { register } = useFormContext()
-  
+
   return (
     <FormField name={name} {...props}>
       <Input
@@ -172,10 +167,14 @@ export function NumberField({
         min={min}
         max={max}
         step={step}
-        {...register(name, { 
+        {...register(name, {
           valueAsNumber: true,
-          min: min ? { value: min, message: `Minimum value is ${min}` } : undefined,
-          max: max ? { value: max, message: `Maximum value is ${max}` } : undefined
+          min: min
+            ? { value: min, message: `Minimum value is ${min}` }
+            : undefined,
+          max: max
+            ? { value: max, message: `Maximum value is ${max}` }
+            : undefined,
         })}
       />
     </FormField>
@@ -183,7 +182,7 @@ export function NumberField({
 }
 
 // Form section wrapper
-interface FormSectionProps extends React.ComponentProps<"div"> {
+interface FormSectionProps extends React.ComponentProps<'div'> {
   title?: string
   description?: string
   children: React.ReactNode
@@ -198,20 +197,16 @@ export function FormSection({
   ...props
 }: FormSectionProps) {
   return (
-    <div className={cn("space-y-4", className)} {...props}>
+    <div className={cn('space-y-4', className)} {...props}>
       {(title || description) && (
         <div className="space-y-1">
-          {title && (
-            <h3 className="text-lg font-medium">{title}</h3>
-          )}
+          {title && <h3 className="text-lg font-medium">{title}</h3>}
           {description && (
             <p className="text-sm text-muted-foreground">{description}</p>
           )}
         </div>
       )}
-      <div className="space-y-4">
-        {children}
-      </div>
+      <div className="space-y-4">{children}</div>
     </div>
   )
 }

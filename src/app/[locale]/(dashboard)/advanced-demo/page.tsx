@@ -1,7 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
-import { PageContainer, PageHeader, PageContent } from '@/components/layout/page-container'
+import {
+  PageContainer,
+  PageHeader,
+  PageContent,
+} from '@/components/layout/page-container'
 import { TabNav } from '@/components/navigation/tab-nav'
 import { DivisionTree, DivisionNode } from '@/components/data/division-tree'
 import { TaskManager, Task } from '@/components/data/task-manager'
@@ -80,8 +84,12 @@ const generateTasks = (count: number): Task[] => {
     id: `task-${i + 1}`,
     name: `Task ${i + 1}`,
     description: `This is the description for task number ${i + 1}. It contains various details about what needs to be accomplished.`,
-    status: ['pending', 'in-progress', 'completed', 'archived'][Math.floor(Math.random() * 4)] as Task['status'],
-    priority: ['low', 'medium', 'high', 'urgent'][Math.floor(Math.random() * 4)] as Task['priority'],
+    status: ['pending', 'in-progress', 'completed', 'archived'][
+      Math.floor(Math.random() * 4)
+    ] as Task['status'],
+    priority: ['low', 'medium', 'high', 'urgent'][
+      Math.floor(Math.random() * 4)
+    ] as Task['priority'],
     assignedTo: `user-${Math.floor(Math.random() * 10) + 1}`,
     dueDate: new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000),
     createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
@@ -94,10 +102,14 @@ const generateVirtualTableData = (count: number) => {
   return Array.from({ length: count }, (_, i) => ({
     id: `item-${i + 1}`,
     name: `Item ${i + 1}`,
-    category: ['Alpha', 'Beta', 'Gamma', 'Delta'][Math.floor(Math.random() * 4)],
+    category: ['Alpha', 'Beta', 'Gamma', 'Delta'][
+      Math.floor(Math.random() * 4)
+    ],
     value: Math.floor(Math.random() * 10000),
     status: ['active', 'inactive', 'pending'][Math.floor(Math.random() * 3)],
-    date: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+    date: new Date(
+      Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000
+    ).toLocaleDateString(),
   }))
 }
 
@@ -109,18 +121,28 @@ export default function AdvancedDemoPage() {
 
   const tabItems = [
     { id: 'division-tree', label: 'Division Tree', href: '#division-tree' },
-    { id: 'task-management', label: 'Task Management', href: '#task-management' },
-    { id: 'virtual-scrolling', label: 'Virtual Scrolling', href: '#virtual-scrolling' },
+    {
+      id: 'task-management',
+      label: 'Task Management',
+      href: '#task-management',
+    },
+    {
+      id: 'virtual-scrolling',
+      label: 'Virtual Scrolling',
+      href: '#virtual-scrolling',
+    },
     { id: 'analytics', label: 'Analytics Dashboard', href: '#analytics' },
     { id: 'whatsapp', label: 'WhatsApp Integration', href: '#whatsapp' },
   ]
 
   const handleExportData = async (type: string) => {
     toast.promise(
-      fetch(`/api/export/csv?type=${type}&format=csv&columns=id,name,status,priority,createdAt`),
+      fetch(
+        `/api/export/csv?type=${type}&format=csv&columns=id,name,status,priority,createdAt`
+      ),
       {
         loading: `Exporting ${type} data...`,
-        success: (response) => {
+        success: response => {
           if (response.ok) {
             // Trigger download
             const link = document.createElement('a')
@@ -143,7 +165,9 @@ export default function AdvancedDemoPage() {
       id: 'id',
       header: 'ID',
       width: '100px',
-      render: (item: any) => <span className="font-mono text-xs">{item.id}</span>,
+      render: (item: any) => (
+        <span className="font-mono text-xs">{item.id}</span>
+      ),
     },
     {
       id: 'name',
@@ -156,12 +180,16 @@ export default function AdvancedDemoPage() {
       header: 'Category',
       width: '120px',
       render: (item: any) => (
-        <span className={`px-2 py-1 rounded-full text-xs ${{
-          'Alpha': 'bg-blue-100 text-blue-700',
-          'Beta': 'bg-green-100 text-green-700',
-          'Gamma': 'bg-yellow-100 text-yellow-700',
-          'Delta': 'bg-purple-100 text-purple-700',
-        }[item.category as string]}`}>
+        <span
+          className={`px-2 py-1 rounded-full text-xs ${
+            {
+              Alpha: 'bg-blue-100 text-blue-700',
+              Beta: 'bg-green-100 text-green-700',
+              Gamma: 'bg-yellow-100 text-yellow-700',
+              Delta: 'bg-purple-100 text-purple-700',
+            }[item.category as string]
+          }`}
+        >
           {item.category}
         </span>
       ),
@@ -179,11 +207,15 @@ export default function AdvancedDemoPage() {
       header: 'Status',
       width: '100px',
       render: (item: any) => (
-        <span className={`px-2 py-1 rounded-full text-xs ${{
-          'active': 'bg-green-100 text-green-700',
-          'inactive': 'bg-gray-100 text-gray-700',
-          'pending': 'bg-yellow-100 text-yellow-700',
-        }[item.status as string]}`}>
+        <span
+          className={`px-2 py-1 rounded-full text-xs ${
+            {
+              active: 'bg-green-100 text-green-700',
+              inactive: 'bg-gray-100 text-gray-700',
+              pending: 'bg-yellow-100 text-yellow-700',
+            }[item.status as string]
+          }`}
+        >
           {item.status}
         </span>
       ),
@@ -203,26 +235,27 @@ export default function AdvancedDemoPage() {
         description="Demonstration of complex components including drag-drop trees, virtual scrolling, real-time analytics, and integrations"
         action={
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={() => handleExportData('tasks')}
-            >
+            <Button variant="outline" onClick={() => handleExportData('tasks')}>
               <Download className="w-4 h-4 mr-2" />
               Export Tasks
             </Button>
-            <Button onClick={() => toast.success('All features are production ready!')}>
+            <Button
+              onClick={() =>
+                toast.success('All features are production ready!')
+              }
+            >
               <Zap className="w-4 h-4 mr-2" />
               Production Ready
             </Button>
           </div>
         }
       />
-      
+
       <PageContent>
         <div className="space-y-6">
           <div className="border-b">
             <div className="flex space-x-8">
-              {tabItems.map((tab) => (
+              {tabItems.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
@@ -241,14 +274,20 @@ export default function AdvancedDemoPage() {
           {activeTab === 'division-tree' && (
             <div className="space-y-4">
               <div className="bg-muted/50 p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">Division Template Designer</h3>
+                <h3 className="font-semibold mb-2">
+                  Division Template Designer
+                </h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Drag and drop to reorder divisions, right-click for context menu, double-click to edit names inline.
-                  This tree supports unlimited nesting and handles complex hierarchical structures efficiently.
+                  Drag and drop to reorder divisions, right-click for context
+                  menu, double-click to edit names inline. This tree supports
+                  unlimited nesting and handles complex hierarchical structures
+                  efficiently.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <h4 className="text-sm font-medium mb-2">Features Demonstrated:</h4>
+                    <h4 className="text-sm font-medium mb-2">
+                      Features Demonstrated:
+                    </h4>
                     <ul className="text-sm text-muted-foreground space-y-1">
                       <li>• Drag-drop reordering with @dnd-kit</li>
                       <li>• Inline editing with validation</li>
@@ -269,7 +308,7 @@ export default function AdvancedDemoPage() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="border rounded-lg p-4">
                 <DivisionTree
                   data={divisions}
@@ -285,12 +324,15 @@ export default function AdvancedDemoPage() {
               <div className="bg-muted/50 p-4 rounded-lg">
                 <h3 className="font-semibold mb-2">Task Management System</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Complete task management with inline editing, bulk operations, filtering, and virtual scrolling.
-                  Currently displaying {tasks.length.toLocaleString()} tasks with smooth performance.
+                  Complete task management with inline editing, bulk operations,
+                  filtering, and virtual scrolling. Currently displaying{' '}
+                  {tasks.length.toLocaleString()} tasks with smooth performance.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <h4 className="text-sm font-medium mb-2">Editing Features:</h4>
+                    <h4 className="text-sm font-medium mb-2">
+                      Editing Features:
+                    </h4>
                     <ul className="text-sm text-muted-foreground space-y-1">
                       <li>• Click to edit task names</li>
                       <li>• Multiline description editing</li>
@@ -299,7 +341,9 @@ export default function AdvancedDemoPage() {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium mb-2">Bulk Operations:</h4>
+                    <h4 className="text-sm font-medium mb-2">
+                      Bulk Operations:
+                    </h4>
                     <ul className="text-sm text-muted-foreground space-y-1">
                       <li>• Multi-select with checkboxes</li>
                       <li>• Bulk delete/archive/duplicate</li>
@@ -323,7 +367,7 @@ export default function AdvancedDemoPage() {
                 tasks={tasks}
                 onTasksChange={setTasks}
                 containerHeight={600}
-                onTaskClick={(task) => toast.info(`Clicked task: ${task.name}`)}
+                onTaskClick={task => toast.info(`Clicked task: ${task.name}`)}
                 className="border rounded-lg"
               />
             </div>
@@ -334,12 +378,16 @@ export default function AdvancedDemoPage() {
               <div className="bg-muted/50 p-4 rounded-lg">
                 <h3 className="font-semibold mb-2">Virtual Scrolling Table</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Displaying {virtualData.length.toLocaleString()} rows using virtual scrolling for optimal performance.
-                  Only visible rows are rendered, making it possible to handle massive datasets efficiently.
+                  Displaying {virtualData.length.toLocaleString()} rows using
+                  virtual scrolling for optimal performance. Only visible rows
+                  are rendered, making it possible to handle massive datasets
+                  efficiently.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <h4 className="text-sm font-medium mb-2">Virtual Scrolling Benefits:</h4>
+                    <h4 className="text-sm font-medium mb-2">
+                      Virtual Scrolling Benefits:
+                    </h4>
                     <ul className="text-sm text-muted-foreground space-y-1">
                       <li>• Renders only visible items</li>
                       <li>• Constant memory usage</li>
@@ -348,7 +396,9 @@ export default function AdvancedDemoPage() {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium mb-2">Technical Details:</h4>
+                    <h4 className="text-sm font-medium mb-2">
+                      Technical Details:
+                    </h4>
                     <ul className="text-sm text-muted-foreground space-y-1">
                       <li>• 50px fixed row height</li>
                       <li>• 600px container height</li>
@@ -364,8 +414,8 @@ export default function AdvancedDemoPage() {
                 columns={virtualTableColumns}
                 itemHeight={50}
                 containerHeight={600}
-                onRowClick={(item) => toast.info(`Clicked: ${item.name}`)}
-                keyExtractor={(item) => item.id}
+                onRowClick={item => toast.info(`Clicked: ${item.name}`)}
+                keyExtractor={item => item.id}
                 className="border rounded-lg"
               />
             </div>
@@ -374,14 +424,19 @@ export default function AdvancedDemoPage() {
           {activeTab === 'analytics' && (
             <div className="space-y-4">
               <div className="bg-muted/50 p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">Real-time Analytics Dashboard</h3>
+                <h3 className="font-semibold mb-2">
+                  Real-time Analytics Dashboard
+                </h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Live dashboard with auto-refresh, interactive charts, and export capabilities.
-                  Data updates every 30 seconds using React Query for optimal caching and background updates.
+                  Live dashboard with auto-refresh, interactive charts, and
+                  export capabilities. Data updates every 30 seconds using React
+                  Query for optimal caching and background updates.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <h4 className="text-sm font-medium mb-2">Real-time Features:</h4>
+                    <h4 className="text-sm font-medium mb-2">
+                      Real-time Features:
+                    </h4>
                     <ul className="text-sm text-muted-foreground space-y-1">
                       <li>• Auto-refresh every 30s</li>
                       <li>• Background data fetching</li>
@@ -399,7 +454,9 @@ export default function AdvancedDemoPage() {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium mb-2">Export Options:</h4>
+                    <h4 className="text-sm font-medium mb-2">
+                      Export Options:
+                    </h4>
                     <ul className="text-sm text-muted-foreground space-y-1">
                       <li>• CSV export for all charts</li>
                       <li>• Time range filtering</li>
@@ -410,21 +467,29 @@ export default function AdvancedDemoPage() {
                 </div>
               </div>
 
-              <AnalyticsDashboard className="space-y-6" refreshInterval={30000} />
+              <AnalyticsDashboard
+                className="space-y-6"
+                refreshInterval={30000}
+              />
             </div>
           )}
 
           {activeTab === 'whatsapp' && (
             <div className="space-y-4">
               <div className="bg-muted/50 p-4 rounded-lg">
-                <h3 className="font-semibold mb-2">WhatsApp Business Integration</h3>
+                <h3 className="font-semibold mb-2">
+                  WhatsApp Business Integration
+                </h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Complete WhatsApp integration for task management via messaging.
-                  Supports command parsing, attachment handling, and automated task creation.
+                  Complete WhatsApp integration for task management via
+                  messaging. Supports command parsing, attachment handling, and
+                  automated task creation.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <h4 className="text-sm font-medium mb-2">Message Features:</h4>
+                    <h4 className="text-sm font-medium mb-2">
+                      Message Features:
+                    </h4>
                     <ul className="text-sm text-muted-foreground space-y-1">
                       <li>• Real-time message sync</li>
                       <li>• Command parsing system</li>

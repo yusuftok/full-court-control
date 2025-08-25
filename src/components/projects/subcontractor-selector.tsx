@@ -1,15 +1,15 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { useState, useRef, useEffect } from "react"
-import { Search, Building, Plus, ChevronDown } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import * as React from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { Search, Building, Plus, ChevronDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { SubcontractorType, Subcontractor } from './types/subcontractor-types'
-import { 
-  getSubcontractorsByType, 
-  getSubcontractorTypeLabel 
+import {
+  getSubcontractorsByType,
+  getSubcontractorTypeLabel,
 } from './data/mock-subcontractors'
 
 interface SubcontractorSelectorProps {
@@ -22,17 +22,17 @@ interface SubcontractorSelectorProps {
   className?: string
 }
 
-export function SubcontractorSelector({ 
-  type, 
-  value, 
+export function SubcontractorSelector({
+  type,
+  value,
   onChange,
   onNewSubcontractor,
   subcontractorList,
-  placeholder = "Taşeron ara ve seç...",
-  className 
+  placeholder = 'Taşeron ara ve seç...',
+  className,
 }: SubcontractorSelectorProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState('')
   const [isFocused, setIsFocused] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -40,8 +40,13 @@ export function SubcontractorSelector({
   // Filter subcontractors based on type and search term
   const filteredSubcontractors = subcontractorList.filter(subcontractor => {
     const matchesType = subcontractor.type === type
-    const matchesSearch = subcontractor.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         subcontractor.responsiblePerson.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch =
+      subcontractor.companyName
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      subcontractor.responsiblePerson
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
     return matchesType && matchesSearch
   })
 
@@ -51,14 +56,14 @@ export function SubcontractorSelector({
   const handleSelect = (subcontractor: Subcontractor) => {
     onChange(subcontractor.id)
     setIsOpen(false)
-    setSearchTerm("")
+    setSearchTerm('')
     setIsFocused(false)
   }
 
   const handleAddNew = () => {
     onNewSubcontractor(type)
     setIsOpen(false)
-    setSearchTerm("")
+    setSearchTerm('')
     setIsFocused(false)
   }
 
@@ -71,10 +76,10 @@ export function SubcontractorSelector({
     const newValue = e.target.value
     setSearchTerm(newValue)
     setIsOpen(true)
-    
+
     // If user clears input, also clear selection
-    if (newValue === "") {
-      onChange("")
+    if (newValue === '') {
+      onChange('')
     }
   }
 
@@ -83,7 +88,7 @@ export function SubcontractorSelector({
     setTimeout(() => {
       setIsFocused(false)
       if (!value && searchTerm) {
-        setSearchTerm("")
+        setSearchTerm('')
       }
     }, 200)
   }
@@ -91,11 +96,14 @@ export function SubcontractorSelector({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false)
         setIsFocused(false)
         if (!value && searchTerm) {
-          setSearchTerm("")
+          setSearchTerm('')
         }
       }
     }
@@ -105,10 +113,15 @@ export function SubcontractorSelector({
   }, [value, searchTerm])
 
   // Update display value
-  const displayValue = isFocused || isOpen ? searchTerm : (selectedSubcontractor ? selectedSubcontractor.companyName : searchTerm)
+  const displayValue =
+    isFocused || isOpen
+      ? searchTerm
+      : selectedSubcontractor
+        ? selectedSubcontractor.companyName
+        : searchTerm
 
   return (
-    <div ref={containerRef} className={cn("relative", className)}>
+    <div ref={containerRef} className={cn('relative', className)}>
       {/* Main Input */}
       <div className="relative">
         <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
@@ -121,14 +134,16 @@ export function SubcontractorSelector({
           onBlur={handleInputBlur}
           placeholder={placeholder}
           className={cn(
-            "pl-10 pr-10",
-            (isFocused || isOpen) && "ring-2 ring-primary/20"
+            'pl-10 pr-10',
+            (isFocused || isOpen) && 'ring-2 ring-primary/20'
           )}
         />
-        <ChevronDown className={cn(
-          "absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground transition-transform pointer-events-none",
-          isOpen && "rotate-180"
-        )} />
+        <ChevronDown
+          className={cn(
+            'absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground transition-transform pointer-events-none',
+            isOpen && 'rotate-180'
+          )}
+        />
       </div>
 
       {/* Dropdown */}
@@ -139,7 +154,7 @@ export function SubcontractorSelector({
             {/* Show subcontractors only if there's search term */}
             {searchTerm && filteredSubcontractors.length > 0 && (
               <div className="p-2 space-y-1">
-                {filteredSubcontractors.map((subcontractor) => (
+                {filteredSubcontractors.map(subcontractor => (
                   <button
                     key={subcontractor.id}
                     onClick={() => handleSelect(subcontractor)}
@@ -156,7 +171,8 @@ export function SubcontractorSelector({
                         {subcontractor.responsiblePerson}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {subcontractor.completedProjects} proje • {subcontractor.averageRating?.toFixed(1)} ⭐
+                        {subcontractor.completedProjects} proje •{' '}
+                        {subcontractor.averageRating?.toFixed(1)} ⭐
                       </div>
                     </div>
                   </button>

@@ -1,5 +1,5 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from 'react'
+import { cn } from '@/lib/utils'
 
 interface CircularProgressProps {
   percentage: number
@@ -13,24 +13,24 @@ interface CircularProgressProps {
   className?: string
 }
 
-export function CircularProgress({ 
-  percentage, 
-  size = 60, 
-  strokeWidth = 6, 
-  color = "rgb(59 130 246)",
-  backgroundColor = "rgb(226 232 240)",
+export function CircularProgress({
+  percentage,
+  size = 60,
+  strokeWidth = 6,
+  color = 'rgb(59 130 246)',
+  backgroundColor = 'rgb(226 232 240)',
   showText = true,
   label,
   animate = true,
-  className
+  className,
 }: CircularProgressProps) {
   const radius = (size - strokeWidth) / 2
   const circumference = radius * 2 * Math.PI
   const strokeDasharray = circumference
   const strokeDashoffset = circumference - (percentage / 100) * circumference
-  
+
   return (
-    <div className={cn("flex flex-col items-center gap-1", className)}>
+    <div className={cn('flex flex-col items-center gap-1', className)}>
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="transform -rotate-90">
           {/* Background circle */}
@@ -55,11 +55,11 @@ export function CircularProgress({
             strokeDashoffset={strokeDashoffset}
             strokeLinecap="round"
             className={cn(
-              "transition-all duration-1000 ease-out",
-              animate && "animate-pulse"
+              'transition-all duration-1000 ease-out',
+              animate && 'animate-pulse'
             )}
             style={{
-              filter: `drop-shadow(0 0 6px ${color}40)`
+              filter: `drop-shadow(0 0 6px ${color}40)`,
             }}
           />
         </svg>
@@ -72,7 +72,9 @@ export function CircularProgress({
         )}
       </div>
       {label && (
-        <span className="text-xs text-muted-foreground font-medium">{label}</span>
+        <span className="text-xs text-muted-foreground font-medium">
+          {label}
+        </span>
       )}
     </div>
   )

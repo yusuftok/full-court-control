@@ -1,10 +1,24 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { MessageCircle, Send, Download, Settings, CheckCircle, Clock, AlertCircle } from 'lucide-react'
+import {
+  MessageCircle,
+  Send,
+  Download,
+  Settings,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -106,9 +120,11 @@ interface MessageBubbleProps {
 
 function MessageBubble({ message }: MessageBubbleProps) {
   const isIncoming = message.type === 'incoming'
-  
+
   return (
-    <div className={cn('flex mb-4', isIncoming ? 'justify-start' : 'justify-end')}>
+    <div
+      className={cn('flex mb-4', isIncoming ? 'justify-start' : 'justify-end')}
+    >
       <div
         className={cn(
           'max-w-xs lg:max-w-md px-4 py-2 rounded-lg',
@@ -118,7 +134,7 @@ function MessageBubble({ message }: MessageBubbleProps) {
         )}
       >
         <p className="text-sm">{message.content}</p>
-        
+
         {message.taskCreated && (
           <div className="mt-2">
             <Badge variant="secondary" className="text-xs">
@@ -137,15 +153,21 @@ function MessageBubble({ message }: MessageBubbleProps) {
             ))}
           </div>
         )}
-        
+
         <div className="flex items-center justify-between mt-2 text-xs opacity-80">
           <span>{message.timestamp.toLocaleTimeString()}</span>
           {!isIncoming && (
             <div className="flex items-center">
               {message.status === 'sent' && <Clock className="w-3 h-3" />}
-              {message.status === 'delivered' && <CheckCircle className="w-3 h-3" />}
-              {message.status === 'read' && <CheckCircle className="w-3 h-3 text-blue-400" />}
-              {message.status === 'failed' && <AlertCircle className="w-3 h-3 text-red-400" />}
+              {message.status === 'delivered' && (
+                <CheckCircle className="w-3 h-3" />
+              )}
+              {message.status === 'read' && (
+                <CheckCircle className="w-3 h-3 text-blue-400" />
+              )}
+              {message.status === 'failed' && (
+                <AlertCircle className="w-3 h-3 text-red-400" />
+              )}
             </div>
           )}
         </div>
@@ -160,11 +182,17 @@ interface ContactListProps {
   onContactSelect: (contactId: string) => void
 }
 
-function ContactList({ contacts, selectedContact, onContactSelect }: ContactListProps) {
+function ContactList({
+  contacts,
+  selectedContact,
+  onContactSelect,
+}: ContactListProps) {
   return (
     <div className="space-y-2">
-      <h3 className="font-medium text-sm text-muted-foreground mb-3">Recent Contacts</h3>
-      {contacts.map((contact) => (
+      <h3 className="font-medium text-sm text-muted-foreground mb-3">
+        Recent Contacts
+      </h3>
+      {contacts.map(contact => (
         <div
           key={contact.id}
           className={cn(
@@ -175,13 +203,21 @@ function ContactList({ contacts, selectedContact, onContactSelect }: ContactList
           )}
           onClick={() => onContactSelect(contact.id)}
         >
-          <div className={cn(
-            'w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium',
-            contact.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-          )}>
-            {contact.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+          <div
+            className={cn(
+              'w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium',
+              contact.isActive
+                ? 'bg-green-100 text-green-700'
+                : 'bg-gray-100 text-gray-700'
+            )}
+          >
+            {contact.name
+              .split(' ')
+              .map(n => n[0])
+              .join('')
+              .toUpperCase()}
           </div>
-          
+
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium truncate">{contact.name}</p>
@@ -196,7 +232,7 @@ function ContactList({ contacts, selectedContact, onContactSelect }: ContactList
               </p>
             )}
           </div>
-          
+
           <Badge variant="secondary" className="text-xs">
             {contact.messageCount}
           </Badge>
@@ -215,8 +251,14 @@ function CommandHelp({ isOpen }: CommandHelpProps) {
 
   const commands = [
     { command: '/task [description]', description: 'Create a new task' },
-    { command: '/status [status] [task-id]', description: 'Update task status' },
-    { command: '/priority [level] [task-id]', description: 'Set task priority' },
+    {
+      command: '/status [status] [task-id]',
+      description: 'Update task status',
+    },
+    {
+      command: '/priority [level] [task-id]',
+      description: 'Set task priority',
+    },
     { command: '/list', description: 'Show your tasks' },
     { command: '/help', description: 'Show this help' },
   ]
@@ -232,7 +274,9 @@ function CommandHelp({ isOpen }: CommandHelpProps) {
             <code className="bg-muted px-2 py-1 rounded text-primary font-mono">
               {cmd.command}
             </code>
-            <span className="ml-2 text-muted-foreground">{cmd.description}</span>
+            <span className="ml-2 text-muted-foreground">
+              {cmd.description}
+            </span>
           </div>
         ))}
       </CardContent>
@@ -293,7 +337,7 @@ export function WhatsAppIntegration({ className }: WhatsAppIntegrationProps) {
           msg.timestamp.toISOString(),
           msg.taskCreated || false,
         ].join(',')
-      )
+      ),
     ].join('\n')
 
     const blob = new Blob([csv], { type: 'text/csv' })
@@ -324,8 +368,12 @@ export function WhatsAppIntegration({ className }: WhatsAppIntegrationProps) {
               <div className="flex items-center space-x-2">
                 <MessageCircle className="w-4 h-4 text-blue-500" />
                 <div>
-                  <p className="text-2xl font-bold">{mockStats.totalMessages}</p>
-                  <p className="text-xs text-muted-foreground">Total Messages</p>
+                  <p className="text-2xl font-bold">
+                    {mockStats.totalMessages}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Total Messages
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -348,8 +396,12 @@ export function WhatsAppIntegration({ className }: WhatsAppIntegrationProps) {
               <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 bg-green-500 rounded-full"></div>
                 <div>
-                  <p className="text-2xl font-bold">{mockStats.activeContacts}</p>
-                  <p className="text-xs text-muted-foreground">Active Contacts</p>
+                  <p className="text-2xl font-bold">
+                    {mockStats.activeContacts}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Active Contacts
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -360,7 +412,9 @@ export function WhatsAppIntegration({ className }: WhatsAppIntegrationProps) {
               <div className="flex items-center space-x-2">
                 <Clock className="w-4 h-4 text-orange-500" />
                 <div>
-                  <p className="text-2xl font-bold">{mockStats.responseTime}m</p>
+                  <p className="text-2xl font-bold">
+                    {mockStats.responseTime}m
+                  </p>
                   <p className="text-xs text-muted-foreground">Avg Response</p>
                 </div>
               </div>
@@ -375,10 +429,12 @@ export function WhatsAppIntegration({ className }: WhatsAppIntegrationProps) {
           <CardTitle className="flex items-center justify-between">
             <span>Contacts</span>
             <div className="flex items-center space-x-2">
-              <div className={cn(
-                'w-2 h-2 rounded-full',
-                isConnected ? 'bg-green-500' : 'bg-red-500'
-              )}></div>
+              <div
+                className={cn(
+                  'w-2 h-2 rounded-full',
+                  isConnected ? 'bg-green-500' : 'bg-red-500'
+                )}
+              ></div>
               <span className="text-xs text-muted-foreground">
                 {isConnected ? 'Connected' : 'Disconnected'}
               </span>
@@ -400,7 +456,9 @@ export function WhatsAppIntegration({ className }: WhatsAppIntegrationProps) {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div>
               <CardTitle className="text-base">
-                {selectedContactData ? selectedContactData.name : 'Select a contact'}
+                {selectedContactData
+                  ? selectedContactData.name
+                  : 'Select a contact'}
               </CardTitle>
               {selectedContactData && (
                 <CardDescription>{selectedContactData.phone}</CardDescription>
@@ -415,7 +473,11 @@ export function WhatsAppIntegration({ className }: WhatsAppIntegrationProps) {
                 <Settings className="w-4 h-4 mr-2" />
                 Commands
               </Button>
-              <Button variant="outline" size="sm" onClick={handleExportMessages}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportMessages}
+              >
                 <Download className="w-4 h-4 mr-2" />
                 Export
               </Button>
@@ -423,11 +485,11 @@ export function WhatsAppIntegration({ className }: WhatsAppIntegrationProps) {
           </CardHeader>
           <CardContent>
             <CommandHelp isOpen={showCommands} />
-            
+
             {/* Messages */}
             <div className="h-96 overflow-y-auto mb-4 border rounded-lg p-4">
               {contactMessages.length > 0 ? (
-                contactMessages.map((message) => (
+                contactMessages.map(message => (
                   <MessageBubble key={message.id} message={message} />
                 ))
               ) : (
@@ -446,13 +508,13 @@ export function WhatsAppIntegration({ className }: WhatsAppIntegrationProps) {
               <div className="flex space-x-2">
                 <Input
                   value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
+                  onChange={e => setNewMessage(e.target.value)}
                   placeholder="Type a message or use /commands..."
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  onKeyPress={e => e.key === 'Enter' && handleSendMessage()}
                   disabled={!isConnected}
                 />
-                <Button 
-                  onClick={handleSendMessage} 
+                <Button
+                  onClick={handleSendMessage}
                   disabled={!newMessage.trim() || !isConnected}
                 >
                   <Send className="w-4 h-4" />

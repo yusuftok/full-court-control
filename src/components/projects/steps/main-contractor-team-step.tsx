@@ -2,7 +2,13 @@
 
 import { Users, Crown, Hammer, Wrench, Zap } from 'lucide-react'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { ProjectFormData } from '../types/project-types'
 import { EngineerSelector } from '../engineer-selector'
 
@@ -13,14 +19,17 @@ interface MainContractorTeamStepProps {
 
 export const MainContractorTeamStep: React.FC<MainContractorTeamStepProps> = ({
   formData,
-  updateFormData
+  updateFormData,
 }) => {
-  const handleTeamMemberChange = (role: keyof ProjectFormData['mainContractorTeam'], value: string) => {
+  const handleTeamMemberChange = (
+    role: keyof ProjectFormData['mainContractorTeam'],
+    value: string
+  ) => {
     updateFormData({
       mainContractorTeam: {
         ...formData.mainContractorTeam,
-        [role]: value
-      }
+        [role]: value,
+      },
     })
   }
 
@@ -32,7 +41,7 @@ export const MainContractorTeamStep: React.FC<MainContractorTeamStepProps> = ({
       icon: Crown,
       placeholder: 'Şef Mühendis seçmek için yazmaya başlayın...',
       color: 'text-purple-600',
-      roleType: 'chief'
+      roleType: 'chief',
     },
     {
       key: 'civilEngineer' as const,
@@ -41,7 +50,7 @@ export const MainContractorTeamStep: React.FC<MainContractorTeamStepProps> = ({
       icon: Hammer,
       placeholder: 'İnşaat Mühendisi seçmek için yazmaya başlayın...',
       color: 'text-orange-600',
-      roleType: 'civil'
+      roleType: 'civil',
     },
     {
       key: 'mechanicalEngineer' as const,
@@ -50,7 +59,7 @@ export const MainContractorTeamStep: React.FC<MainContractorTeamStepProps> = ({
       icon: Wrench,
       placeholder: 'Makine Mühendisi seçmek için yazmaya başlayın...',
       color: 'text-green-600',
-      roleType: 'mechanical'
+      roleType: 'mechanical',
     },
     {
       key: 'electricalEngineer' as const,
@@ -59,11 +68,13 @@ export const MainContractorTeamStep: React.FC<MainContractorTeamStepProps> = ({
       icon: Zap,
       placeholder: 'Elektrik Mühendisi seçmek için yazmaya başlayın...',
       color: 'text-blue-600',
-      roleType: 'electrical'
-    }
+      roleType: 'electrical',
+    },
   ]
 
-  const completedRoles = Object.values(formData.mainContractorTeam).filter(Boolean).length
+  const completedRoles = Object.values(formData.mainContractorTeam).filter(
+    Boolean
+  ).length
   const totalRoles = teamRoles.length
 
   return (
@@ -72,53 +83,58 @@ export const MainContractorTeamStep: React.FC<MainContractorTeamStepProps> = ({
         <CardHeader>
           <CardTitle>Mühendis Atamaları</CardTitle>
           <CardDescription>
-            Projenin ana yüklenici ekibindeki sorumlu mühendisleri atayın. 
-            Her disiplin için bir sorumlu mühendis gereklidir.
+            Projenin ana yüklenici ekibindeki sorumlu mühendisleri atayın. Her
+            disiplin için bir sorumlu mühendis gereklidir.
           </CardDescription>
         </CardHeader>
-        
-        <CardContent>
 
+        <CardContent>
           <div className="grid gap-6">
-            {teamRoles.map((role) => {
+            {teamRoles.map(role => {
               const isCompleted = !!formData.mainContractorTeam[role.key]
               const Icon = role.icon
-              
+
               return (
-                <Card 
-                  key={role.key} 
+                <Card
+                  key={role.key}
                   className={`transition-all duration-200 ${
-                    isCompleted 
-                      ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20' 
+                    isCompleted
+                      ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
                       : 'hover:shadow-md'
                   }`}
                 >
                   <CardContent className="pt-6">
                     <div className="grid grid-cols-12 gap-4 items-start">
-                      <div className={`w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center ${role.color}`}>
+                      <div
+                        className={`w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center ${role.color}`}
+                      >
                         <Icon className="w-6 h-6" />
                       </div>
-                      
+
                       <div className="col-span-5">
-                        <Label htmlFor={role.key} className="text-base font-medium">
+                        <Label
+                          htmlFor={role.key}
+                          className="text-base font-medium"
+                        >
                           {role.title} *
                         </Label>
                         <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                           {role.description}
                         </p>
                       </div>
-                      
+
                       <div className="col-span-6 flex flex-col">
                         <div className="flex-1 flex items-end">
                           <EngineerSelector
                             role={role.roleType}
                             value={formData.mainContractorTeam[role.key]}
-                            onChange={(value) => handleTeamMemberChange(role.key, value)}
+                            onChange={value =>
+                              handleTeamMemberChange(role.key, value)
+                            }
                             placeholder={role.placeholder}
                             className="w-full"
                           />
                         </div>
-                        
                       </div>
                     </div>
                   </CardContent>
@@ -129,7 +145,6 @@ export const MainContractorTeamStep: React.FC<MainContractorTeamStepProps> = ({
         </CardContent>
       </Card>
 
-
       {/* Validasyon Mesajları */}
       {completedRoles > 0 && completedRoles < totalRoles && (
         <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20">
@@ -139,7 +154,7 @@ export const MainContractorTeamStep: React.FC<MainContractorTeamStepProps> = ({
                 <span className="text-white text-sm">!</span>
               </div>
               <p className="text-sm text-amber-700 dark:text-amber-300">
-                Devam edebilmek için tüm mühendis pozisyonları atanmalıdır. 
+                Devam edebilmek için tüm mühendis pozisyonları atanmalıdır.
                 Eksik: {totalRoles - completedRoles} pozisyon
               </p>
             </div>
@@ -155,8 +170,8 @@ export const MainContractorTeamStep: React.FC<MainContractorTeamStepProps> = ({
                 <span className="text-white text-sm">✓</span>
               </div>
               <p className="text-sm text-green-700 dark:text-green-300">
-                Harika! Ana yüklenici ekibi tamamlandı. 
-                Sonraki adımda taşeronları seçebilirsiniz.
+                Harika! Ana yüklenici ekibi tamamlandı. Sonraki adımda
+                taşeronları seçebilirsiniz.
               </p>
             </div>
           </CardContent>

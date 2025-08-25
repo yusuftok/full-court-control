@@ -1,33 +1,33 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from 'react'
+import { cn } from '@/lib/utils'
 
-interface PageContainerProps extends React.ComponentProps<"div"> {
+interface PageContainerProps extends React.ComponentProps<'div'> {
   children: React.ReactNode
-  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "full"
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full'
   className?: string
 }
 
-export function PageContainer({ 
-  children, 
-  maxWidth = "full", 
-  className, 
-  ...props 
+export function PageContainer({
+  children,
+  maxWidth = 'full',
+  className,
+  ...props
 }: PageContainerProps) {
   const maxWidthClasses = {
-    sm: "max-w-sm",
-    md: "max-w-md", 
-    lg: "max-w-lg",
-    xl: "max-w-xl",
-    "2xl": "max-w-2xl",
-    full: "max-w-none"
+    sm: 'max-w-sm',
+    md: 'max-w-md',
+    lg: 'max-w-lg',
+    xl: 'max-w-xl',
+    '2xl': 'max-w-2xl',
+    full: 'max-w-none',
   }
 
   return (
-    <div 
+    <div
       className={cn(
-        "flex-1 flex flex-col",
+        'flex-1 flex flex-col',
         maxWidthClasses[maxWidth],
-        "mx-auto w-full",
+        'mx-auto w-full',
         className
       )}
       {...props}
@@ -37,7 +37,7 @@ export function PageContainer({
   )
 }
 
-interface PageHeaderProps extends React.ComponentProps<"div"> {
+interface PageHeaderProps extends React.ComponentProps<'div'> {
   title: string
   description?: string
   action?: React.ReactNode
@@ -45,19 +45,19 @@ interface PageHeaderProps extends React.ComponentProps<"div"> {
   className?: string
 }
 
-export function PageHeader({ 
-  title, 
-  description, 
-  action, 
-  children, 
+export function PageHeader({
+  title,
+  description,
+  action,
+  children,
   className,
-  ...props 
+  ...props
 }: PageHeaderProps) {
   return (
-    <div 
+    <div
       className={cn(
-        "flex flex-col gap-1 pb-2 border-b mb-2 animate-build-up",
-        "sm:flex-row sm:items-center sm:justify-between",
+        'flex flex-col gap-1 pb-2 border-b mb-2 animate-build-up',
+        'sm:flex-row sm:items-center sm:justify-between',
         className
       )}
       {...props}
@@ -73,26 +73,25 @@ export function PageHeader({
         )}
       </div>
       {action && (
-        <div className="flex items-center gap-2 animate-build-up">
-          {action}
-        </div>
+        <div className="flex items-center gap-2 animate-build-up">{action}</div>
       )}
       {children}
     </div>
   )
 }
 
-interface PageContentProps extends React.ComponentProps<"main"> {
+interface PageContentProps extends React.ComponentProps<'main'> {
   children: React.ReactNode
   className?: string
 }
 
-export function PageContent({ children, className, ...props }: PageContentProps) {
+export function PageContent({
+  children,
+  className,
+  ...props
+}: PageContentProps) {
   return (
-    <main 
-      className={cn("flex-1 p-6", className)} 
-      {...props}
-    >
+    <main className={cn('flex-1 p-6', className)} {...props}>
       {children}
     </main>
   )
@@ -106,7 +105,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children, className }: AppLayoutProps) {
   return (
-    <div className={cn("min-h-screen bg-background", className)}>
+    <div className={cn('min-h-screen bg-background', className)}>
       {children}
     </div>
   )

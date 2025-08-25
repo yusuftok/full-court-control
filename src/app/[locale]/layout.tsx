@@ -9,15 +9,15 @@ interface LocaleLayoutProps {
 }
 
 export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }))
+  return locales.map(locale => ({ locale }))
 }
 
 export default async function LocaleLayout({
   children,
-  params
+  params,
 }: LocaleLayoutProps) {
   const { locale } = await params
-  
+
   // Validate that the incoming `locale` parameter is valid
   if (!locales.includes(locale as any)) {
     notFound()
@@ -30,5 +30,5 @@ export default async function LocaleLayout({
     <NextIntlClientProvider messages={messages} locale={locale}>
       {children}
     </NextIntlClientProvider>
-  );
+  )
 }

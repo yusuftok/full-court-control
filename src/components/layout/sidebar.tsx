@@ -1,60 +1,60 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useTranslations } from "next-intl"
-import { 
-  Building2, 
-  Command, 
-  Wrench, 
-  Users, 
+import * as React from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import {
+  Building2,
+  Command,
+  Wrench,
+  Users,
   Settings,
   Menu,
   X,
-  FolderTree
-} from "lucide-react"
+  FolderTree,
+} from 'lucide-react'
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 
 const getNavigationItems = (t: any) => [
   {
     title: t('navigation.dashboard'),
-    href: "/dashboard",
+    href: '/dashboard',
     icon: Command,
-    emoji: "🏗️"
+    emoji: '🏗️',
   },
   {
     title: t('navigation.projects'),
-    href: "/projects",
+    href: '/projects',
     icon: Building2,
-    emoji: "🏢"
+    emoji: '🏢',
   },
   {
     title: t('navigation.tasks'),
-    href: "/tasks",
+    href: '/tasks',
     icon: Wrench,
-    emoji: "🔨"
+    emoji: '🔨',
   },
   {
-    title: "Ekip",
-    href: "/subcontractors",
+    title: 'Ekip',
+    href: '/subcontractors',
     icon: Users,
-    emoji: "👷"
+    emoji: '👷',
   },
   {
     title: t('navigation.templates'),
-    href: "/settings/templates",
+    href: '/settings/templates',
     icon: FolderTree,
-    emoji: "📋"
+    emoji: '📋',
   },
   {
     title: t('navigation.settings'),
-    href: "/settings",
+    href: '/settings',
     icon: Settings,
-    emoji: "⚙️"
-  }
+    emoji: '⚙️',
+  },
 ]
 
 interface SidebarProps {
@@ -64,16 +64,22 @@ interface SidebarProps {
   onClose?: () => void
 }
 
-export function Sidebar({ className, isMobile = false, isOpen = false, onClose }: SidebarProps) {
+export function Sidebar({
+  className,
+  isMobile = false,
+  isOpen = false,
+  onClose,
+}: SidebarProps) {
   const pathname = usePathname()
   const t = useTranslations()
   const [logoClickCount, setLogoClickCount] = React.useState(0)
   const [showEasterEgg, setShowEasterEgg] = React.useState(false)
   const navigationItems = getNavigationItems(t)
-  
+
   const handleLogoClick = () => {
     setLogoClickCount(prev => prev + 1)
-    if (logoClickCount === 4) { // 5 clicks total (0-4)
+    if (logoClickCount === 4) {
+      // 5 clicks total (0-4)
       setShowEasterEgg(true)
       setTimeout(() => {
         setShowEasterEgg(false)
@@ -86,19 +92,29 @@ export function Sidebar({ className, isMobile = false, isOpen = false, onClose }
     <div className="flex flex-col h-full">
       {/* Logo and Brand */}
       <div className="h-16 flex items-center justify-between px-6 border-b border-white/10">
-        <div className="flex items-center gap-3 group cursor-pointer" onClick={handleLogoClick}>
-          <div className={cn(
-            "size-8 gradient-primary rounded-xl flex items-center justify-center modern-hover",
-            showEasterEgg && "mega-celebration animate-tada"
-          )} style={{ animation: 'float 6s ease-in-out infinite' }}>
+        <div
+          className="flex items-center gap-3 group cursor-pointer"
+          onClick={handleLogoClick}
+        >
+          <div
+            className={cn(
+              'size-8 gradient-primary rounded-xl flex items-center justify-center modern-hover',
+              showEasterEgg && 'mega-celebration animate-tada'
+            )}
+            style={{ animation: 'float 6s ease-in-out infinite' }}
+          >
             <Building2 className="size-5 text-primary-foreground" />
           </div>
           <div className="flex flex-col">
             <span className="font-semibold text-sm group-hover:text-primary transition-colors">
-              {showEasterEgg ? "Süper İnşaat Üstadı! 🏆" : "Full Court Control Pro"}
+              {showEasterEgg
+                ? 'Süper İnşaat Üstadı! 🏆'
+                : 'Full Court Control Pro'}
             </span>
             <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
-              {showEasterEgg ? "Gizli modu keşfettin! 🎉" : "İnşaat Yönetim Platformu"}
+              {showEasterEgg
+                ? 'Gizli modu keşfettin! 🎉'
+                : 'İnşaat Yönetim Platformu'}
             </span>
           </div>
         </div>
@@ -111,28 +127,30 @@ export function Sidebar({ className, isMobile = false, isOpen = false, onClose }
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-        {navigationItems.map((item) => {
+        {navigationItems.map(item => {
           // More specific active check to prevent multiple items being active
-          const isActive = pathname === item.href || 
-            (pathname.startsWith(item.href + "/") && 
-             !navigationItems.some(otherItem => 
-               otherItem.href !== item.href && 
-               otherItem.href.startsWith(item.href) && 
-               pathname.startsWith(otherItem.href)
-             ))
+          const isActive =
+            pathname === item.href ||
+            (pathname.startsWith(item.href + '/') &&
+              !navigationItems.some(
+                otherItem =>
+                  otherItem.href !== item.href &&
+                  otherItem.href.startsWith(item.href) &&
+                  pathname.startsWith(otherItem.href)
+              ))
           const Icon = item.icon
-          
+
           return (
             <Link
               key={item.href}
               href={item.href}
               onClick={isMobile ? onClose : undefined}
               className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-300 group",
-                "modern-hover modern-focus",
+                'flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-300 group',
+                'modern-hover modern-focus',
                 isActive
-                  ? "gradient-primary text-primary-foreground shadow-soft animate-spring-in"
-                  : "text-muted-foreground hover:text-foreground hover:bg-white/10"
+                  ? 'gradient-primary text-primary-foreground shadow-soft animate-spring-in'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-white/10'
               )}
             >
               <Icon className="size-4 shrink-0 group-hover:scale-110 transition-transform" />
@@ -163,16 +181,16 @@ export function Sidebar({ className, isMobile = false, isOpen = false, onClose }
       <>
         {/* Mobile overlay */}
         {isOpen && (
-          <div 
-            className="fixed inset-0 z-40 bg-black/50 lg:hidden" 
+          <div
+            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
             onClick={onClose}
           />
         )}
         {/* Mobile sidebar */}
         <div
           className={cn(
-            "fixed inset-y-0 left-0 z-50 w-72 glass shadow-glass transition-transform duration-200 ease-in-out lg:hidden",
-            isOpen ? "translate-x-0" : "-translate-x-full",
+            'fixed inset-y-0 left-0 z-50 w-72 glass shadow-glass transition-transform duration-200 ease-in-out lg:hidden',
+            isOpen ? 'translate-x-0' : '-translate-x-full',
             className
           )}
         >
@@ -183,7 +201,7 @@ export function Sidebar({ className, isMobile = false, isOpen = false, onClose }
   }
 
   return (
-    <div className={cn("w-72 h-full glass shadow-glass", className)}>
+    <div className={cn('w-72 h-full glass shadow-glass', className)}>
       {sidebarContent}
     </div>
   )
@@ -195,13 +213,16 @@ interface MobileMenuButtonProps {
   className?: string
 }
 
-export function MobileMenuButton({ onClick, className }: MobileMenuButtonProps) {
+export function MobileMenuButton({
+  onClick,
+  className,
+}: MobileMenuButtonProps) {
   return (
     <Button
       variant="ghost"
       size="icon"
       onClick={onClick}
-      className={cn("lg:hidden", className)}
+      className={cn('lg:hidden', className)}
     >
       <Menu className="size-4" />
       <span className="sr-only">Menüyü aç/kapat</span>

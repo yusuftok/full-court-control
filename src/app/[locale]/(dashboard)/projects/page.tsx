@@ -1,22 +1,49 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { Plus, Search, Filter, Building2, MoreHorizontal, AlertTriangle, CheckCircle, Clock, Star, TrendingUp, DollarSign } from "lucide-react"
+import * as React from 'react'
+import {
+  Plus,
+  Search,
+  Filter,
+  Building2,
+  MoreHorizontal,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Star,
+  TrendingUp,
+  DollarSign,
+} from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PageContainer, PageHeader, PageContent } from "@/components/layout/page-container"
-import { DataTable, Column, StatusBadge, TableAction } from "@/components/data/data-table"
-import { Breadcrumbs } from "@/components/navigation/breadcrumbs"
-import { ProjectCard, type Project as ProjectCardProject } from "@/components/projects/project-card"
-import { ProjectStatus, Project } from "@/components/projects/types/project-types"
-import { cn } from "@/lib/utils"
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  PageContainer,
+  PageHeader,
+  PageContent,
+} from '@/components/layout/page-container'
+import {
+  DataTable,
+  Column,
+  StatusBadge,
+  TableAction,
+} from '@/components/data/data-table'
+import { Breadcrumbs } from '@/components/navigation/breadcrumbs'
+import {
+  ProjectCard,
+  type Project as ProjectCardProject,
+} from '@/components/projects/project-card'
+import {
+  ProjectStatus,
+  Project,
+} from '@/components/projects/types/project-types'
+import { cn } from '@/lib/utils'
 
 // Project interface now imported from shared component
 
 // Import ProjectCategory
-import { ProjectCategory } from "@/components/projects/types/project-types"
+import { ProjectCategory } from '@/components/projects/types/project-types'
 
 // Mock projects for demo
 const mockProjects: Project[] = [
@@ -45,19 +72,19 @@ const mockProjects: Project[] = [
       chiefEngineer: 'Ahmet Yılmaz',
       civilEngineer: 'Mehmet Demir',
       mechanicalEngineer: 'Ali Kaya',
-      electricalEngineer: 'Fatma Şahin'
+      electricalEngineer: 'Fatma Şahin',
     },
     subcontractors: {
       constructionId: 'sub-1',
       mechanicalId: 'sub-5',
-      electricalId: 'sub-8'
+      electricalId: 'sub-8',
     },
     category: ProjectCategory.COMMERCIAL,
     templateId: 'template-commercial-1',
-    divisions: []
+    divisions: [],
   },
   {
-    id: 'project-2', 
+    id: 'project-2',
     name: 'Bahçeşehir Konut Projesi',
     location: 'Bahçeşehir, İstanbul',
     startDate: '2024-03-01',
@@ -81,21 +108,21 @@ const mockProjects: Project[] = [
       chiefEngineer: 'Zeynep Koç',
       civilEngineer: 'Hasan Özkan',
       mechanicalEngineer: 'Ayşe Tuncer',
-      electricalEngineer: 'Murat Arslan'
+      electricalEngineer: 'Murat Arslan',
     },
     subcontractors: {
       constructionId: 'sub-2',
       mechanicalId: 'sub-6',
-      electricalId: 'sub-9'
+      electricalId: 'sub-9',
     },
     category: ProjectCategory.RESIDENTIAL,
     templateId: 'template-residential-1',
-    divisions: []
+    divisions: [],
   },
   {
     id: 'project-3',
     name: 'Ankara Metro B2 Hattı',
-    location: 'Çankaya, Ankara', 
+    location: 'Çankaya, Ankara',
     startDate: '2023-09-15',
     endDate: '2025-06-30',
     budget: 45000000,
@@ -117,16 +144,16 @@ const mockProjects: Project[] = [
       chiefEngineer: 'Engin Çelik',
       civilEngineer: 'Burhan Aktaş',
       mechanicalEngineer: 'Selma Yıldız',
-      electricalEngineer: 'İbrahim Güven'
+      electricalEngineer: 'İbrahim Güven',
     },
     subcontractors: {
       constructionId: 'sub-3',
       mechanicalId: 'sub-7',
-      electricalId: 'sub-10'
+      electricalId: 'sub-10',
     },
     category: ProjectCategory.INFRASTRUCTURE,
     templateId: 'template-infrastructure-1',
-    divisions: []
+    divisions: [],
   },
   {
     id: 'project-4',
@@ -153,16 +180,16 @@ const mockProjects: Project[] = [
       chiefEngineer: 'Selin Özdemir',
       civilEngineer: 'Can Yücel',
       mechanicalEngineer: 'Pınar Avcı',
-      electricalEngineer: 'Kemal Ertürk'
+      electricalEngineer: 'Kemal Ertürk',
     },
     subcontractors: {
       constructionId: null,
       mechanicalId: null,
-      electricalId: null
+      electricalId: null,
     },
     category: ProjectCategory.RESIDENTIAL,
     templateId: 'template-residential-2',
-    divisions: []
+    divisions: [],
   },
   {
     id: 'project-5',
@@ -189,16 +216,16 @@ const mockProjects: Project[] = [
       chiefEngineer: 'Orhan Pamuk',
       civilEngineer: 'Elif Şafak',
       mechanicalEngineer: 'Aziz Nesin',
-      electricalEngineer: 'Yaşar Kemal'
+      electricalEngineer: 'Yaşar Kemal',
     },
     subcontractors: {
       constructionId: 'sub-4',
       mechanicalId: 'sub-6',
-      electricalId: 'sub-9'
+      electricalId: 'sub-9',
     },
     category: ProjectCategory.RENOVATION,
     templateId: 'template-renovation-1',
-    divisions: []
+    divisions: [],
   },
   {
     id: 'project-6',
@@ -225,16 +252,16 @@ const mockProjects: Project[] = [
       chiefEngineer: 'Cem Karaca',
       civilEngineer: 'Barış Manço',
       mechanicalEngineer: 'Fikret Kızılok',
-      electricalEngineer: 'Erkin Koray'
+      electricalEngineer: 'Erkin Koray',
     },
     subcontractors: {
       constructionId: 'sub-1',
       mechanicalId: 'sub-5',
-      electricalId: 'sub-8'
+      electricalId: 'sub-8',
     },
     category: ProjectCategory.COMMERCIAL,
     templateId: 'template-commercial-2',
-    divisions: []
+    divisions: [],
   },
   {
     id: 'project-7',
@@ -261,17 +288,17 @@ const mockProjects: Project[] = [
       chiefEngineer: 'Fatih Terim',
       civilEngineer: 'Şenol Güneş',
       mechanicalEngineer: 'Abdullah Avcı',
-      electricalEngineer: 'Ersun Yanal'
+      electricalEngineer: 'Ersun Yanal',
     },
     subcontractors: {
       constructionId: 'sub-2',
       mechanicalId: null,
-      electricalId: null
+      electricalId: null,
     },
     category: ProjectCategory.INFRASTRUCTURE,
     templateId: 'template-infrastructure-2',
-    divisions: []
-  }
+    divisions: [],
+  },
 ]
 
 // Convert Project to ProjectCardProject for display
@@ -292,37 +319,37 @@ const convertToCardProject = (project: Project): ProjectCardProject => ({
   daysRemaining: project.daysRemaining,
   riskLevel: project.riskLevel,
   qualityScore: project.qualityScore,
-  healthStatus: project.healthStatus
+  healthStatus: project.healthStatus,
 })
 
 // DataTable columns removed - using ProjectCard for display instead
 
-
 export default function ProjectsPage() {
-  const [searchTerm, setSearchTerm] = React.useState("")
-  const [statusFilter, setStatusFilter] = React.useState<string>("active")
-  const [sortConfig, setSortConfig] = React.useState<{ key: string; direction: "asc" | "desc" } | undefined>(undefined)
+  const [searchTerm, setSearchTerm] = React.useState('')
+  const [statusFilter, setStatusFilter] = React.useState<string>('active')
+  const [sortConfig, setSortConfig] = React.useState<
+    { key: string; direction: 'asc' | 'desc' } | undefined
+  >(undefined)
   const [searchFocused, setSearchFocused] = React.useState(false)
   const [projects, setProjects] = React.useState<Project[]>(mockProjects)
 
-  const breadcrumbItems = [
-    { label: "Projeler", href: "/projects" }
-  ]
+  const breadcrumbItems = [{ label: 'Projeler', href: '/projects' }]
 
   const filteredProjects = React.useMemo(() => {
     let filtered = projects
 
     // Search filter
     if (searchTerm) {
-      filtered = filtered.filter(project =>
-        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.manager.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        project =>
+          project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          project.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          project.manager.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
     // Status filter
-    if (statusFilter && statusFilter !== "all") {
+    if (statusFilter && statusFilter !== 'all') {
       filtered = filtered.filter(project => project.status === statusFilter)
     }
 
@@ -331,12 +358,12 @@ export default function ProjectsPage() {
       filtered = [...filtered].sort((a, b) => {
         const aValue = a[sortConfig.key as keyof Project] as any
         const bValue = b[sortConfig.key as keyof Project] as any
-        
+
         if (aValue < bValue) {
-          return sortConfig.direction === "asc" ? -1 : 1
+          return sortConfig.direction === 'asc' ? -1 : 1
         }
         if (aValue > bValue) {
-          return sortConfig.direction === "asc" ? 1 : -1
+          return sortConfig.direction === 'asc' ? 1 : -1
         }
         return 0
       })
@@ -348,7 +375,8 @@ export default function ProjectsPage() {
   const handleSort = (key: string) => {
     setSortConfig(current => ({
       key,
-      direction: current?.key === key && current.direction === "asc" ? "desc" : "asc"
+      direction:
+        current?.key === key && current.direction === 'asc' ? 'desc' : 'asc',
     }))
   }
 
@@ -362,17 +390,19 @@ export default function ProjectsPage() {
     window.location.href = '/projects/new'
   }
 
-
   return (
     <PageContainer>
       <PageContent>
         <Breadcrumbs items={breadcrumbItems} className="mb-4" />
-        
+
         <PageHeader
           title="Projeler 🏗️"
           description="İnşaat projelerinizi başlangıçtan teslime kadar tek yerden yönetin."
           action={
-            <Button onClick={handleCreateProject} className="modern-button group button-enhanced">
+            <Button
+              onClick={handleCreateProject}
+              className="modern-button group button-enhanced"
+            >
               <Plus className="size-4 mr-2 group-hover:rotate-90 transition-transform" />
               Yeni İnşaata Başla
             </Button>
@@ -385,9 +415,13 @@ export default function ProjectsPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
-                placeholder={searchFocused ? "Projeyle ilişkili ipucu verin. Örn: ofis kompleksi, Istanbul, Ahmet..." : "Tüm projeler arasında arayın..."}
+                placeholder={
+                  searchFocused
+                    ? 'Projeyle ilişkili ipucu verin. Örn: ofis kompleksi, Istanbul, Ahmet...'
+                    : 'Tüm projeler arasında arayın...'
+                }
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setSearchFocused(false)}
                 className="h-10 pl-10 bg-background/90 backdrop-blur-sm border-2 border-muted/40 rounded-xl modern-focus hover:border-primary/40 focus:border-primary/60 transition-colors shadow-sm"
@@ -395,10 +429,10 @@ export default function ProjectsPage() {
             </div>
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={e => setStatusFilter(e.target.value)}
               className={cn(
-                "h-10 px-3 rounded-xl bg-background/90 backdrop-blur-sm border-2 border-muted/40 text-sm modern-focus",
-                "hover:border-primary/40 focus:border-primary/60 transition-colors shadow-sm min-w-[180px]"
+                'h-10 px-3 rounded-xl bg-background/90 backdrop-blur-sm border-2 border-muted/40 text-sm modern-focus',
+                'hover:border-primary/40 focus:border-primary/60 transition-colors shadow-sm min-w-[180px]'
               )}
             >
               <option value="all">🏭 Tüm Şantiyeler</option>
@@ -430,14 +464,15 @@ export default function ProjectsPage() {
               <ProjectCard
                 key={project.id}
                 project={convertToCardProject(project)}
-                onClick={() => handleProjectClick(convertToCardProject(project))}
+                onClick={() =>
+                  handleProjectClick(convertToCardProject(project))
+                }
                 index={index}
               />
             ))}
           </div>
         </div>
       </PageContent>
-
     </PageContainer>
   )
 }

@@ -5,11 +5,13 @@ This document describes the frontend setup, design principles, and technologies 
 ## 1. Frontend Architecture
 
 ### 1.1 Overview
+
 - We use **Next.js 14+** with the **App Router** and **React Server Components** to build pages and layouts. This gives us a solid foundation for server-rendered and client-rendered parts of the app.
 - **TypeScript (strict mode)** ensures we catch errors early and keep our codebase consistent.
 - We enforce code style with **ESLint** and **Prettier**.
 
 ### 1.2 Key Libraries
+
 - **React** for building user interfaces.
 - **ShadCN UI** as our primary component library (built on Tailwind CSS).
 - **MUI TreeGrid** fallback for complex hierarchical tables.
@@ -20,6 +22,7 @@ This document describes the frontend setup, design principles, and technologies 
 - **@tanstack/virtual** or **react-virtuoso** for windowed lists and grids.
 
 ### 1.3 Scalability, Maintainability, Performance
+
 - **Server Components** keep the bundle size small on the client, improving load times.
 - **Next.js Route Handlers** and **Server Actions** let us colocate data fetching and mutations with UI code.
 - **Modular directory structure** (see Component Structure) makes it easy to onboard new developers.
@@ -36,6 +39,7 @@ This document describes the frontend setup, design principles, and technologies 
 5. **Consistency**: Reuse the same components, colors, and typography throughout.
 
 **How We Apply Them:**
+
 - Forms highlight errors with clear messages (Zod + React Hook Form).
 - Buttons and focus states follow a consistent pattern from ShadCN UI.
 - Drag-and-drop flows give visual hints and remain keyboard-accessible.
@@ -45,19 +49,23 @@ This document describes the frontend setup, design principles, and technologies 
 ## 3. Styling and Theming
 
 ### 3.1 Styling Approach
+
 - **Tailwind CSS** (via ShadCN UI) for utility-first styling.
 - No global CSS files—styles live alongside components or in shared config.
 - Use **CSS resets** provided by ShadCN.
 
 ### 3.2 Theming
+
 - A single light theme at launch, with a CSS variable approach to swap colors later.
 
 ### 3.3 Visual Style
+
 - **Overall Look:** Flat, modern, minimalist.
 - **Grid:** 1440px max width, centered content, 12-column layout.
 - **Shadows & Borders:** Subtle shadows for elevation; 1px borders for inputs.
 
 ### 3.4 Color Palette
+
 - Primary: #2563EB (blue)
 - Secondary: #10B981 (green)
 - Accent: #F59E0B (amber)
@@ -68,6 +76,7 @@ This document describes the frontend setup, design principles, and technologies 
 - Success: #10B981, Warning: #F59E0B, Error: #EF4444
 
 ### 3.5 Typography
+
 - **Font Family:** Inter, sans-serif.
 - **Sizes:**
   - H1: 2.25rem (36px)
@@ -81,6 +90,7 @@ This document describes the frontend setup, design principles, and technologies 
 ## 4. Component Structure
 
 ### 4.1 Directory Layout
+
 ```
 /app                  # Next.js App Router
   /dashboard          # Feature folders
@@ -95,11 +105,13 @@ This document describes the frontend setup, design principles, and technologies 
 ```
 
 ### 4.2 Reusability
+
 - **Atoms** (buttons, inputs) live under `/components/ui`.
 - **Molecules** (form groups, navigation items) combine atoms.
 - **Organisms** (sidebars, dashboards) compose molecules.
 
 **Why Component Architecture Matters:**
+
 - Easy to find and update a UI piece.
 - Promotes consistency—one source of truth for styles and behavior.
 - Simplifies testing—test small pieces in isolation.
@@ -109,15 +121,18 @@ This document describes the frontend setup, design principles, and technologies 
 ## 5. State Management
 
 ### 5.1 Server State
+
 - **React Query** manages all data fetching, caching, and sync with server APIs.
 - Queries live in `/app/(features)/hooks/useXYZQuery.ts`.
 - Mutations use React Query’s `useMutation`, with automatic cache invalidation.
 
 ### 5.2 Client/UI State
+
 - **React Context** for global flags (e.g., theme, layout collapsed state).
 - Local component state for ephemeral UI details (e.g., open/close modals).
 
 ### 5.3 Form State
+
 - **React Hook Form** + **Zod** handle form values, validation schema, and error messaging.
 
 ---
@@ -125,11 +140,13 @@ This document describes the frontend setup, design principles, and technologies 
 ## 6. Routing and Navigation
 
 ### 6.1 Routing
+
 - **Next.js App Router** with file-based routes under `/app`.
 - Nested layouts for shared UI (e.g., sidebar, top bar).
 - Dynamic routes for tenant IDs, project IDs: `/[tenant]/projects/[projectId]`.
 
 ### 6.2 Navigation Structure
+
 - **Main Sidebar**: links for Dashboard, Projects, Tenants, Settings.
 - **Breadcrumbs** at the top of deep pages for context.
 - **Top Bar**: tenant selector, notifications, user menu.
@@ -155,20 +172,25 @@ These strategies keep load times low and interactions smooth.
 ## 8. Testing and Quality Assurance
 
 ### 8.1 Unit Testing
+
 - **Vitest** for component and utility tests.
 - Aim for ~80% coverage on critical modules.
 
 ### 8.2 Integration Testing
+
 - **React Testing Library** (with Vitest) for component interactions.
 
 ### 8.3 End-to-End Testing
+
 - **Playwright** for user flows (signin, task creation, approvals).
 
 ### 8.4 Visual Regression
+
 - **Storybook** for isolated component development.
 - **Chromatic** or **Percy** for snapshot testing of UI states.
 
 ### 8.5 Accessibility Checks
+
 - **axe-core** integrated in Storybook and tests to catch WCAG violations.
 
 ---

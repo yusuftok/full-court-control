@@ -47,12 +47,11 @@
       "Read(//Users/yusuf.tok/**)",
       "Bash(npm install:*)",
       "Bash(npm run typecheck:*)",
-      "mcp__chrome-devtools__clear_console"
+      "mcp__chrome-devtools__clear_console",
+      "Bash(npm ls:*)"
     ],
     "deny": [],
     "ask": [],
-    "additionalDirectories": [
-      "/Users/yusuf.tok/.claude"
-    ]
+    "additionalDirectories": ["/Users/yusuf.tok/.claude"]
   }
 }

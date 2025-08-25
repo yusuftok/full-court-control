@@ -1,12 +1,12 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { useState, useRef, useEffect } from "react"
-import { Search, User, Plus, ChevronDown } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import * as React from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { Search, User, Plus, ChevronDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 // Mock engineers database
 interface Engineer {
@@ -22,55 +22,55 @@ interface Engineer {
 
 const mockEngineers: Engineer[] = [
   {
-    id: "eng-1",
-    name: "Ahmet Yılmaz",
-    title: "İnşaat Mühendisi",
-    company: "Yılmaz İnşaat",
-    email: "ahmet@yilmaz.com",
-    phone: "+90 532 123 4567",
+    id: 'eng-1',
+    name: 'Ahmet Yılmaz',
+    title: 'İnşaat Mühendisi',
+    company: 'Yılmaz İnşaat',
+    email: 'ahmet@yilmaz.com',
+    phone: '+90 532 123 4567',
     experience: 15,
-    isActive: true
+    isActive: true,
   },
   {
-    id: "eng-2", 
-    name: "Fatma Demir",
-    title: "Makine Mühendisi",
-    company: "Demir Taahhüt",
-    email: "fatma@demir.com",
-    phone: "+90 535 987 6543",
+    id: 'eng-2',
+    name: 'Fatma Demir',
+    title: 'Makine Mühendisi',
+    company: 'Demir Taahhüt',
+    email: 'fatma@demir.com',
+    phone: '+90 535 987 6543',
     experience: 12,
-    isActive: true
+    isActive: true,
   },
   {
-    id: "eng-3",
-    name: "Mehmet Kaya",
-    title: "Elektrik Mühendisi", 
-    company: "Kaya Elektrik",
-    email: "mehmet@kaya.com",
-    phone: "+90 543 456 7890",
+    id: 'eng-3',
+    name: 'Mehmet Kaya',
+    title: 'Elektrik Mühendisi',
+    company: 'Kaya Elektrik',
+    email: 'mehmet@kaya.com',
+    phone: '+90 543 456 7890',
     experience: 8,
-    isActive: true
+    isActive: true,
   },
   {
-    id: "eng-4",
-    name: "Ayşe Özkan",
-    title: "İnşaat Mühendisi",
-    company: "Özkan Yapı",
-    email: "ayse@ozkan.com", 
-    phone: "+90 544 321 0987",
+    id: 'eng-4',
+    name: 'Ayşe Özkan',
+    title: 'İnşaat Mühendisi',
+    company: 'Özkan Yapı',
+    email: 'ayse@ozkan.com',
+    phone: '+90 544 321 0987',
     experience: 10,
-    isActive: true
+    isActive: true,
   },
   {
-    id: "eng-5",
-    name: "Ali Çelik",
-    title: "Makine Mühendisi",
-    company: "Çelik Tesisat",
-    email: "ali@celik.com",
-    phone: "+90 531 654 3210",
+    id: 'eng-5',
+    name: 'Ali Çelik',
+    title: 'Makine Mühendisi',
+    company: 'Çelik Tesisat',
+    email: 'ali@celik.com',
+    phone: '+90 531 654 3210',
     experience: 6,
-    isActive: true
-  }
+    isActive: true,
+  },
 ]
 
 interface EngineerSelectorProps {
@@ -81,40 +81,45 @@ interface EngineerSelectorProps {
   className?: string
 }
 
-export function EngineerSelector({ 
-  role, 
-  value, 
-  onChange, 
-  placeholder = "Mühendis ara ve seç...",
-  className 
+export function EngineerSelector({
+  role,
+  value,
+  onChange,
+  placeholder = 'Mühendis ara ve seç...',
+  className,
 }: EngineerSelectorProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(-1)
-  const [newEngineerData, setNewEngineerData] = useState({ name: "", email: "" })
+  const [newEngineerData, setNewEngineerData] = useState({
+    name: '',
+    email: '',
+  })
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Filter engineers based on role and search term
   const filteredEngineers = mockEngineers.filter(engineer => {
-    const matchesSearch = engineer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         engineer.company.toLowerCase().includes(searchTerm.toLowerCase())
-    
+    const matchesSearch =
+      engineer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      engineer.company.toLowerCase().includes(searchTerm.toLowerCase())
+
     // Basic role matching - can be made more sophisticated
     const roleKeywords = {
-      chief: ["İnşaat", "İnşaat Mühendisi"],
-      civil: ["İnşaat", "İnşaat Mühendisi"], 
-      mechanical: ["Makine", "Makine Mühendisi"],
-      electrical: ["Elektrik", "Elektrik Mühendisi"]
+      chief: ['İnşaat', 'İnşaat Mühendisi'],
+      civil: ['İnşaat', 'İnşaat Mühendisi'],
+      mechanical: ['Makine', 'Makine Mühendisi'],
+      electrical: ['Elektrik', 'Elektrik Mühendisi'],
     }
-    
-    const relevantRoles = roleKeywords[role.toLowerCase() as keyof typeof roleKeywords] || []
-    const matchesRole = relevantRoles.some(keyword => 
+
+    const relevantRoles =
+      roleKeywords[role.toLowerCase() as keyof typeof roleKeywords] || []
+    const matchesRole = relevantRoles.some(keyword =>
       engineer.title.includes(keyword)
     )
-    
+
     return matchesSearch && matchesRole
   })
 
@@ -124,24 +129,24 @@ export function EngineerSelector({
   const handleSelect = (engineer: Engineer) => {
     onChange(engineer.name)
     setIsOpen(false)
-    setSearchTerm("")
+    setSearchTerm('')
     setIsFocused(false)
   }
 
   const handleAddNew = () => {
     setShowAddModal(true)
     setIsOpen(false)
-    setSearchTerm("")
+    setSearchTerm('')
     setIsFocused(false)
   }
 
   // Get role-specific title
   const getRoleTitle = (roleType: string) => {
     const titleMap = {
-      'chief': 'Şef Mühendis',
-      'civil': 'İnşaat Mühendisi', 
-      'mechanical': 'Makine Mühendisi',
-      'electrical': 'Elektrik Mühendisi'
+      chief: 'Şef Mühendis',
+      civil: 'İnşaat Mühendisi',
+      mechanical: 'Makine Mühendisi',
+      electrical: 'Elektrik Mühendisi',
     }
     return titleMap[roleType as keyof typeof titleMap] || 'Mühendis'
   }
@@ -156,10 +161,10 @@ export function EngineerSelector({
     const newValue = e.target.value
     setSearchTerm(newValue)
     setIsOpen(true)
-    
+
     // If user clears input, also clear selection
-    if (newValue === "") {
-      onChange("")
+    if (newValue === '') {
+      onChange('')
     }
   }
 
@@ -168,7 +173,7 @@ export function EngineerSelector({
     setTimeout(() => {
       setIsFocused(false)
       if (!value && searchTerm) {
-        setSearchTerm("")
+        setSearchTerm('')
       }
     }, 200)
   }
@@ -176,8 +181,11 @@ export function EngineerSelector({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) return
 
-    const allOptions = [...filteredEngineers, { id: 'add-new', name: 'Yeni Mühendis Ekle' }]
-    
+    const allOptions = [
+      ...filteredEngineers,
+      { id: 'add-new', name: 'Yeni Mühendis Ekle' },
+    ]
+
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault()
@@ -185,7 +193,7 @@ export function EngineerSelector({
         break
       case 'ArrowUp':
         e.preventDefault()
-        setFocusedIndex(prev => prev === 0 ? allOptions.length - 1 : prev - 1)
+        setFocusedIndex(prev => (prev === 0 ? allOptions.length - 1 : prev - 1))
         break
       case 'Enter':
         e.preventDefault()
@@ -217,11 +225,14 @@ export function EngineerSelector({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false)
         setIsFocused(false)
         if (!value && searchTerm) {
-          setSearchTerm("")
+          setSearchTerm('')
         }
       }
     }
@@ -231,11 +242,16 @@ export function EngineerSelector({
   }, [value, searchTerm])
 
   // Update display value
-  const displayValue = isFocused || isOpen ? searchTerm : (selectedEngineer ? selectedEngineer.name : searchTerm)
+  const displayValue =
+    isFocused || isOpen
+      ? searchTerm
+      : selectedEngineer
+        ? selectedEngineer.name
+        : searchTerm
 
   return (
     <>
-      <div ref={containerRef} className={cn("relative", className)}>
+      <div ref={containerRef} className={cn('relative', className)}>
         {/* Main Input */}
         <div className="relative">
           <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
@@ -249,14 +265,16 @@ export function EngineerSelector({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             className={cn(
-              "pl-10 pr-10",
-              (isFocused || isOpen) && "ring-2 ring-primary/20"
+              'pl-10 pr-10',
+              (isFocused || isOpen) && 'ring-2 ring-primary/20'
             )}
           />
-          <ChevronDown className={cn(
-            "absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground transition-transform pointer-events-none",
-            isOpen && "rotate-180"
-          )} />
+          <ChevronDown
+            className={cn(
+              'absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground transition-transform pointer-events-none',
+              isOpen && 'rotate-180'
+            )}
+          />
         </div>
 
         {/* Dropdown */}
@@ -272,8 +290,9 @@ export function EngineerSelector({
                       key={engineer.id}
                       onClick={() => handleSelect(engineer)}
                       className={cn(
-                        "w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none",
-                        focusedIndex === index && "bg-primary/20 ring-2 ring-primary/50"
+                        'w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none',
+                        focusedIndex === index &&
+                          'bg-primary/20 ring-2 ring-primary/50'
                       )}
                     >
                       <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -294,8 +313,6 @@ export function EngineerSelector({
                   ))}
                 </div>
               )}
-              
-              
             </div>
 
             {/* Add New Option */}
@@ -303,17 +320,16 @@ export function EngineerSelector({
               <button
                 onClick={handleAddNew}
                 className={cn(
-                  "w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors hover:bg-primary/5 focus:bg-primary/5 focus:outline-none text-primary",
-                  focusedIndex === filteredEngineers.length && "bg-primary/20 ring-2 ring-primary/50"
+                  'w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors hover:bg-primary/5 focus:bg-primary/5 focus:outline-none text-primary',
+                  focusedIndex === filteredEngineers.length &&
+                    'bg-primary/20 ring-2 ring-primary/50'
                 )}
               >
                 <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
                   <Plus className="w-5 h-5" />
                 </div>
                 <div className="flex-1">
-                  <div className="font-medium text-sm">
-                    Yeni Mühendis Ekle
-                  </div>
+                  <div className="font-medium text-sm">Yeni Mühendis Ekle</div>
                   <div className="text-xs text-muted-foreground">
                     Sisteme yeni mühendis kaydı oluştur
                   </div>
@@ -328,19 +344,26 @@ export function EngineerSelector({
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-background rounded-xl p-6 w-full max-w-md mx-4 border">
-            <h3 className="text-lg font-semibold mb-4">Yeni {getRoleTitle(role)} Ekle</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              Yeni {getRoleTitle(role)} Ekle
+            </h3>
             <div className="space-y-4">
               <div>
                 <Label>Ad Soyad *</Label>
-                <Input 
+                <Input
                   placeholder="Örn: Deniz Aktaş"
                   value={newEngineerData.name}
-                  onChange={(e) => setNewEngineerData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={e =>
+                    setNewEngineerData(prev => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <div>
                 <Label>Unvan *</Label>
-                <Input 
+                <Input
                   value={getRoleTitle(role)}
                   disabled
                   className="bg-muted/50 cursor-not-allowed"
@@ -348,10 +371,15 @@ export function EngineerSelector({
               </div>
               <div>
                 <Label>E-posta</Label>
-                <Input 
+                <Input
                   placeholder="deniz@aktas.com"
                   value={newEngineerData.email}
-                  onChange={(e) => setNewEngineerData(prev => ({ ...prev, email: e.target.value }))}
+                  onChange={e =>
+                    setNewEngineerData(prev => ({
+                      ...prev,
+                      email: e.target.value,
+                    }))
+                  }
                 />
               </div>
             </div>
@@ -362,7 +390,7 @@ export function EngineerSelector({
               >
                 İptal
               </button>
-              <button 
+              <button
                 onClick={() => {
                   if (newEngineerData.name.trim()) {
                     // Create new engineer and add to mock data
@@ -370,23 +398,23 @@ export function EngineerSelector({
                       id: `eng-${Date.now()}`,
                       name: newEngineerData.name.trim(),
                       title: getRoleTitle(role),
-                      company: "Ana Yüklenici",
+                      company: 'Ana Yüklenici',
                       email: newEngineerData.email.trim(),
-                      phone: "",
+                      phone: '',
                       experience: 0,
-                      isActive: true
+                      isActive: true,
                     }
-                    
+
                     // Add to mock data (in real app, would save to database)
                     mockEngineers.push(newEngineer)
-                    
+
                     // Set the new engineer as selected
                     onChange(newEngineer.name)
-                    
+
                     // Reset and close
-                    setNewEngineerData({ name: "", email: "" })
+                    setNewEngineerData({ name: '', email: '' })
                     setShowAddModal(false)
-                    
+
                     // Would send invitation email in real app
                     console.log('New engineer added:', newEngineer)
                   }

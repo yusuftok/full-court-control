@@ -12,26 +12,26 @@ The core success criteria are secure self-service tenant signup, clear role-base
 
 **In-Scope (Version 1)**
 
-*   Self-service tenant signup via email OTP using Supabase Auth
-*   Role-based user management (system admin, prime/subcontractor engineers, field workers)
-*   Division hierarchy template design (drag-and-drop tree, inline rename, weights)
-*   Instantiation of live divisions per project
-*   Hierarchical task and sub-task creation with weight assignment and peer-node bulk instantiation
-*   CRUD for subcontractors and membership/role assignment
-*   Field check-ins and incident reports with client-side photo compression to Supabase Storage
-*   Two-level approval workflows with in-app, email, and WhatsApp notifications
-*   Real-time analytics dashboard with customizable filters (date range, division level, subcontractor)
-*   On-demand CSV exports using keyset pagination
-*   Append-only audit logs and seven-year data retention
-*   Turkish-language launch with i18n foundation
+- Self-service tenant signup via email OTP using Supabase Auth
+- Role-based user management (system admin, prime/subcontractor engineers, field workers)
+- Division hierarchy template design (drag-and-drop tree, inline rename, weights)
+- Instantiation of live divisions per project
+- Hierarchical task and sub-task creation with weight assignment and peer-node bulk instantiation
+- CRUD for subcontractors and membership/role assignment
+- Field check-ins and incident reports with client-side photo compression to Supabase Storage
+- Two-level approval workflows with in-app, email, and WhatsApp notifications
+- Real-time analytics dashboard with customizable filters (date range, division level, subcontractor)
+- On-demand CSV exports using keyset pagination
+- Append-only audit logs and seven-year data retention
+- Turkish-language launch with i18n foundation
 
 **Out-of-Scope (Version 1)**
 
-*   Scheduled or automated report exports
-*   Direct integrations with ERP, accounting, or other project management tools
-*   Database row-level security (RLS) policies (handled in code, RLS added later if needed)
-*   Additional languages beyond the Turkish/English base
-*   Advanced ML forecasting or AI features
+- Scheduled or automated report exports
+- Direct integrations with ERP, accounting, or other project management tools
+- Database row-level security (RLS) policies (handled in code, RLS added later if needed)
+- Additional languages beyond the Turkish/English base
+- Advanced ML forecasting or AI features
 
 ### 3. User Flow
 
@@ -41,99 +41,90 @@ Within a project, admins define a reusable division template using a drag-and-dr
 
 ### 4. Core Features
 
-*   **Multi-Tenant Authentication & Roles**: Passwordless email OTP signup, tenant provisioning, roles from system admin to field worker.
-*   **Division Template Designer**: Drag-and-drop UI, inline renaming and weight editing, reusable templates.
-*   **Division Instantiation**: Mirror templates into live project trees with accessible drag-and-drop.
-*   **Hierarchical Task Management**: Create tasks/subtasks, assign weights, bulk instantiate across peer divisions.
-*   **Subcontractor Management**: CRUD subcontractor entities, link users with scoped roles and engineers.
-*   **Field Reporting**: WhatsApp integration for check-ins/incidents, client-side image compression, Supabase Storage.
-*   **Two-Level Approval Workflow**: Subcontractor and prime contractor approvals, mandatory reasons on rejection, audit log entries.
-*   **Multi-Channel Notifications**: In-app badges, email alerts, WhatsApp messages.
-*   **Real-Time Analytics**: Customizable charts and graphs with date, division, and subcontractor filters.
-*   **On-Demand CSV Export**: Keyset-paginated streaming, background jobs, toast confirmations.
-*   **Audit Log & Data Retention**: Append-only audit logs, seven-year retention, GDPR/KVKK support.
+- **Multi-Tenant Authentication & Roles**: Passwordless email OTP signup, tenant provisioning, roles from system admin to field worker.
+- **Division Template Designer**: Drag-and-drop UI, inline renaming and weight editing, reusable templates.
+- **Division Instantiation**: Mirror templates into live project trees with accessible drag-and-drop.
+- **Hierarchical Task Management**: Create tasks/subtasks, assign weights, bulk instantiate across peer divisions.
+- **Subcontractor Management**: CRUD subcontractor entities, link users with scoped roles and engineers.
+- **Field Reporting**: WhatsApp integration for check-ins/incidents, client-side image compression, Supabase Storage.
+- **Two-Level Approval Workflow**: Subcontractor and prime contractor approvals, mandatory reasons on rejection, audit log entries.
+- **Multi-Channel Notifications**: In-app badges, email alerts, WhatsApp messages.
+- **Real-Time Analytics**: Customizable charts and graphs with date, division, and subcontractor filters.
+- **On-Demand CSV Export**: Keyset-paginated streaming, background jobs, toast confirmations.
+- **Audit Log & Data Retention**: Append-only audit logs, seven-year retention, GDPR/KVKK support.
 
 ### 5. Tech Stack & Tools
 
-*   **Frontend**
+- **Frontend**
+  - Next.js 14+ (App Router, React Server Components)
+  - React, TypeScript (strict), ESLint, Prettier
+  - ShadCN UI for shell & controls, MUI fallback for missing components (TreeGrid)
+  - dnd-kit for drag-and-drop, react-aria-components for accessibility
+  - React Hook Form + Zod for forms and validation
+  - React Query for data fetching and real-time subscriptions
+  - @tanstack/virtual or react-virtuoso for list virtualization
+  - Vercel for deployment and edge caching
 
-    *   Next.js 14+ (App Router, React Server Components)
-    *   React, TypeScript (strict), ESLint, Prettier
-    *   ShadCN UI for shell & controls, MUI fallback for missing components (TreeGrid)
-    *   dnd-kit for drag-and-drop, react-aria-components for accessibility
-    *   React Hook Form + Zod for forms and validation
-    *   React Query for data fetching and real-time subscriptions
-    *   @tanstack/virtual or react-virtuoso for list virtualization
-    *   Vercel for deployment and edge caching
+- **Backend & Storage**
+  - Supabase (Auth OTP, Postgres, Storage with ltree extension)
+  - Drizzle ORM + drizzle-kit for migrations
+  - Cursor-based APIs using Postgres ltree + LexoRank
+  - Redis for hot list caching
 
-*   **Backend & Storage**
+- **Observability & CI/CD**
+  - Sentry for error tracking and performance monitoring
+  - Lighthouse CI budgets for Web Vitals (LCP, CLS, INP)
+  - Logging slow queries (>50 ms) in dev and as Sentry breadcrumbs in prod
 
-    *   Supabase (Auth OTP, Postgres, Storage with ltree extension)
-    *   Drizzle ORM + drizzle-kit for migrations
-    *   Cursor-based APIs using Postgres ltree + LexoRank
-    *   Redis for hot list caching
+- **Testing & Quality**
+  - Vitest for unit and invariant tests
+  - Playwright for end-to-end flows (DnD, pagination) with seeded DB and data-testids
+  - Storybook + Chromatic/Percy for visual regression
+  - Golden fixtures for canonical trees and API payloads
 
-*   **Observability & CI/CD**
+- **Integrations**
+  - WhatsApp Business API for field-worker reporting and notifications
+  - Supabase email for OTPs and system alerts
 
-    *   Sentry for error tracking and performance monitoring
-    *   Lighthouse CI budgets for Web Vitals (LCP, CLS, INP)
-    *   Logging slow queries (>50 ms) in dev and as Sentry breadcrumbs in prod
-
-*   **Testing & Quality**
-
-    *   Vitest for unit and invariant tests
-    *   Playwright for end-to-end flows (DnD, pagination) with seeded DB and data-testids
-    *   Storybook + Chromatic/Percy for visual regression
-    *   Golden fixtures for canonical trees and API payloads
-
-*   **Integrations**
-
-    *   WhatsApp Business API for field-worker reporting and notifications
-    *   Supabase email for OTPs and system alerts
-
-*   **AI-Coding Tools**
-
-    *   Cursor IDE, v0 component builder, Claude Code, Lovable.dev
+- **AI-Coding Tools**
+  - Cursor IDE, v0 component builder, Claude Code, Lovable.dev
 
 ### 6. Non-Functional Requirements
 
-*   **Performance**
+- **Performance**
+  - Queries ≤200 ms; slow queries logged.
+  - LCP <2.5 s, minimal CLS, INP within budget.
+  - Virtualized trees handle thousands of nodes.
+  - Prefetch next cursor page on hover or near viewport.
 
-    *   Queries ≤200 ms; slow queries logged.
-    *   LCP <2.5 s, minimal CLS, INP within budget.
-    *   Virtualized trees handle thousands of nodes.
-    *   Prefetch next cursor page on hover or near viewport.
+- **Security & Compliance**
+  - Tenant isolation, passwordless OTP, future RLS support.
+  - GDPR/KVKK: data export and deletion requests.
+  - Seven-year retention for projects, audit logs, and attachments.
 
-*   **Security & Compliance**
-
-    *   Tenant isolation, passwordless OTP, future RLS support.
-    *   GDPR/KVKK: data export and deletion requests.
-    *   Seven-year retention for projects, audit logs, and attachments.
-
-*   **Usability & Accessibility**
-
-    *   WCAG AA contrast, ≥44 px touch targets, visible focus states.
-    *   Keyboard navigation follows reading order.
-    *   Responsive design: 12-column grid at 1440 px, tablet at 1024 px, mobile at 390–430 px.
-    *   Single primary CTA per screen, progressive disclosure for advanced actions.
+- **Usability & Accessibility**
+  - WCAG AA contrast, ≥44 px touch targets, visible focus states.
+  - Keyboard navigation follows reading order.
+  - Responsive design: 12-column grid at 1440 px, tablet at 1024 px, mobile at 390–430 px.
+  - Single primary CTA per screen, progressive disclosure for advanced actions.
 
 ### 7. Constraints & Assumptions
 
-*   Supabase must support Postgres ltree and sufficient storage.
-*   WhatsApp Business API availability and rate limits.
-*   Modern browsers with JavaScript enabled.
-*   No OFFSET pagination; use keyset cursors only.
-*   Images ≤10 MB, JPEG/PNG/HEIC, compressed client-side.
-*   Division hierarchies may reach thousands of nodes.
+- Supabase must support Postgres ltree and sufficient storage.
+- WhatsApp Business API availability and rate limits.
+- Modern browsers with JavaScript enabled.
+- No OFFSET pagination; use keyset cursors only.
+- Images ≤10 MB, JPEG/PNG/HEIC, compressed client-side.
+- Division hierarchies may reach thousands of nodes.
 
 ### 8. Known Issues & Potential Pitfalls
 
-*   **Large-Tree Performance**: Must virtualize and paginate, avoid heavy re-renders.
-*   **API Rate Limits**: Implement retry/back-off for WhatsApp and Supabase.
-*   **Concurrency Conflicts**: Use `updated_at` or `version` checks in mutations.
-*   **Upload Failures**: Validate file size/type, show clear errors.
-*   **Notification Delivery**: Account for email spam filters and WhatsApp delays.
-*   **Schema Drift**: Golden fixtures and invariant tests guard against unintended changes.
+- **Large-Tree Performance**: Must virtualize and paginate, avoid heavy re-renders.
+- **API Rate Limits**: Implement retry/back-off for WhatsApp and Supabase.
+- **Concurrency Conflicts**: Use `updated_at` or `version` checks in mutations.
+- **Upload Failures**: Validate file size/type, show clear errors.
+- **Notification Delivery**: Account for email spam filters and WhatsApp delays.
+- **Schema Drift**: Golden fixtures and invariant tests guard against unintended changes.
 
 ## App Flow Document
 
@@ -173,51 +164,51 @@ A construction company admin signs up via email OTP, provisions a tenant, and in
 
 ### Frontend Technologies
 
-*   Next.js 14+ (App Router, React Server Components) – combines server-side rendering with client islands for performance.
-*   React with TypeScript strict mode – ensures type safety and reliable code.
-*   ShadCN UI for layout and controls; MUI fallback for advanced components (TreeGrid).
-*   dnd-kit for accessible drag-and-drop interactions with keyboard and collision detection.
-*   react-aria-components for accessible Tree and TreeItem roles.
-*   React Hook Form + Zod for form state and schema validation.
-*   React Query for data fetching, caching, and real-time subscriptions.
-*   @tanstack/virtual or react-virtuoso for virtualized lists in large trees.
-*   ESLint and Prettier for consistent code style and linting.
-*   Vercel for global edge deployment and automatic CI/CD.
+- Next.js 14+ (App Router, React Server Components) – combines server-side rendering with client islands for performance.
+- React with TypeScript strict mode – ensures type safety and reliable code.
+- ShadCN UI for layout and controls; MUI fallback for advanced components (TreeGrid).
+- dnd-kit for accessible drag-and-drop interactions with keyboard and collision detection.
+- react-aria-components for accessible Tree and TreeItem roles.
+- React Hook Form + Zod for form state and schema validation.
+- React Query for data fetching, caching, and real-time subscriptions.
+- @tanstack/virtual or react-virtuoso for virtualized lists in large trees.
+- ESLint and Prettier for consistent code style and linting.
+- Vercel for global edge deployment and automatic CI/CD.
 
 ### Backend Technologies
 
-*   Supabase Auth (email OTP) for passwordless authentication.
-*   Supabase Postgres with ltree extension for hierarchical data.
-*   Supabase Storage for photo attachments with client-side compression.
-*   Drizzle ORM + drizzle-kit for type-safe database migrations.
-*   Next.js Route Handlers (API routes) and optional Server Actions for one-shot operations.
-*   Redis for caching hot lists (children arrays, mapped sets).
+- Supabase Auth (email OTP) for passwordless authentication.
+- Supabase Postgres with ltree extension for hierarchical data.
+- Supabase Storage for photo attachments with client-side compression.
+- Drizzle ORM + drizzle-kit for type-safe database migrations.
+- Next.js Route Handlers (API routes) and optional Server Actions for one-shot operations.
+- Redis for caching hot lists (children arrays, mapped sets).
 
 ### Infrastructure and Deployment
 
-*   Vercel for frontend and edge caching.
-*   Supabase hosted Postgres and Storage.
-*   GitHub Actions or Vercel’s built-in CI for linting, testing, and Lighthouse CI budgets.
-*   Environment variables for Sentry DSN, Supabase credentials, and WhatsApp API keys.
-*   Automatic migrations with drizzle-kit on deploy.
+- Vercel for frontend and edge caching.
+- Supabase hosted Postgres and Storage.
+- GitHub Actions or Vercel’s built-in CI for linting, testing, and Lighthouse CI budgets.
+- Environment variables for Sentry DSN, Supabase credentials, and WhatsApp API keys.
+- Automatic migrations with drizzle-kit on deploy.
 
 ### Third-Party Integrations
 
-*   WhatsApp Business API for field-worker reporting and outbound notifications.
-*   Supabase email for OTPs and system alerts.
-*   Sentry for error tracking, performance tracing, and slow query logging.
-*   Lighthouse CI for enforcing Web Vitals budgets in CI.
-*   Chromatic/Percy for Storybook visual regression testing.
+- WhatsApp Business API for field-worker reporting and outbound notifications.
+- Supabase email for OTPs and system alerts.
+- Sentry for error tracking, performance tracing, and slow query logging.
+- Lighthouse CI for enforcing Web Vitals budgets in CI.
+- Chromatic/Percy for Storybook visual regression testing.
 
 ### Security and Performance Considerations
 
-*   Passwordless OTP and tenant isolation to prevent data leaks.
-*   Future plan for database RLS policies.
-*   Seven-year data retention, GDPR/KVKK data export and deletion flows.
-*   Keyset pagination and virtualization to avoid OFFSET scans.
-*   Prefetch and edge caching for fast navigation and LCP.
-*   Memoization (React.memo), stable keys, and lazy loading for charts and attachments.
-*   Sentry breadcrumbs and DSN-based error capture in production.
+- Passwordless OTP and tenant isolation to prevent data leaks.
+- Future plan for database RLS policies.
+- Seven-year data retention, GDPR/KVKK data export and deletion flows.
+- Keyset pagination and virtualization to avoid OFFSET scans.
+- Prefetch and edge caching for fast navigation and LCP.
+- Memoization (React.memo), stable keys, and lazy loading for charts and attachments.
+- Sentry breadcrumbs and DSN-based error capture in production.
 
 ### Conclusion and Overall Tech Stack Summary
 

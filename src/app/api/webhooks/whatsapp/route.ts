@@ -48,7 +48,8 @@ interface WhatsAppWebhookPayload {
 }
 
 // Verify webhook token (WhatsApp requires this for security)
-const WEBHOOK_VERIFY_TOKEN = process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || 'your-verify-token'
+const WEBHOOK_VERIFY_TOKEN =
+  process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || 'your-verify-token'
 const WHATSAPP_ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN
 
 // GET request for webhook verification
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
   try {
     const headersList = await headers()
     const signature = headersList.get('x-hub-signature-256')
-    
+
     // In production, verify the webhook signature
     // const body = await request.text()
     // if (!verifyWebhookSignature(body, signature)) {
@@ -105,17 +106,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {
     console.error('WhatsApp webhook error:', error)
-    return NextResponse.json({ error: 'errors.internalServerError' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'errors.internalServerError' },
+      { status: 500 }
+    )
   }
 }
 
-async function processIncomingMessage(message: WhatsAppMessage, phoneNumberId: string) {
+async function processIncomingMessage(
+  message: WhatsAppMessage,
+  phoneNumberId: string
+) {
   console.log(`Processing message from ${message.from}:`, message)
 
   try {
     // Parse message content based on type
     let messageContent: string = ''
-    let attachments: any[] = []
+    const attachments: any[] = []
 
     switch (message.type) {
       case 'text':
@@ -127,18 +134,19 @@ async function processIncomingMessage(message: WhatsAppMessage, phoneNumberId: s
           attachments.push({
             type: 'image',
             id: message.image.id,
-            mimeType: message.image.mime_type
+            mimeType: message.image.mime_type,
           })
         }
         break
       case 'document':
         if (message.document) {
-          messageContent = message.document.caption || `Document: ${message.document.filename}`
+          messageContent =
+            message.document.caption || `Document: ${message.document.filename}`
           attachments.push({
             type: 'document',
             id: message.document.id,
             filename: message.document.filename,
-            mimeType: message.document.mime_type
+            mimeType: message.document.mime_type,
           })
         }
         break
@@ -149,13 +157,16 @@ async function processIncomingMessage(message: WhatsAppMessage, phoneNumberId: s
 
     // Send acknowledgment (optional)
     // await sendWhatsAppMessage(phoneNumberId, message.from, 'Message received and processed!')
-
   } catch (error) {
     console.error('Error processing message:', error)
   }
 }
 
-async function processMessageCommands(from: string, content: string, attachments: any[]) {
+async function processMessageCommands(
+  from: string,
+  content: string,
+  attachments: any[]
+) {
   const lowerContent = content.toLowerCase().trim()
 
   // Parse task creation commands
@@ -183,7 +194,11 @@ async function processMessageCommands(from: string, content: string, attachments
   await createNoteFromMessage(from, content, attachments)
 }
 
-async function createTaskFromMessage(from: string, taskName: string, attachments: any[]) {
+async function createTaskFromMessage(
+  from: string,
+  taskName: string,
+  attachments: any[]
+) {
   // This would integrate with your task management system
   const task = {
     id: `whatsapp-task-${Date.now()}`,
@@ -199,7 +214,7 @@ async function createTaskFromMessage(from: string, taskName: string, attachments
 
   // Here you would save to your database
   console.log('Creating task from WhatsApp:', task)
-  
+
   // You could also send a confirmation message back
   // await sendWhatsAppMessage(phoneNumberId, from, `Task created: "${taskName}"`)
 }
@@ -207,18 +222,22 @@ async function createTaskFromMessage(from: string, taskName: string, attachments
 async function processStatusUpdate(from: string, statusContent: string) {
   // Parse status updates like "completed task #123" or "in-progress project alpha"
   console.log(`Processing status update from ${from}: ${statusContent}`)
-  
+
   // Implementation would depend on your task management logic
 }
 
 async function processPriorityUpdate(from: string, priorityContent: string) {
-  // Parse priority updates like "high task #123" or "urgent project alpha"  
+  // Parse priority updates like "high task #123" or "urgent project alpha"
   console.log(`Processing priority update from ${from}: ${priorityContent}`)
-  
+
   // Implementation would depend on your task management logic
 }
 
-async function createNoteFromMessage(from: string, content: string, attachments: any[]) {
+async function createNoteFromMessage(
+  from: string,
+  content: string,
+  attachments: any[]
+) {
   const note = {
     id: `whatsapp-note-${Date.now()}`,
     content,
@@ -247,7 +266,7 @@ async function sendWhatsAppMessage(
   }
 
   const url = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`
-  
+
   const payload = {
     messaging_product: 'whatsapp',
     to,
@@ -258,7 +277,7 @@ async function sendWhatsAppMessage(
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${WHATSAPP_ACCESS_TOKEN}`,
+        Authorization: `Bearer ${WHATSAPP_ACCESS_TOKEN}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
@@ -278,16 +297,19 @@ async function sendWhatsAppMessage(
 // Helper function available within this module
 
 // Helper function to verify webhook signature (implement in production)
-function verifyWebhookSignature(payload: string, signature: string | null): boolean {
+function verifyWebhookSignature(
+  payload: string,
+  signature: string | null
+): boolean {
   if (!signature) return false
-  
+
   // Implement HMAC-SHA256 verification using your app secret
   // const expectedSignature = crypto
   //   .createHmac('sha256', WHATSAPP_APP_SECRET)
   //   .update(payload)
   //   .digest('hex')
-  
+
   // return signature === `sha256=${expectedSignature}`
-  
+
   return true // Simplified for demo
 }

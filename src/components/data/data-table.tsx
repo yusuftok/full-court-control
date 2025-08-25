@@ -1,10 +1,10 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { ChevronDown, ChevronUp, MoreHorizontal } from "lucide-react"
+import * as React from 'react'
+import { ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react'
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 
 // Types for table configuration
 export interface Column<T> {
@@ -18,7 +18,7 @@ export interface Column<T> {
 
 export interface SortConfig {
   key: string
-  direction: "asc" | "desc"
+  direction: 'asc' | 'desc'
 }
 
 interface DataTableProps<T> {
@@ -41,21 +41,24 @@ export function DataTable<T>({
   onSort,
   onRowClick,
   rowKey,
-  emptyMessage = "Veri bulunamadı",
-  className
+  emptyMessage = 'Veri bulunamadı',
+  className,
 }: DataTableProps<T>) {
-  const getRowKey = React.useCallback((row: T, index: number): string => {
-    if (typeof rowKey === "function") {
-      return rowKey(row, index)
-    }
-    if (rowKey && row[rowKey] != null) {
-      return String(row[rowKey])
-    }
-    return index.toString()
-  }, [rowKey])
+  const getRowKey = React.useCallback(
+    (row: T, index: number): string => {
+      if (typeof rowKey === 'function') {
+        return rowKey(row, index)
+      }
+      if (rowKey && row[rowKey] != null) {
+        return String(row[rowKey])
+      }
+      return index.toString()
+    },
+    [rowKey]
+  )
 
   const getCellValue = React.useCallback((row: T, column: Column<T>) => {
-    if (typeof column.accessor === "function") {
+    if (typeof column.accessor === 'function') {
       return column.accessor(row)
     }
     return row[column.accessor] as React.ReactNode
@@ -71,10 +74,12 @@ export function DataTable<T>({
     if (!sortConfig || sortConfig.key !== columnId) {
       return <ChevronDown className="size-4 opacity-30" />
     }
-    
-    return sortConfig.direction === "asc" 
-      ? <ChevronUp className="size-4" />
-      : <ChevronDown className="size-4" />
+
+    return sortConfig.direction === 'asc' ? (
+      <ChevronUp className="size-4" />
+    ) : (
+      <ChevronDown className="size-4" />
+    )
   }
 
   if (loading) {
@@ -82,22 +87,25 @@ export function DataTable<T>({
   }
 
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn('w-full', className)}>
       <div className="rounded-md border">
         <table className="w-full caption-bottom text-sm">
           <thead className="[&_tr]:border-b">
             <tr className="border-b transition-colors hover:bg-muted/50">
-              {columns.map((column) => (
+              {columns.map(column => (
                 <th
                   key={column.id}
                   className={cn(
-                    "h-12 px-4 text-left align-middle font-medium text-muted-foreground",
-                    "[&:has([role=checkbox])]:pr-0",
+                    'h-12 px-4 text-left align-middle font-medium text-muted-foreground',
+                    '[&:has([role=checkbox])]:pr-0',
                     column.className,
-                    column.sortable && "cursor-pointer select-none hover:text-foreground"
+                    column.sortable &&
+                      'cursor-pointer select-none hover:text-foreground'
                   )}
                   style={{ width: column.width }}
-                  onClick={column.sortable ? () => handleSort(column.id) : undefined}
+                  onClick={
+                    column.sortable ? () => handleSort(column.id) : undefined
+                  }
                 >
                   <div className="flex items-center gap-2">
                     {column.header}
@@ -110,8 +118,8 @@ export function DataTable<T>({
           <tbody className="[&_tr:last-child]:border-0">
             {data.length === 0 ? (
               <tr>
-                <td 
-                  colSpan={columns.length} 
+                <td
+                  colSpan={columns.length}
                   className="h-24 px-4 text-center text-muted-foreground"
                 >
                   {emptyMessage}
@@ -122,17 +130,19 @@ export function DataTable<T>({
                 <tr
                   key={getRowKey(row, index)}
                   className={cn(
-                    "border-b transition-colors",
-                    onRowClick && "cursor-pointer hover:bg-muted/50",
-                    "data-[state=selected]:bg-muted"
+                    'border-b transition-colors',
+                    onRowClick && 'cursor-pointer hover:bg-muted/50',
+                    'data-[state=selected]:bg-muted'
                   )}
-                  onClick={onRowClick ? () => onRowClick(row, index) : undefined}
+                  onClick={
+                    onRowClick ? () => onRowClick(row, index) : undefined
+                  }
                 >
-                  {columns.map((column) => (
+                  {columns.map(column => (
                     <td
                       key={`${getRowKey(row, index)}-${column.id}`}
                       className={cn(
-                        "px-4 py-2 align-middle [&:has([role=checkbox])]:pr-0",
+                        'px-4 py-2 align-middle [&:has([role=checkbox])]:pr-0',
                         column.className
                       )}
                     >
@@ -156,22 +166,22 @@ interface DataTableSkeletonProps {
   className?: string
 }
 
-export function DataTableSkeleton({ 
-  columns, 
-  rows = 5, 
-  className 
+export function DataTableSkeleton({
+  columns,
+  rows = 5,
+  className,
 }: DataTableSkeletonProps) {
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn('w-full', className)}>
       <div className="rounded-md border">
         <table className="w-full caption-bottom text-sm">
           <thead className="[&_tr]:border-b">
             <tr className="border-b">
-              {columns.map((column) => (
+              {columns.map(column => (
                 <th
                   key={column.id}
                   className={cn(
-                    "h-12 px-4 text-left align-middle font-medium text-muted-foreground",
+                    'h-12 px-4 text-left align-middle font-medium text-muted-foreground',
                     column.className
                   )}
                   style={{ width: column.width }}
@@ -184,7 +194,7 @@ export function DataTableSkeleton({
           <tbody>
             {Array.from({ length: rows }, (_, index) => (
               <tr key={index} className="border-b">
-                {columns.map((column) => (
+                {columns.map(column => (
                   <td key={column.id} className="px-4 py-2">
                     <div className="h-4 bg-muted rounded animate-pulse" />
                   </td>
@@ -206,9 +216,14 @@ interface TableActionProps {
   className?: string
 }
 
-export function TableAction({ onEdit, onDelete, onView, className }: TableActionProps) {
+export function TableAction({
+  onEdit,
+  onDelete,
+  onView,
+  className,
+}: TableActionProps) {
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div className={cn('flex items-center gap-2', className)}>
       {onView && (
         <Button variant="ghost" size="sm" onClick={onView}>
           Görüntüle
@@ -220,7 +235,12 @@ export function TableAction({ onEdit, onDelete, onView, className }: TableAction
         </Button>
       )}
       {onDelete && (
-        <Button variant="ghost" size="sm" onClick={onDelete} className="text-destructive hover:text-destructive">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onDelete}
+          className="text-destructive hover:text-destructive"
+        >
           Sil
         </Button>
       )}
@@ -232,33 +252,39 @@ export function TableAction({ onEdit, onDelete, onView, className }: TableAction
 }
 
 interface StatusBadgeProps {
-  status: "active" | "inactive" | "pending" | "completed" | "cancelled"
+  status: 'active' | 'inactive' | 'pending' | 'completed' | 'cancelled'
   className?: string
 }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   const variants = {
-    active: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-    inactive: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400",
-    pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-    completed: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-    cancelled: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+    active:
+      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+    inactive:
+      'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+    pending:
+      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+    completed:
+      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+    cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
   }
 
   const statusLabels = {
-    active: "Aktif",
-    inactive: "Pasif",
-    pending: "Beklemede",
-    completed: "Tamamlandı",
-    cancelled: "İptal"
+    active: 'Aktif',
+    inactive: 'Pasif',
+    pending: 'Beklemede',
+    completed: 'Tamamlandı',
+    cancelled: 'İptal',
   }
 
   return (
-    <span className={cn(
-      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-      variants[status],
-      className
-    )}>
+    <span
+      className={cn(
+        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+        variants[status],
+        className
+      )}
+    >
       {statusLabels[status]}
     </span>
   )

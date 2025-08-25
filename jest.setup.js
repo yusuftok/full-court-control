@@ -23,24 +23,44 @@ jest.mock('next/navigation', () => ({
 // Mock Next.js Link
 jest.mock('next/link', () => {
   return ({ children, href, ...rest }) => {
-    return <a href={href} {...rest}>{children}</a>
+    return (
+      <a href={href} {...rest}>
+        {children}
+      </a>
+    )
   }
 })
 
 // Mock Lucide React icons
 jest.mock('lucide-react', () => {
   const icons = [
-    'Bell', 'Search', 'User', 'Building2', 'LayoutDashboard', 'FolderTree',
-    'ListTodo', 'Users', 'BarChart3', 'FileText', 'Settings', 'Menu', 'X',
-    'ChevronDown', 'ChevronUp', 'MoreHorizontal', 'ChevronLeft', 'ChevronRight'
+    'Bell',
+    'Search',
+    'User',
+    'Building2',
+    'LayoutDashboard',
+    'FolderTree',
+    'ListTodo',
+    'Users',
+    'BarChart3',
+    'FileText',
+    'Settings',
+    'Menu',
+    'X',
+    'ChevronDown',
+    'ChevronUp',
+    'MoreHorizontal',
+    'ChevronLeft',
+    'ChevronRight',
   ]
-  
+
   const mockIcons = {}
   icons.forEach(icon => {
-    mockIcons[icon] = ({ className, ...props }) => 
+    mockIcons[icon] = ({ className, ...props }) => (
       <svg data-testid={icon.toLowerCase()} className={className} {...props} />
+    )
   })
-  
+
   return mockIcons
 })
 

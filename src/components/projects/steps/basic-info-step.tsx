@@ -4,7 +4,13 @@ import { Building2, MapPin, Calendar, Banknote, FileText } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { ProjectFormData } from '../types/project-types'
 
 interface BasicInfoStepProps {
@@ -14,15 +20,18 @@ interface BasicInfoStepProps {
 
 export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
   formData,
-  updateFormData
+  updateFormData,
 }) => {
-  const handleInputChange = (field: keyof ProjectFormData, value: string | number) => {
+  const handleInputChange = (
+    field: keyof ProjectFormData,
+    value: string | number
+  ) => {
     updateFormData({ [field]: value })
   }
 
   // Bugünün tarihini varsayılan başlangıç tarihi olarak ayarla
   const today = new Date().toISOString().split('T')[0]
-  
+
   // 6 ay sonrasını varsayılan bitiş tarihi olarak ayarla
   const sixMonthsLater = new Date()
   sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6)
@@ -37,10 +46,11 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
             <CardTitle>Proje Bilgileri</CardTitle>
           </div>
           <CardDescription>
-            Projenin temel bilgilerini girin. Bu bilgiler projenin kimliğini oluşturacak.
+            Projenin temel bilgilerini girin. Bu bilgiler projenin kimliğini
+            oluşturacak.
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-4 pt-8">
           {/* Proje Adı */}
           <div>
@@ -52,7 +62,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
               id="project-name"
               placeholder="Örn: Şehir Merkezi Ofis Kompleksi"
               value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
+              onChange={e => handleInputChange('name', e.target.value)}
               className="mt-1"
             />
             {!formData.name && (
@@ -72,7 +82,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
               id="location"
               placeholder="Projenin gerçekleştirileceği şehir ve ilçe bilgisi - Örn: Ataşehir, İstanbul"
               value={formData.location}
-              onChange={(e) => handleInputChange('location', e.target.value)}
+              onChange={e => handleInputChange('location', e.target.value)}
               className="mt-1"
             />
           </div>
@@ -88,7 +98,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
                 id="start-date"
                 type="date"
                 value={formData.startDate || today}
-                onChange={(e) => handleInputChange('startDate', e.target.value)}
+                onChange={e => handleInputChange('startDate', e.target.value)}
                 className="mt-1"
                 min={today}
               />
@@ -103,7 +113,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
                 id="end-date"
                 type="date"
                 value={formData.endDate || defaultEndDate}
-                onChange={(e) => handleInputChange('endDate', e.target.value)}
+                onChange={e => handleInputChange('endDate', e.target.value)}
                 className="mt-1"
                 min={formData.startDate || today}
               />
@@ -114,11 +124,14 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
           {formData.startDate && formData.endDate && (
             <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
               <p className="text-sm text-blue-700 dark:text-blue-400">
-                📅 Proje Süresi: {' '}
+                📅 Proje Süresi:{' '}
                 <span className="font-medium">
                   {Math.ceil(
-                    (new Date(formData.endDate).getTime() - new Date(formData.startDate).getTime()) / (1000 * 3600 * 24)
-                  )} gün
+                    (new Date(formData.endDate).getTime() -
+                      new Date(formData.startDate).getTime()) /
+                      (1000 * 3600 * 24)
+                  )}{' '}
+                  gün
                 </span>
               </p>
             </div>
@@ -135,7 +148,9 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
               type="number"
               placeholder="2500000"
               value={formData.budget || ''}
-              onChange={(e) => handleInputChange('budget', parseFloat(e.target.value) || 0)}
+              onChange={e =>
+                handleInputChange('budget', parseFloat(e.target.value) || 0)
+              }
               className="mt-1"
               min="0"
               step="10000"
@@ -144,7 +159,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
               <p className="text-sm text-green-600 dark:text-green-400 mt-1">
                 {new Intl.NumberFormat('tr-TR', {
                   style: 'currency',
-                  currency: 'TRY'
+                  currency: 'TRY',
                 }).format(formData.budget)}
               </p>
             )}
@@ -165,14 +180,13 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
               id="description"
               placeholder="Proje hakkında detaylar, özel notlar veya gereklilikler..."
               value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
+              onChange={e => handleInputChange('description', e.target.value)}
               className="mt-1"
               rows={3}
             />
           </div>
         </CardContent>
       </Card>
-
     </div>
   )
 }

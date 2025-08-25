@@ -5,21 +5,21 @@
   /* Connection Line Colors */
   --tree-line-color: #cbd5e1; /* slate-300 */
   --tree-line-color-dark: #475569; /* slate-600 */
-  
+
   /* Node Spacing */
   --tree-indent-size: 24px;
   --tree-node-height: 40px;
   --tree-line-width: 1px;
-  
+
   /* Connection Line Radius */
   --tree-line-radius: 4px;
-  
+
   /* Node Colors */
   --tree-node-bg: #ffffff;
   --tree-node-bg-hover: #f8fafc; /* slate-50 */
   --tree-node-bg-selected: #eff6ff; /* blue-50 */
   --tree-node-border-selected: #dbeafe; /* blue-200 */
-  
+
   /* Dark Mode Colors */
   --tree-node-bg-dark: #0f172a; /* slate-900 */
   --tree-node-bg-hover-dark: rgba(15, 23, 42, 0.5); /* slate-800/50 */
@@ -66,13 +66,17 @@
 
 .tree-node:hover {
   background-color: var(--tree-node-bg-hover);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.1),
+    0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
 .tree-node.selected {
   background-color: var(--tree-node-bg-selected);
   border-color: var(--tree-node-border-selected);
-  box-shadow: 0 1px 3px 0 rgba(59, 130, 246, 0.1), 0 1px 2px 0 rgba(59, 130, 246, 0.06);
+  box-shadow:
+    0 1px 3px 0 rgba(59, 130, 246, 0.1),
+    0 1px 2px 0 rgba(59, 130, 246, 0.06);
 }
 
 .dark .tree-node:hover {
@@ -342,11 +346,11 @@
     --tree-indent-size: 20px;
     --tree-node-height: 36px;
   }
-  
+
   .tree-node {
     padding: 8px 12px;
   }
-  
+
   .tree-status-badge,
   .tree-priority-badge {
     font-size: 10px;
@@ -403,11 +407,11 @@
     --tree-line-color: #000000;
     --tree-line-color-dark: #ffffff;
   }
-  
+
   .tree-node:hover {
     border-color: #000000;
   }
-  
+
   .dark .tree-node:hover {
     border-color: #ffffff;
   }
@@ -421,7 +425,7 @@
   .tree-connection-line {
     transition: none;
   }
-  
+
   .tree-children-enter,
   .tree-children-exit {
     animation: none;

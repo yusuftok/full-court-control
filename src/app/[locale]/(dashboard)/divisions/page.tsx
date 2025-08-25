@@ -1,20 +1,37 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { useState } from "react"
-import { Plus, Copy, FileText, Save, GitBranch, FolderTree, Building2, ChevronDown, ChevronRight, Edit2, Trash2, MoreVertical } from "lucide-react"
+import * as React from 'react'
+import { useState } from 'react'
+import {
+  Plus,
+  Copy,
+  FileText,
+  Save,
+  GitBranch,
+  FolderTree,
+  Building2,
+  ChevronDown,
+  ChevronRight,
+  Edit2,
+  Trash2,
+  MoreVertical,
+} from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PageContainer, PageHeader, PageContent } from "@/components/layout/page-container"
-import { Breadcrumbs } from "@/components/navigation/breadcrumbs"
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  PageContainer,
+  PageHeader,
+  PageContent,
+} from '@/components/layout/page-container'
+import { Breadcrumbs } from '@/components/navigation/breadcrumbs'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from '@/components/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -23,17 +40,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { toast } from "sonner"
+} from '@/components/ui/dropdown-menu'
+import { toast } from 'sonner'
 
 // Types
 interface DivisionNode {
@@ -65,54 +82,94 @@ interface ProjectDivisionStructure {
 
 // Mock data
 const mockProjects = [
-  { id: "1", name: "Şehir Merkezi Ofis Kompleksi" },
-  { id: "2", name: "Konut Kulesi A" },
-  { id: "3", name: "Alışveriş Merkezi Genişletme" },
+  { id: '1', name: 'Şehir Merkezi Ofis Kompleksi' },
+  { id: '2', name: 'Konut Kulesi A' },
+  { id: '3', name: 'Alışveriş Merkezi Genişletme' },
 ]
 
 const mockTemplates = [
-  { id: "1", name: "Yüksek Kat Konut Binası" },
-  { id: "2", name: "Ticari Ofis Kompleksi" }, 
-  { id: "3", name: "Altyapı Köprüsü" },
+  { id: '1', name: 'Yüksek Kat Konut Binası' },
+  { id: '2', name: 'Ticari Ofis Kompleksi' },
+  { id: '3', name: 'Altyapı Köprüsü' },
 ]
 
 const mockDivisionStructures: Record<string, ProjectDivisionStructure> = {
-  "1": {
-    projectId: "1",
-    sourceType: "template",
-    sourceId: "2",
-    sourceName: "Ticari Ofis Kompleksi",
+  '1': {
+    projectId: '1',
+    sourceType: 'template',
+    sourceId: '2',
+    sourceName: 'Ticari Ofis Kompleksi',
     nodes: [
       {
-        id: "node-1",
-        name: "Saha Hazırlığı",
+        id: 'node-1',
+        name: 'Saha Hazırlığı',
         isExpanded: true,
         children: [
-          { id: "node-1-1", name: "Yıkım", children: [] },
-          { id: "node-1-2", name: "Saha Temizliği", children: [] },
-        ]
+          { id: 'node-1-1', name: 'Yıkım', children: [] },
+          { id: 'node-1-2', name: 'Saha Temizliği', children: [] },
+        ],
       },
       {
-        id: "node-2",
-        name: "Çekirdek & Kabuk",
+        id: 'node-2',
+        name: 'Çekirdek & Kabuk',
         isExpanded: true,
         children: [
-          { id: "node-2-1", name: "Temel", children: [] },
-          { id: "node-2-2", name: "Yapısal İskelet", children: [] },
-        ]
-      }
+          { id: 'node-2-1', name: 'Temel', children: [] },
+          { id: 'node-2-2', name: 'Yapısal İskelet', children: [] },
+        ],
+      },
     ],
     instances: [
-      { id: "inst-1", nodeId: "node-1", name: "Saha Hazırlığı", taskCount: 5, progress: 80 },
-      { id: "inst-1-1", nodeId: "node-1-1", name: "Yıkım İşleri", parentInstanceId: "inst-1", taskCount: 2, progress: 100 },
-      { id: "inst-1-2", nodeId: "node-1-2", name: "Saha Temizliği", parentInstanceId: "inst-1", taskCount: 3, progress: 60 },
-      { id: "inst-2", nodeId: "node-2", name: "Çekirdek & Kabuk", taskCount: 15, progress: 45 },
-      { id: "inst-2-1", nodeId: "node-2-1", name: "Temel Atma", parentInstanceId: "inst-2", taskCount: 8, progress: 90 },
-      { id: "inst-2-2", nodeId: "node-2-2", name: "Yapısal İskelet", parentInstanceId: "inst-2", taskCount: 7, progress: 20 },
+      {
+        id: 'inst-1',
+        nodeId: 'node-1',
+        name: 'Saha Hazırlığı',
+        taskCount: 5,
+        progress: 80,
+      },
+      {
+        id: 'inst-1-1',
+        nodeId: 'node-1-1',
+        name: 'Yıkım İşleri',
+        parentInstanceId: 'inst-1',
+        taskCount: 2,
+        progress: 100,
+      },
+      {
+        id: 'inst-1-2',
+        nodeId: 'node-1-2',
+        name: 'Saha Temizliği',
+        parentInstanceId: 'inst-1',
+        taskCount: 3,
+        progress: 60,
+      },
+      {
+        id: 'inst-2',
+        nodeId: 'node-2',
+        name: 'Çekirdek & Kabuk',
+        taskCount: 15,
+        progress: 45,
+      },
+      {
+        id: 'inst-2-1',
+        nodeId: 'node-2-1',
+        name: 'Temel Atma',
+        parentInstanceId: 'inst-2',
+        taskCount: 8,
+        progress: 90,
+      },
+      {
+        id: 'inst-2-2',
+        nodeId: 'node-2-2',
+        name: 'Yapısal İskelet',
+        parentInstanceId: 'inst-2',
+        taskCount: 7,
+        progress: 20,
+      },
     ],
-    createdAt: "2024-08-15",
-    updatedAt: "2024-08-19"
-  }
+    createdAt: '2024-08-15',
+    updatedAt: '2024-08-19',
+  },
 }
 
 // Division Tree Component
@@ -125,7 +182,14 @@ interface DivisionTreeProps {
   level?: number
 }
 
-function DivisionTree({ nodes, onNodeClick, onAddChild, onEdit, onDelete, level = 0 }: DivisionTreeProps) {
+function DivisionTree({
+  nodes,
+  onNodeClick,
+  onAddChild,
+  onEdit,
+  onDelete,
+  level = 0,
+}: DivisionTreeProps) {
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set())
 
   const toggleExpanded = (nodeId: string) => {
@@ -139,8 +203,8 @@ function DivisionTree({ nodes, onNodeClick, onAddChild, onEdit, onDelete, level 
   }
 
   return (
-    <div className={level > 0 ? "ml-6" : ""}>
-      {nodes.map((node) => (
+    <div className={level > 0 ? 'ml-6' : ''}>
+      {nodes.map(node => (
         <div key={node.id} className="py-1">
           <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 construction-hover group">
             <div className="flex items-center gap-1">
@@ -161,11 +225,14 @@ function DivisionTree({ nodes, onNodeClick, onAddChild, onEdit, onDelete, level 
                 <div className="size-6" />
               )}
               <GitBranch className="size-4 text-muted-foreground" />
-              <span className="font-medium cursor-pointer" onClick={() => onNodeClick?.(node)}>
+              <span
+                className="font-medium cursor-pointer"
+                onClick={() => onNodeClick?.(node)}
+              >
                 {node.name}
               </span>
             </div>
-            
+
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-auto">
               <Button
                 variant="ghost"
@@ -186,7 +253,10 @@ function DivisionTree({ nodes, onNodeClick, onAddChild, onEdit, onDelete, level 
                     <Edit2 className="size-3 mr-2" />
                     Düzenle
                   </DropdownMenuItem>
-                  <DropdownMenuItem variant="destructive" onClick={() => onDelete?.(node.id)}>
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() => onDelete?.(node.id)}
+                  >
                     <Trash2 className="size-3 mr-2" />
                     Sil
                   </DropdownMenuItem>
@@ -194,7 +264,7 @@ function DivisionTree({ nodes, onNodeClick, onAddChild, onEdit, onDelete, level 
               </DropdownMenu>
             </div>
           </div>
-          
+
           {node.children.length > 0 && expandedNodes.has(node.id) && (
             <DivisionTree
               nodes={node.children}
@@ -219,15 +289,22 @@ interface DivisionInstancesProps {
   onDeleteInstance: (instanceId: string) => void
 }
 
-function DivisionInstances({ instances, onCreateInstance, onEditInstance, onDeleteInstance }: DivisionInstancesProps) {
-  const getRootInstances = () => instances.filter(inst => !inst.parentInstanceId)
-  const getChildInstances = (parentId: string) => instances.filter(inst => inst.parentInstanceId === parentId)
+function DivisionInstances({
+  instances,
+  onCreateInstance,
+  onEditInstance,
+  onDeleteInstance,
+}: DivisionInstancesProps) {
+  const getRootInstances = () =>
+    instances.filter(inst => !inst.parentInstanceId)
+  const getChildInstances = (parentId: string) =>
+    instances.filter(inst => inst.parentInstanceId === parentId)
 
   const renderInstance = (instance: DivisionInstance, level = 0) => {
     const children = getChildInstances(instance.id)
-    
+
     return (
-      <div key={instance.id} className={level > 0 ? "ml-6" : ""}>
+      <div key={instance.id} className={level > 0 ? 'ml-6' : ''}>
         <div className="flex items-center justify-between p-3 border rounded-lg mb-2 construction-hover">
           <div className="flex items-center gap-3">
             <Building2 className="size-4 text-blue-600" />
@@ -238,16 +315,16 @@ function DivisionInstances({ instances, onCreateInstance, onEditInstance, onDele
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <div className="w-20 h-2 bg-secondary rounded-full overflow-hidden">
-              <div 
+              <div
                 className="h-full bg-primary transition-all duration-300"
                 style={{ width: `${instance.progress}%` }}
               />
             </div>
             <Badge variant="secondary">{instance.progress}%</Badge>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="size-8 p-0">
@@ -259,11 +336,16 @@ function DivisionInstances({ instances, onCreateInstance, onEditInstance, onDele
                   <Edit2 className="size-3 mr-2" />
                   Düzenle
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onCreateInstance(instance.nodeId)}>
+                <DropdownMenuItem
+                  onClick={() => onCreateInstance(instance.nodeId)}
+                >
                   <Plus className="size-3 mr-2" />
                   Yeni Instance
                 </DropdownMenuItem>
-                <DropdownMenuItem variant="destructive" onClick={() => onDeleteInstance(instance.id)}>
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => onDeleteInstance(instance.id)}
+                >
                   <Trash2 className="size-3 mr-2" />
                   Sil
                 </DropdownMenuItem>
@@ -271,7 +353,7 @@ function DivisionInstances({ instances, onCreateInstance, onEditInstance, onDele
             </DropdownMenu>
           </div>
         </div>
-        
+
         {children.map(child => renderInstance(child, level + 1))}
       </div>
     )
@@ -285,7 +367,7 @@ function DivisionInstances({ instances, onCreateInstance, onEditInstance, onDele
 }
 
 export default function ProjectDivisionsPage() {
-  const [selectedProject, setSelectedProject] = useState<string>("")
+  const [selectedProject, setSelectedProject] = useState<string>('')
   const [showTemplateDialog, setShowTemplateDialog] = useState(false)
   const [showCopyDialog, setShowCopyDialog] = useState(false)
   const [showSaveTemplateDialog, setShowSaveTemplateDialog] = useState(false)
@@ -295,12 +377,11 @@ export default function ProjectDivisionsPage() {
   const [editingNode, setEditingNode] = useState<DivisionNode | null>(null)
   const [addingParentId, setAddingParentId] = useState<string | null>(null)
   const [deletingNodeId, setDeletingNodeId] = useState<string | null>(null)
-  const [nodeNameInput, setNodeNameInput] = useState("")
-  const [currentStructure, setCurrentStructure] = useState<ProjectDivisionStructure | null>(null)
+  const [nodeNameInput, setNodeNameInput] = useState('')
+  const [currentStructure, setCurrentStructure] =
+    useState<ProjectDivisionStructure | null>(null)
 
-  const breadcrumbItems = [
-    { label: "Proje Bölümleri", href: "/divisions" }
-  ]
+  const breadcrumbItems = [{ label: 'Proje Bölümleri', href: '/divisions' }]
 
   // Load structure when project changes
   React.useEffect(() => {
@@ -326,31 +407,35 @@ export default function ProjectDivisionsPage() {
       nodes: [
         {
           id: `node-${Date.now()}-1`,
-          name: "Yapı İnşaatı",
+          name: 'Yapı İnşaatı',
           isExpanded: true,
           children: [
-            { id: `node-${Date.now()}-1-1`, name: "Temel İşleri", children: [] },
-            { id: `node-${Date.now()}-1-2`, name: "Kaba İnşaat", children: [] },
-          ]
+            {
+              id: `node-${Date.now()}-1-1`,
+              name: 'Temel İşleri',
+              children: [],
+            },
+            { id: `node-${Date.now()}-1-2`, name: 'Kaba İnşaat', children: [] },
+          ],
         },
         {
           id: `node-${Date.now()}-2`,
-          name: "Mimari Finisaj",
+          name: 'Mimari Finisaj',
           isExpanded: true,
           children: [
-            { id: `node-${Date.now()}-2-1`, name: "İç Mekan", children: [] },
-            { id: `node-${Date.now()}-2-2`, name: "Dış Cephe", children: [] },
-          ]
-        }
+            { id: `node-${Date.now()}-2-1`, name: 'İç Mekan', children: [] },
+            { id: `node-${Date.now()}-2-2`, name: 'Dış Cephe', children: [] },
+          ],
+        },
       ],
       instances: [],
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     }
-    
+
     setCurrentStructure(newStructure)
     setShowTemplateDialog(false)
-    toast.success("Şablon uygulandı! Şimdi bölüm yapısını düzenleyebilirsiniz.")
+    toast.success('Şablon uygulandı! Şimdi bölüm yapısını düzenleyebilirsiniz.')
   }
 
   const handleStartFromScratch = () => {
@@ -361,18 +446,20 @@ export default function ProjectDivisionsPage() {
       nodes: [
         {
           id: `node-${Date.now()}-1`,
-          name: "Ana Bölüm",
+          name: 'Ana Bölüm',
           isExpanded: true,
-          children: []
-        }
+          children: [],
+        },
       ],
       instances: [],
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     }
-    
+
     setCurrentStructure(newStructure)
-    toast.success("Boş yapı oluşturuldu! Bölümlerinizi eklemeye başlayabilirsiniz.")
+    toast.success(
+      'Boş yapı oluşturuldu! Bölümlerinizi eklemeye başlayabilirsiniz.'
+    )
   }
 
   const handleCopyFromProject = () => {
@@ -389,12 +476,12 @@ export default function ProjectDivisionsPage() {
         sourceId: sourceProjectId,
         sourceName: mockProjects.find(p => p.id === sourceProjectId)?.name,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       }
-      
+
       setCurrentStructure(newStructure)
       setShowCopyDialog(false)
-      toast.success("Proje yapısı kopyalandı!")
+      toast.success('Proje yapısı kopyalandı!')
     }
   }
 
@@ -403,7 +490,7 @@ export default function ProjectDivisionsPage() {
   }
 
   const handleCreateInstance = (nodeId: string) => {
-    toast.success("Yeni instance oluşturuluyor...")
+    toast.success('Yeni instance oluşturuluyor...')
     // TODO: Create new instance
   }
 
@@ -413,14 +500,14 @@ export default function ProjectDivisionsPage() {
   }
 
   const handleDeleteInstance = (instanceId: string) => {
-    toast.success("Instance silindi")
+    toast.success('Instance silindi')
     // TODO: Delete instance
   }
 
   // Tree manipulation functions
   const handleAddChild = (parentId: string | null = null) => {
     setAddingParentId(parentId)
-    setNodeNameInput("")
+    setNodeNameInput('')
     setShowAddNodeDialog(true)
   }
 
@@ -442,7 +529,7 @@ export default function ProjectDivisionsPage() {
       id: `node-${Date.now()}`,
       name: nodeNameInput.trim(),
       children: [],
-      isExpanded: true
+      isExpanded: true,
     }
 
     const updateNodes = (nodes: DivisionNode[]): DivisionNode[] => {
@@ -455,13 +542,13 @@ export default function ProjectDivisionsPage() {
           return {
             ...node,
             children: [...node.children, newNode],
-            isExpanded: true
+            isExpanded: true,
           }
         }
         if (node.children.length > 0) {
           return {
             ...node,
-            children: updateNodes(node.children)
+            children: updateNodes(node.children),
           }
         }
         return node
@@ -471,13 +558,13 @@ export default function ProjectDivisionsPage() {
     setCurrentStructure({
       ...currentStructure,
       nodes: updateNodes(currentStructure.nodes),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     })
 
     setShowAddNodeDialog(false)
     setAddingParentId(null)
-    setNodeNameInput("")
-    toast.success("Yeni bölüm eklendi!")
+    setNodeNameInput('')
+    toast.success('Yeni bölüm eklendi!')
   }
 
   const confirmEditNode = () => {
@@ -488,13 +575,13 @@ export default function ProjectDivisionsPage() {
         if (node.id === editingNode.id) {
           return {
             ...node,
-            name: nodeNameInput.trim()
+            name: nodeNameInput.trim(),
           }
         }
         if (node.children.length > 0) {
           return {
             ...node,
-            children: updateNodes(node.children)
+            children: updateNodes(node.children),
           }
         }
         return node
@@ -504,13 +591,13 @@ export default function ProjectDivisionsPage() {
     setCurrentStructure({
       ...currentStructure,
       nodes: updateNodes(currentStructure.nodes),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     })
 
     setShowEditNodeDialog(false)
     setEditingNode(null)
-    setNodeNameInput("")
-    toast.success("Bölüm adı güncellendi!")
+    setNodeNameInput('')
+    toast.success('Bölüm adı güncellendi!')
   }
 
   const confirmDeleteNode = () => {
@@ -531,12 +618,12 @@ export default function ProjectDivisionsPage() {
     setCurrentStructure({
       ...currentStructure,
       nodes: removeNode(currentStructure.nodes),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     })
 
     setShowDeleteDialog(false)
     setDeletingNodeId(null)
-    toast.success("Bölüm silindi!")
+    toast.success('Bölüm silindi!')
   }
 
   if (!selectedProject) {
@@ -544,7 +631,7 @@ export default function ProjectDivisionsPage() {
       <PageContainer>
         <PageContent>
           <Breadcrumbs items={breadcrumbItems} className="mb-4" />
-          
+
           <PageHeader
             title="Proje Bölümleri"
             description="Proje için bölüm yapısını tanımlayın ve yönetin"
@@ -559,9 +646,12 @@ export default function ProjectDivisionsPage() {
               <p className="text-muted-foreground text-center mb-6 max-w-md">
                 Bölüm yapısını tanımlamak istediğiniz projeyi seçin.
               </p>
-              
+
               <div className="w-full max-w-sm">
-                <Select value={selectedProject} onValueChange={setSelectedProject}>
+                <Select
+                  value={selectedProject}
+                  onValueChange={setSelectedProject}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Proje seçin..." />
                   </SelectTrigger>
@@ -585,7 +675,7 @@ export default function ProjectDivisionsPage() {
     <PageContainer maxWidth="full">
       <PageContent>
         <Breadcrumbs items={breadcrumbItems} className="mb-4" />
-        
+
         <div className="flex items-center gap-3 mb-6">
           <div>
             <h1 className="text-2xl font-semibold">Proje Bölümleri</h1>
@@ -597,12 +687,15 @@ export default function ProjectDivisionsPage() {
             </div>
           </div>
         </div>
-        
+
         <PageHeader
           title="Bölüm Yönetimi"
           action={
             <div className="flex items-center gap-2">
-              <Select value={selectedProject} onValueChange={setSelectedProject}>
+              <Select
+                value={selectedProject}
+                onValueChange={setSelectedProject}
+              >
                 <SelectTrigger className="w-64">
                   <SelectValue />
                 </SelectTrigger>
@@ -624,13 +717,19 @@ export default function ProjectDivisionsPage() {
               <div className="size-16 gradient-primary rounded-2xl flex items-center justify-center mb-6 animate-float-tools">
                 <GitBranch className="size-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">İnşaat Planı Hazır Değil 📋</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                İnşaat Planı Hazır Değil 📋
+              </h3>
               <p className="text-muted-foreground text-center mb-6 max-w-md">
-                Bu proje için henüz bölüm yapısı tanımlanmamış. Nasıl başlamak istersiniz?
+                Bu proje için henüz bölüm yapısı tanımlanmamış. Nasıl başlamak
+                istersiniz?
               </p>
-              
+
               <div className="flex flex-col sm:flex-row gap-3">
-                <Dialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog}>
+                <Dialog
+                  open={showTemplateDialog}
+                  onOpenChange={setShowTemplateDialog}
+                >
                   <DialogTrigger asChild>
                     <Button>
                       <FolderTree className="size-4 mr-2" />
@@ -646,13 +745,13 @@ export default function ProjectDivisionsPage() {
                     </DialogHeader>
                     <div className="space-y-2">
                       {mockTemplates.map(template => (
-                        <div 
-                          key={template.id} 
+                        <div
+                          key={template.id}
                           onClick={() => handleApplyTemplate(template.id)}
                           className="flex items-center justify-between p-3 border rounded-lg construction-hover cursor-pointer"
                         >
                           <span>{template.name}</span>
-                          <Button size="sm" onClick={(e) => e.stopPropagation()}>
+                          <Button size="sm" onClick={e => e.stopPropagation()}>
                             Seç
                           </Button>
                         </div>
@@ -681,14 +780,24 @@ export default function ProjectDivisionsPage() {
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-2">
-                      {mockProjects.filter(p => p.id !== selectedProject).map(project => (
-                        <div key={project.id} className="flex items-center justify-between p-3 border rounded-lg construction-hover cursor-pointer">
-                          <span>{project.name}</span>
-                          <Button size="sm" onClick={() => handleCopyFromSourceProject(project.id)}>
-                            Kopyala
-                          </Button>
-                        </div>
-                      ))}
+                      {mockProjects
+                        .filter(p => p.id !== selectedProject)
+                        .map(project => (
+                          <div
+                            key={project.id}
+                            className="flex items-center justify-between p-3 border rounded-lg construction-hover cursor-pointer"
+                          >
+                            <span>{project.name}</span>
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                handleCopyFromSourceProject(project.id)
+                              }
+                            >
+                              Kopyala
+                            </Button>
+                          </div>
+                        ))}
                     </div>
                   </DialogContent>
                 </Dialog>
@@ -708,7 +817,12 @@ export default function ProjectDivisionsPage() {
                     İnşaat Bölüm Yapısı
                   </CardTitle>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleAddChild(null)} className="modern-button gradient-primary text-white border-0 hover:scale-105 group">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleAddChild(null)}
+                      className="modern-button gradient-primary text-white border-0 hover:scale-105 group"
+                    >
                       <Plus className="size-3 mr-1 group-hover:rotate-90 transition-transform" />
                       Ana Bölüm Ekle
                     </Button>
@@ -716,9 +830,11 @@ export default function ProjectDivisionsPage() {
                 </div>
                 {currentStructure.sourceType !== 'scratch' && (
                   <div className="text-sm text-muted-foreground">
-                    Kaynak: {currentStructure.sourceName} 
+                    Kaynak: {currentStructure.sourceName}
                     <Badge variant="secondary" className="ml-2">
-                      {currentStructure.sourceType === 'template' ? 'Şablon' : 'Kopya'}
+                      {currentStructure.sourceType === 'template'
+                        ? 'Şablon'
+                        : 'Kopya'}
                     </Badge>
                   </div>
                 )}
@@ -726,18 +842,32 @@ export default function ProjectDivisionsPage() {
               <CardContent>
                 <DivisionTree
                   nodes={currentStructure.nodes}
-                  onNodeClick={(node) => console.log('Node clicked:', node)}
+                  onNodeClick={node => console.log('Node clicked:', node)}
                   onAddChild={handleAddChild}
                   onEdit={handleEditNode}
                   onDelete={handleDeleteNode}
                 />
-                
+
                 <div className="flex items-center gap-2 mt-4 pt-4 border-t">
-                  <Button size="sm" variant="outline" onClick={handleSaveAsTemplate} className="modern-button group border-2 border-primary/20 hover:border-primary/40 hover:scale-105">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleSaveAsTemplate}
+                    className="modern-button group border-2 border-primary/20 hover:border-primary/40 hover:scale-105"
+                  >
                     <Save className="size-3 mr-1 group-hover:scale-110 transition-transform" />
                     Şablon Kaydet
                   </Button>
-                  <Button size="sm" variant="outline" className="modern-button group border-2 border-primary/20 hover:border-primary/40 hover:scale-105" onClick={() => alert('📊 Yapı Dışa Aktarma\n\n📋 CSV formatı\n📊 Excel raporu\n🖼️ Görsel hiyerarşi\n\n✅ Dışa aktarma özelliği yakında!')}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="modern-button group border-2 border-primary/20 hover:border-primary/40 hover:scale-105"
+                    onClick={() =>
+                      alert(
+                        '📊 Yapı Dışa Aktarma\n\n📋 CSV formatı\n📊 Excel raporu\n🖼️ Görsel hiyerarşi\n\n✅ Dışa aktarma özelliği yakında!'
+                      )
+                    }
+                  >
                     <FileText className="size-3 mr-1 group-hover:scale-110 transition-transform" />
                     Yapıyı Dışa Aktar
                   </Button>
@@ -776,7 +906,7 @@ export default function ProjectDivisionsPage() {
             <DialogHeader>
               <DialogTitle>Yeni Bölüm Ekle</DialogTitle>
               <DialogDescription>
-                {addingParentId ? "Alt bölüm" : "Ana bölüm"} adını girin.
+                {addingParentId ? 'Alt bölüm' : 'Ana bölüm'} adını girin.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -785,9 +915,9 @@ export default function ProjectDivisionsPage() {
                 <Input
                   id="node-name"
                   value={nodeNameInput}
-                  onChange={(e) => setNodeNameInput(e.target.value)}
+                  onChange={e => setNodeNameInput(e.target.value)}
                   placeholder="Örn: Temel İşleri"
-                  onKeyDown={(e) => {
+                  onKeyDown={e => {
                     if (e.key === 'Enter' && nodeNameInput.trim()) {
                       confirmAddNode()
                     }
@@ -796,7 +926,10 @@ export default function ProjectDivisionsPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowAddNodeDialog(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowAddNodeDialog(false)}
+              >
                 İptal
               </Button>
               <Button onClick={confirmAddNode} disabled={!nodeNameInput.trim()}>
@@ -811,9 +944,7 @@ export default function ProjectDivisionsPage() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Bölümü Düzenle</DialogTitle>
-              <DialogDescription>
-                Bölüm adını güncelleyin.
-              </DialogDescription>
+              <DialogDescription>Bölüm adını güncelleyin.</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
@@ -821,9 +952,9 @@ export default function ProjectDivisionsPage() {
                 <Input
                   id="edit-node-name"
                   value={nodeNameInput}
-                  onChange={(e) => setNodeNameInput(e.target.value)}
+                  onChange={e => setNodeNameInput(e.target.value)}
                   placeholder="Bölüm adı"
-                  onKeyDown={(e) => {
+                  onKeyDown={e => {
                     if (e.key === 'Enter' && nodeNameInput.trim()) {
                       confirmEditNode()
                     }
@@ -832,10 +963,16 @@ export default function ProjectDivisionsPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowEditNodeDialog(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowEditNodeDialog(false)}
+              >
                 İptal
               </Button>
-              <Button onClick={confirmEditNode} disabled={!nodeNameInput.trim()}>
+              <Button
+                onClick={confirmEditNode}
+                disabled={!nodeNameInput.trim()}
+              >
                 Güncelle
               </Button>
             </DialogFooter>
@@ -848,11 +985,15 @@ export default function ProjectDivisionsPage() {
             <DialogHeader>
               <DialogTitle>Bölümü Sil</DialogTitle>
               <DialogDescription>
-                Bu bölümü ve tüm alt bölümlerini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
+                Bu bölümü ve tüm alt bölümlerini silmek istediğinizden emin
+                misiniz? Bu işlem geri alınamaz.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteDialog(false)}
+              >
                 İptal
               </Button>
               <Button variant="destructive" onClick={confirmDeleteNode}>

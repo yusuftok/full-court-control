@@ -1,21 +1,25 @@
 import { toast } from 'sonner'
 
-export function createToastHelpers(t: (key: string, params?: Record<string, any>) => string) {
+type ToastParams = Record<string, string | number | boolean>
+
+export function createToastHelpers(
+  t: (key: string, params?: ToastParams) => string
+) {
   return {
-    success: (key: string, params?: Record<string, any>) => {
+    success: (key: string, params?: ToastParams) => {
       toast.success(t(key, params))
     },
-    error: (key: string, params?: Record<string, any>) => {
+    error: (key: string, params?: ToastParams) => {
       toast.error(t(key, params))
     },
-    info: (key: string, params?: Record<string, any>) => {
+    info: (key: string, params?: ToastParams) => {
       toast.info(t(key, params))
     },
-    warning: (key: string, params?: Record<string, any>) => {
+    warning: (key: string, params?: ToastParams) => {
       toast.warning(t(key, params))
     },
-    promise: (
-      promise: Promise<any>,
+    promise: <T>(
+      promise: Promise<T>,
       messages: {
         loading: string
         success: string
@@ -25,8 +29,8 @@ export function createToastHelpers(t: (key: string, params?: Record<string, any>
       return toast.promise(promise, {
         loading: t(messages.loading),
         success: t(messages.success),
-        error: t(messages.error)
+        error: t(messages.error),
       })
-    }
+    },
   }
 }

@@ -1,10 +1,10 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { useState, useRef, useEffect } from "react"
-import { Layout, Plus, ChevronDown, FileText } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
+import * as React from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { Layout, Plus, ChevronDown, FileText } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Input } from '@/components/ui/input'
 import { DivisionTemplate } from '@/components/templates/template-types'
 import { mockTemplates } from '@/components/templates/template-data'
 
@@ -15,32 +15,35 @@ interface TemplateSelectorProps {
   className?: string
 }
 
-export function TemplateSelector({ 
-  value, 
+export function TemplateSelector({
+  value,
   onChange,
-  placeholder = "Şablon ara ve seç...",
-  className 
+  placeholder = 'Şablon ara ve seç...',
+  className,
 }: TemplateSelectorProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState('')
   const [isFocused, setIsFocused] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(-1)
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Filter templates based on search term
-  const filteredTemplates = mockTemplates.filter(template => 
-    template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    template.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredTemplates = mockTemplates.filter(
+    template =>
+      template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      template.description.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   // Find selected template
-  const selectedTemplate = value ? mockTemplates.find(t => t.id === value) : null
+  const selectedTemplate = value
+    ? mockTemplates.find(t => t.id === value)
+    : null
 
   const handleSelect = (template: DivisionTemplate | null) => {
     onChange(template?.id || null)
     setIsOpen(false)
-    setSearchTerm("")
+    setSearchTerm('')
     setIsFocused(false)
   }
 
@@ -54,9 +57,9 @@ export function TemplateSelector({
     const newValue = e.target.value
     setSearchTerm(newValue)
     setIsOpen(true)
-    
+
     // If user clears input, also clear selection
-    if (newValue === "") {
+    if (newValue === '') {
       onChange(null)
     }
   }
@@ -66,7 +69,7 @@ export function TemplateSelector({
     setTimeout(() => {
       setIsFocused(false)
       if (!value && searchTerm) {
-        setSearchTerm("")
+        setSearchTerm('')
       }
     }, 200)
   }
@@ -74,8 +77,11 @@ export function TemplateSelector({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) return
 
-    const allOptions = [{ id: null, name: 'Boş Şablonla Başla' }, ...filteredTemplates]
-    
+    const allOptions = [
+      { id: null, name: 'Boş Şablonla Başla' },
+      ...filteredTemplates,
+    ]
+
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault()
@@ -83,7 +89,7 @@ export function TemplateSelector({
         break
       case 'ArrowUp':
         e.preventDefault()
-        setFocusedIndex(prev => prev === 0 ? allOptions.length - 1 : prev - 1)
+        setFocusedIndex(prev => (prev === 0 ? allOptions.length - 1 : prev - 1))
         break
       case 'Enter':
         e.preventDefault()
@@ -108,11 +114,14 @@ export function TemplateSelector({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false)
         setIsFocused(false)
         if (!value && searchTerm) {
-          setSearchTerm("")
+          setSearchTerm('')
         }
       }
     }
@@ -122,11 +131,15 @@ export function TemplateSelector({
   }, [value, searchTerm])
 
   // Update display value
-  const displayValue = isFocused || isOpen ? searchTerm : 
-    (selectedTemplate ? selectedTemplate.name : searchTerm)
+  const displayValue =
+    isFocused || isOpen
+      ? searchTerm
+      : selectedTemplate
+        ? selectedTemplate.name
+        : searchTerm
 
   return (
-    <div ref={containerRef} className={cn("relative", className)}>
+    <div ref={containerRef} className={cn('relative', className)}>
       {/* Main Input */}
       <div className="relative">
         <Layout className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
@@ -140,14 +153,16 @@ export function TemplateSelector({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           className={cn(
-            "pl-10 pr-10",
-            (isFocused || isOpen) && "ring-2 ring-primary/20"
+            'pl-10 pr-10',
+            (isFocused || isOpen) && 'ring-2 ring-primary/20'
           )}
         />
-        <ChevronDown className={cn(
-          "absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground transition-transform pointer-events-none",
-          isOpen && "rotate-180"
-        )} />
+        <ChevronDown
+          className={cn(
+            'absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground transition-transform pointer-events-none',
+            isOpen && 'rotate-180'
+          )}
+        />
       </div>
 
       {/* Dropdown */}
@@ -160,8 +175,8 @@ export function TemplateSelector({
               <button
                 onClick={() => handleSelect(null)}
                 className={cn(
-                  "w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none",
-                  focusedIndex === 0 && "bg-primary/20 ring-2 ring-primary/50"
+                  'w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none',
+                  focusedIndex === 0 && 'bg-primary/20 ring-2 ring-primary/50'
                 )}
               >
                 <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
@@ -172,7 +187,8 @@ export function TemplateSelector({
                     Boş Şablonla Başla
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    Temel bölüm yapısıyla başlayın ve ihtiyacınıza göre özelleştirin
+                    Temel bölüm yapısıyla başlayın ve ihtiyacınıza göre
+                    özelleştirin
                   </div>
                 </div>
               </button>
@@ -187,8 +203,9 @@ export function TemplateSelector({
                       key={template.id}
                       onClick={() => handleSelect(template)}
                       className={cn(
-                        "w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none",
-                        focusedIndex === index + 1 && "bg-primary/20 ring-2 ring-primary/50"
+                        'w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none',
+                        focusedIndex === index + 1 &&
+                          'bg-primary/20 ring-2 ring-primary/50'
                       )}
                     >
                       <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -202,7 +219,8 @@ export function TemplateSelector({
                           {template.description}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {template.divisions.length} bölüm • {template.usageCount} kez kullanıldı
+                          {template.divisions.length} bölüm •{' '}
+                          {template.usageCount} kez kullanıldı
                         </div>
                       </div>
                     </button>

@@ -1,20 +1,20 @@
 'use client'
 
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
-import { 
-  Check, 
-  X, 
-  Edit, 
-  Trash2, 
-  Plus, 
-  MoreHorizontal, 
+import {
+  Check,
+  X,
+  Edit,
+  Trash2,
+  Plus,
+  MoreHorizontal,
   CheckSquare,
   Square,
   Archive,
   Copy,
   Filter,
   Search,
-  ChevronDown
+  ChevronDown,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -52,7 +52,13 @@ interface EditableFieldProps {
   multiline?: boolean
 }
 
-function EditableField({ value, onSave, onCancel, className, multiline }: EditableFieldProps) {
+function EditableField({
+  value,
+  onSave,
+  onCancel,
+  className,
+  multiline,
+}: EditableFieldProps) {
   const [editValue, setEditValue] = useState(value)
   const inputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -73,17 +79,20 @@ function EditableField({ value, onSave, onCancel, className, multiline }: Editab
     }
   }, [editValue, value, onSave, onCancel])
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault()
-      handleSave()
-    } else if (e.key === 'Enter' && multiline && e.ctrlKey) {
-      e.preventDefault()
-      handleSave()
-    } else if (e.key === 'Escape') {
-      onCancel()
-    }
-  }, [handleSave, onCancel, multiline])
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !multiline) {
+        e.preventDefault()
+        handleSave()
+      } else if (e.key === 'Enter' && multiline && e.ctrlKey) {
+        e.preventDefault()
+        handleSave()
+      } else if (e.key === 'Escape') {
+        onCancel()
+      }
+    },
+    [handleSave, onCancel, multiline]
+  )
 
   const InputComponent = multiline ? 'textarea' : 'input'
   const ref = multiline ? textareaRef : inputRef
@@ -93,7 +102,7 @@ function EditableField({ value, onSave, onCancel, className, multiline }: Editab
       <InputComponent
         ref={ref as any}
         value={editValue}
-        onChange={(e) => setEditValue(e.target.value)}
+        onChange={e => setEditValue(e.target.value)}
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
         className={cn(
@@ -132,17 +141,29 @@ interface StatusBadgeProps {
 
 function StatusBadge({ status, onClick }: StatusBadgeProps) {
   const statusConfig = {
-    pending: { label: '🕰️ On Deck', className: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' },
-    'in-progress': { label: '🔨 Hammering Away', className: 'bg-blue-100 text-blue-700 hover:bg-blue-200' },
-    completed: { label: '✅ Built & Inspected', className: 'bg-green-100 text-green-700 hover:bg-green-200 celebration' },
-    archived: { label: '📦 Stored Away', className: 'bg-gray-100 text-gray-700 hover:bg-gray-200' },
+    pending: {
+      label: '🕰️ On Deck',
+      className: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200',
+    },
+    'in-progress': {
+      label: '🔨 Hammering Away',
+      className: 'bg-blue-100 text-blue-700 hover:bg-blue-200',
+    },
+    completed: {
+      label: '✅ Built & Inspected',
+      className: 'bg-green-100 text-green-700 hover:bg-green-200 celebration',
+    },
+    archived: {
+      label: '📦 Stored Away',
+      className: 'bg-gray-100 text-gray-700 hover:bg-gray-200',
+    },
   }
 
   const config = statusConfig[status]
 
   return (
-    <Badge 
-      variant="secondary" 
+    <Badge
+      variant="secondary"
       className={cn(config.className, onClick && 'cursor-pointer')}
       onClick={onClick}
     >
@@ -158,9 +179,18 @@ interface PriorityBadgeProps {
 function PriorityBadge({ priority }: PriorityBadgeProps) {
   const priorityConfig = {
     low: { label: '😴 When You Can', className: 'bg-gray-100 text-gray-700' },
-    medium: { label: '🔋 Standard Job', className: 'bg-blue-100 text-blue-700' },
-    high: { label: '⚡ Rush Order', className: 'bg-orange-100 text-orange-700' },
-    urgent: { label: '🚨 All Hands On Deck', className: 'bg-red-100 text-red-700 animate-pulse' },
+    medium: {
+      label: '🔋 Standard Job',
+      className: 'bg-blue-100 text-blue-700',
+    },
+    high: {
+      label: '⚡ Rush Order',
+      className: 'bg-orange-100 text-orange-700',
+    },
+    urgent: {
+      label: '🚨 All Hands On Deck',
+      className: 'bg-red-100 text-red-700 animate-pulse',
+    },
   }
 
   const config = priorityConfig[priority]
@@ -180,62 +210,83 @@ export interface TaskManagerProps {
   onTaskClick?: (task: Task) => void
 }
 
-export function TaskManager({ 
-  tasks, 
-  onTasksChange, 
+export function TaskManager({
+  tasks,
+  onTasksChange,
   containerHeight = 600,
   className,
-  onTaskClick 
+  onTaskClick,
 }: TaskManagerProps) {
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set())
-  const [editingCell, setEditingCell] = useState<{ taskId: string; field: string } | null>(null)
+  const [editingCell, setEditingCell] = useState<{
+    taskId: string
+    field: string
+  } | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<Task['status'][]>(['pending', 'in-progress'])
+  const [statusFilter, setStatusFilter] = useState<Task['status'][]>([
+    'pending',
+    'in-progress',
+  ])
   const [priorityFilter, setPriorityFilter] = useState<Task['priority'][]>([])
 
   const filteredTasks = useMemo(() => {
     return tasks.filter(task => {
-      const matchesSearch = task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          task.description?.toLowerCase().includes(searchQuery.toLowerCase())
-      
-      const matchesStatus = statusFilter.length === 0 || statusFilter.includes(task.status)
-      const matchesPriority = priorityFilter.length === 0 || priorityFilter.includes(task.priority)
-      
+      const matchesSearch =
+        task.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        task.description?.toLowerCase().includes(searchQuery.toLowerCase())
+
+      const matchesStatus =
+        statusFilter.length === 0 || statusFilter.includes(task.status)
+      const matchesPriority =
+        priorityFilter.length === 0 || priorityFilter.includes(task.priority)
+
       return matchesSearch && matchesStatus && matchesPriority
     })
   }, [tasks, searchQuery, statusFilter, priorityFilter])
 
   const selectedCount = selectedTasks.size
 
-  const updateTask = useCallback((taskId: string, updates: Partial<Task>) => {
-    const updatedTasks = tasks.map(task => 
-      task.id === taskId 
-        ? { ...task, ...updates, updatedAt: new Date() }
-        : task
-    )
-    onTasksChange(updatedTasks)
-  }, [tasks, onTasksChange])
+  const updateTask = useCallback(
+    (taskId: string, updates: Partial<Task>) => {
+      const updatedTasks = tasks.map(task =>
+        task.id === taskId
+          ? { ...task, ...updates, updatedAt: new Date() }
+          : task
+      )
+      onTasksChange(updatedTasks)
+    },
+    [tasks, onTasksChange]
+  )
 
-  const handleTaskEdit = useCallback((taskId: string, field: string, value: string) => {
-    updateTask(taskId, { [field]: value })
-    setEditingCell(null)
-    toast.success('Task updated successfully')
-  }, [updateTask])
+  const handleTaskEdit = useCallback(
+    (taskId: string, field: string, value: string) => {
+      updateTask(taskId, { [field]: value })
+      setEditingCell(null)
+      toast.success('Task updated successfully')
+    },
+    [updateTask]
+  )
 
-  const handleStatusChange = useCallback((taskId: string, newStatus: Task['status']) => {
-    updateTask(taskId, { status: newStatus })
-    toast.success(`Task status updated to ${newStatus}`)
-  }, [updateTask])
+  const handleStatusChange = useCallback(
+    (taskId: string, newStatus: Task['status']) => {
+      updateTask(taskId, { status: newStatus })
+      toast.success(`Task status updated to ${newStatus}`)
+    },
+    [updateTask]
+  )
 
-  const toggleTaskSelection = useCallback((taskId: string) => {
-    const newSelected = new Set(selectedTasks)
-    if (newSelected.has(taskId)) {
-      newSelected.delete(taskId)
-    } else {
-      newSelected.add(taskId)
-    }
-    setSelectedTasks(newSelected)
-  }, [selectedTasks])
+  const toggleTaskSelection = useCallback(
+    (taskId: string) => {
+      const newSelected = new Set(selectedTasks)
+      if (newSelected.has(taskId)) {
+        newSelected.delete(taskId)
+      } else {
+        newSelected.add(taskId)
+      }
+      setSelectedTasks(newSelected)
+    },
+    [selectedTasks]
+  )
 
   const selectAllTasks = useCallback(() => {
     if (selectedCount === filteredTasks.length) {
@@ -249,7 +300,9 @@ export function TaskManager({
     const remainingTasks = tasks.filter(task => !selectedTasks.has(task.id))
     onTasksChange(remainingTasks)
     setSelectedTasks(new Set())
-    toast.success(`${selectedCount} task${selectedCount > 1 ? 's' : ''} deleted`)
+    toast.success(
+      `${selectedCount} task${selectedCount > 1 ? 's' : ''} deleted`
+    )
   }, [tasks, selectedTasks, selectedCount, onTasksChange])
 
   const archiveSelectedTasks = useCallback(() => {
@@ -260,7 +313,9 @@ export function TaskManager({
     )
     onTasksChange(updatedTasks)
     setSelectedTasks(new Set())
-    toast.success(`${selectedCount} task${selectedCount > 1 ? 's' : ''} archived`)
+    toast.success(
+      `${selectedCount} task${selectedCount > 1 ? 's' : ''} archived`
+    )
   }, [tasks, selectedTasks, selectedCount, onTasksChange])
 
   const duplicateSelectedTasks = useCallback(() => {
@@ -274,20 +329,30 @@ export function TaskManager({
         createdAt: new Date(),
         updatedAt: new Date(),
       }))
-    
+
     onTasksChange([...tasks, ...tasksToAdd])
     setSelectedTasks(new Set())
-    toast.success(`${selectedCount} task${selectedCount > 1 ? 's' : ''} duplicated`)
+    toast.success(
+      `${selectedCount} task${selectedCount > 1 ? 's' : ''} duplicated`
+    )
   }, [tasks, selectedTasks, selectedCount, onTasksChange])
 
   const addNewTask = useCallback(() => {
     const constructionTasks = [
-      'Frame the walls', 'Pour foundation', 'Install plumbing', 'Wire electrical',
-      'Hang drywall', 'Paint interior', 'Install flooring', 'Mount fixtures',
-      'Inspect work', 'Final walkthrough'
+      'Frame the walls',
+      'Pour foundation',
+      'Install plumbing',
+      'Wire electrical',
+      'Hang drywall',
+      'Paint interior',
+      'Install flooring',
+      'Mount fixtures',
+      'Inspect work',
+      'Final walkthrough',
     ]
-    const randomTask = constructionTasks[Math.floor(Math.random() * constructionTasks.length)]
-    
+    const randomTask =
+      constructionTasks[Math.floor(Math.random() * constructionTasks.length)]
+
     const newTask: Task = {
       id: `task-${Date.now()}`,
       name: randomTask,
@@ -346,13 +411,14 @@ export function TaskManager({
       header: 'Task Name',
       width: '300px',
       render: (task: Task) => {
-        const isEditing = editingCell?.taskId === task.id && editingCell?.field === 'name'
-        
+        const isEditing =
+          editingCell?.taskId === task.id && editingCell?.field === 'name'
+
         if (isEditing) {
           return (
             <EditableField
               value={task.name}
-              onSave={(value) => handleTaskEdit(task.id, 'name', value)}
+              onSave={value => handleTaskEdit(task.id, 'name', value)}
               onCancel={() => setEditingCell(null)}
             />
           )
@@ -373,13 +439,15 @@ export function TaskManager({
       header: 'Description',
       width: '250px',
       render: (task: Task) => {
-        const isEditing = editingCell?.taskId === task.id && editingCell?.field === 'description'
-        
+        const isEditing =
+          editingCell?.taskId === task.id &&
+          editingCell?.field === 'description'
+
         if (isEditing) {
           return (
             <EditableField
               value={task.description || ''}
-              onSave={(value) => handleTaskEdit(task.id, 'description', value)}
+              onSave={value => handleTaskEdit(task.id, 'description', value)}
               onCancel={() => setEditingCell(null)}
               multiline
             />
@@ -389,9 +457,13 @@ export function TaskManager({
         return (
           <div
             className="cursor-pointer hover:bg-muted/50 rounded px-1 py-0.5 -mx-1 truncate"
-            onClick={() => setEditingCell({ taskId: task.id, field: 'description' })}
+            onClick={() =>
+              setEditingCell({ taskId: task.id, field: 'description' })
+            }
           >
-            {task.description || <span className="text-muted-foreground">Add description...</span>}
+            {task.description || (
+              <span className="text-muted-foreground">Add description...</span>
+            )}
           </div>
         )
       },
@@ -408,16 +480,24 @@ export function TaskManager({
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => handleStatusChange(task.id, 'pending')}>
+            <DropdownMenuItem
+              onClick={() => handleStatusChange(task.id, 'pending')}
+            >
               Pending
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleStatusChange(task.id, 'in-progress')}>
+            <DropdownMenuItem
+              onClick={() => handleStatusChange(task.id, 'in-progress')}
+            >
               In Progress
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleStatusChange(task.id, 'completed')}>
+            <DropdownMenuItem
+              onClick={() => handleStatusChange(task.id, 'completed')}
+            >
               Completed
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleStatusChange(task.id, 'archived')}>
+            <DropdownMenuItem
+              onClick={() => handleStatusChange(task.id, 'archived')}
+            >
               Archived
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -450,30 +530,38 @@ export function TaskManager({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setEditingCell({ taskId: task.id, field: 'name' })}>
+            <DropdownMenuItem
+              onClick={() => setEditingCell({ taskId: task.id, field: 'name' })}
+            >
               <Edit className="w-4 h-4 mr-2" />
               Edit Name
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setEditingCell({ taskId: task.id, field: 'description' })}>
+            <DropdownMenuItem
+              onClick={() =>
+                setEditingCell({ taskId: task.id, field: 'description' })
+              }
+            >
               <Edit className="w-4 h-4 mr-2" />
               Edit Description
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => {
-              const duplicated = {
-                ...task,
-                id: `task-${Date.now()}-${Math.random()}`,
-                name: `${task.name} (Copy)`,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              }
-              onTasksChange([...tasks, duplicated])
-              toast.success('Task duplicated')
-            }}>
+            <DropdownMenuItem
+              onClick={() => {
+                const duplicated = {
+                  ...task,
+                  id: `task-${Date.now()}-${Math.random()}`,
+                  name: `${task.name} (Copy)`,
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                }
+                onTasksChange([...tasks, duplicated])
+                toast.success('Task duplicated')
+              }}
+            >
               <Copy className="w-4 h-4 mr-2" />
               Duplicate
             </DropdownMenuItem>
-            <DropdownMenuItem 
+            <DropdownMenuItem
               onClick={() => {
                 const remainingTasks = tasks.filter(t => t.id !== task.id)
                 onTasksChange(remainingTasks)
@@ -500,11 +588,11 @@ export function TaskManager({
             <Input
               placeholder="Search work orders... 🔍"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
               className="pl-10 w-64 construction-hover"
             />
           </div>
-          
+
           {/* Status Filter */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -517,7 +605,7 @@ export function TaskManager({
             <DropdownMenuContent>
               <DropdownMenuCheckboxItem
                 checked={statusFilter.includes('pending')}
-                onCheckedChange={(checked) => {
+                onCheckedChange={checked => {
                   if (checked) {
                     setStatusFilter([...statusFilter, 'pending'])
                   } else {
@@ -529,11 +617,13 @@ export function TaskManager({
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={statusFilter.includes('in-progress')}
-                onCheckedChange={(checked) => {
+                onCheckedChange={checked => {
                   if (checked) {
                     setStatusFilter([...statusFilter, 'in-progress'])
                   } else {
-                    setStatusFilter(statusFilter.filter(s => s !== 'in-progress'))
+                    setStatusFilter(
+                      statusFilter.filter(s => s !== 'in-progress')
+                    )
                   }
                 }}
               >
@@ -541,7 +631,7 @@ export function TaskManager({
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={statusFilter.includes('completed')}
-                onCheckedChange={(checked) => {
+                onCheckedChange={checked => {
                   if (checked) {
                     setStatusFilter([...statusFilter, 'completed'])
                   } else {
@@ -553,7 +643,7 @@ export function TaskManager({
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={statusFilter.includes('archived')}
-                onCheckedChange={(checked) => {
+                onCheckedChange={checked => {
                   if (checked) {
                     setStatusFilter([...statusFilter, 'archived'])
                   } else {
@@ -573,15 +663,27 @@ export function TaskManager({
               <span className="text-sm text-muted-foreground">
                 {selectedCount} selected
               </span>
-              <Button variant="outline" size="sm" onClick={duplicateSelectedTasks}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={duplicateSelectedTasks}
+              >
                 <Copy className="w-4 h-4 mr-2" />
                 Duplicate
               </Button>
-              <Button variant="outline" size="sm" onClick={archiveSelectedTasks}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={archiveSelectedTasks}
+              >
                 <Archive className="w-4 h-4 mr-2" />
                 Archive
               </Button>
-              <Button variant="destructive" size="sm" onClick={deleteSelectedTasks}>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={deleteSelectedTasks}
+              >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Delete
               </Button>
@@ -601,15 +703,15 @@ export function TaskManager({
         itemHeight={50}
         containerHeight={containerHeight}
         onRowClick={onTaskClick}
-        keyExtractor={(task) => task.id}
+        keyExtractor={task => task.id}
         className="border rounded-lg"
       />
 
       {filteredTasks.length === 0 && (
         <div className="text-center py-8 text-muted-foreground animate-build-up">
           <div className="mb-4 text-4xl">🏗️</div>
-          {searchQuery || statusFilter.length > 0 || priorityFilter.length > 0 
-            ? 'No work orders match your search. Try adjusting those filters, chief!' 
+          {searchQuery || statusFilter.length > 0 || priorityFilter.length > 0
+            ? 'No work orders match your search. Try adjusting those filters, chief!'
             : 'The job site is quiet for now. Ready to break ground on your first work order?'}
         </div>
       )}

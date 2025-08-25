@@ -1,7 +1,7 @@
 export enum SubcontractorType {
-  CONSTRUCTION = 'construction',  // Yapı İşleri
-  MECHANICAL = 'mechanical',      // Mekanik İşleri
-  ELECTRICAL = 'electrical'       // Elektrik İşleri
+  CONSTRUCTION = 'construction', // Yapı İşleri
+  MECHANICAL = 'mechanical', // Mekanik İşleri
+  ELECTRICAL = 'electrical', // Elektrik İşleri
 }
 
 export interface Subcontractor {
@@ -16,12 +16,12 @@ export interface Subcontractor {
   createdAt: string
   updatedAt?: string
   isActive: boolean
-  
+
   // İstatistiksel bilgiler (opsiyonel)
   completedProjects?: number
   averageRating?: number
   totalRevenue?: number
-  specializations?: string[]  // Özel yetenekler/uzmanlık alanları
+  specializations?: string[] // Özel yetenekler/uzmanlık alanları
 }
 
 export interface SubcontractorFormData {
@@ -42,8 +42,8 @@ export interface CreateSubcontractorRequest extends SubcontractorFormData {
 
 // Taşeron seçimi için kullanılacak
 export interface SubcontractorOption {
-  value: string      // subcontractor.id
-  label: string      // companyName - responsiblePerson
+  value: string // subcontractor.id
+  label: string // companyName - responsiblePerson
   subcontractor: Subcontractor
 }
 
@@ -51,10 +51,10 @@ export interface SubcontractorOption {
 export interface SubcontractorPerformance {
   subcontractorId: string
   projectId: string
-  rating: number  // 1-5 arası
-  completionTime: number  // planlanan süreye göre yüzde
-  qualityScore: number  // kalite puanı
-  budgetAdherence: number  // bütçeye uyum yüzdesi
+  rating: number // 1-5 arası
+  completionTime: number // planlanan süreye göre yüzde
+  qualityScore: number // kalite puanı
+  budgetAdherence: number // bütçeye uyum yüzdesi
   comments?: string
   evaluatedBy: string
   evaluatedAt: string

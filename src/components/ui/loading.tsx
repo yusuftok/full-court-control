@@ -1,29 +1,27 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from 'react'
+import { cn } from '@/lib/utils'
 
 export interface LoadingSpinnerProps {
-  size?: "sm" | "md" | "lg"
+  size?: 'sm' | 'md' | 'lg'
   className?: string
-  theme?: "construction" | "default"
+  theme?: 'construction' | 'default'
 }
 
-export function LoadingSpinner({ 
-  size = "md", 
+export function LoadingSpinner({
+  size = 'md',
   className,
-  theme = "construction" 
+  theme = 'construction',
 }: LoadingSpinnerProps) {
   const sizeClasses = {
-    sm: "h-4 w-4",
-    md: "h-8 w-8", 
-    lg: "h-12 w-12"
+    sm: 'h-4 w-4',
+    md: 'h-8 w-8',
+    lg: 'h-12 w-12',
   }
 
-  if (theme === "construction") {
+  if (theme === 'construction') {
     return (
-      <div className={cn("flex items-center gap-2", className)}>
-        <div className={cn("animate-hammer-swing", sizeClasses[size])}>
-          🔨
-        </div>
+      <div className={cn('flex items-center gap-2', className)}>
+        <div className={cn('animate-hammer-swing', sizeClasses[size])}>🔨</div>
         <span className="text-sm text-muted-foreground animate-pulse">
           Harika bir şey inşa ediliyor...
         </span>
@@ -32,9 +30,9 @@ export function LoadingSpinner({
   }
 
   return (
-    <div 
+    <div
       className={cn(
-        "animate-spin rounded-full border-2 border-current border-t-transparent",
+        'animate-spin rounded-full border-2 border-current border-t-transparent',
         sizeClasses[size],
         className
       )}
@@ -44,55 +42,61 @@ export function LoadingSpinner({
 
 export interface LoadingSkeletonProps {
   className?: string
-  theme?: "construction" | "default"
+  theme?: 'construction' | 'default'
 }
 
-export function LoadingSkeleton({ className, theme = "construction" }: LoadingSkeletonProps) {
-  if (theme === "construction") {
+export function LoadingSkeleton({
+  className,
+  theme = 'construction',
+}: LoadingSkeletonProps) {
+  if (theme === 'construction') {
     return (
-      <div className={cn("animate-pulse blueprint-scan bg-muted rounded", className)} />
+      <div
+        className={cn(
+          'animate-pulse blueprint-scan bg-muted rounded',
+          className
+        )}
+      />
     )
   }
 
-  return (
-    <div className={cn("animate-pulse bg-muted rounded", className)} />
-  )
+  return <div className={cn('animate-pulse bg-muted rounded', className)} />
 }
 
 export interface LoadingStateProps {
   children?: React.ReactNode
   isLoading: boolean
   loadingText?: string
-  theme?: "construction" | "default"
+  theme?: 'construction' | 'default'
   className?: string
 }
 
-export function LoadingState({ 
-  children, 
-  isLoading, 
+export function LoadingState({
+  children,
+  isLoading,
   loadingText,
-  theme = "construction",
-  className 
+  theme = 'construction',
+  className,
 }: LoadingStateProps) {
   const [currentMessageIndex, setCurrentMessageIndex] = React.useState(0)
   const [showTools, setShowTools] = React.useState(false)
-  
+
   if (isLoading) {
     const messages = [
-      { text: "Temel atılıyor...", emoji: "🏗️" },
-      { text: "Beton karıştırılıyor...", emoji: "🪣" },
-      { text: "Projeler okunuyor...", emoji: "📜" },
-      { text: "Güvenlik protokolleri kontrol ediliyor...", emoji: "🧡" },
-      { text: "Ekiple koordinasyon sağlanıyor...", emoji: "📞" },
-      { text: "İki kez ölç, bir kez kes...", emoji: "📏" },
-      { text: "Kalite kontrolü devam ediyor...", emoji: "✅" },
-      { text: "Planlar çiziliyor...", emoji: "📊" },
-      { text: "Malzemeler sayılıyor...", emoji: "🪣" },
-      { text: "Kahve hazırlanıyor... Şaka! 😄", emoji: "☕" }
+      { text: 'Temel atılıyor...', emoji: '🏗️' },
+      { text: 'Beton karıştırılıyor...', emoji: '🪣' },
+      { text: 'Projeler okunuyor...', emoji: '📜' },
+      { text: 'Güvenlik protokolleri kontrol ediliyor...', emoji: '🧡' },
+      { text: 'Ekiple koordinasyon sağlanıyor...', emoji: '📞' },
+      { text: 'İki kez ölç, bir kez kes...', emoji: '📏' },
+      { text: 'Kalite kontrolü devam ediyor...', emoji: '✅' },
+      { text: 'Planlar çiziliyor...', emoji: '📊' },
+      { text: 'Malzemeler sayılıyor...', emoji: '🪣' },
+      { text: 'Kahve hazırlanıyor... Şaka! 😄', emoji: '☕' },
     ]
-    
+
     const currentMessage = messages[currentMessageIndex]
-    
+
     // Rotate messages every 2 seconds
     React.useEffect(() => {
       const interval = setInterval(() => {
@@ -101,9 +105,14 @@ export function LoadingState({
       }, 2000)
       return () => clearInterval(interval)
     }, [])
-    
+
     return (
-      <div className={cn("flex flex-col items-center justify-center min-h-[200px] gap-4", className)}>
+      <div
+        className={cn(
+          'flex flex-col items-center justify-center min-h-[200px] gap-4',
+          className
+        )}
+      >
         <div className="relative">
           <div className="text-4xl animate-construction-bounce">
             {currentMessage.emoji}
@@ -114,9 +123,9 @@ export function LoadingState({
             </div>
           )}
         </div>
-        
+
         <LoadingSpinner theme={theme} />
-        
+
         <div className="text-center space-y-2">
           <p className="text-sm text-muted-foreground max-w-xs animate-pulse">
             {loadingText || currentMessage.text}
@@ -133,17 +142,21 @@ export function LoadingState({
 }
 
 // Whimsical Construction Crew Component
-export function ConstructionCrew({ message = "Ekip çalışıyor..." }: { message?: string }) {
+export function ConstructionCrew({
+  message = 'Ekip çalışıyor...',
+}: {
+  message?: string
+}) {
   const [currentWorker, setCurrentWorker] = React.useState(0)
-  const workers = ["👷", "🏗️", "🔨", "⚒️", "🪓", "📐", "📏"]
-  
+  const workers = ['👷', '🏗️', '🔨', '⚒️', '🪓', '📐', '📏']
+
   React.useEffect(() => {
     const interval = setInterval(() => {
       setCurrentWorker(prev => (prev + 1) % workers.length)
     }, 800)
     return () => clearInterval(interval)
   }, [])
-  
+
   return (
     <div className="flex items-center gap-3 animate-spring-in">
       <div className="text-2xl animate-construction-cheer">
@@ -153,11 +166,11 @@ export function ConstructionCrew({ message = "Ekip çalışıyor..." }: { messag
         <span className="text-sm font-medium">{message}</span>
         <div className="flex gap-1">
           {workers.slice(0, 3).map((worker, i) => (
-            <span 
-              key={i} 
+            <span
+              key={i}
               className={cn(
-                "text-xs transition-all duration-300",
-                i === currentWorker % 3 ? "animate-happy-bounce" : "opacity-50"
+                'text-xs transition-all duration-300',
+                i === currentWorker % 3 ? 'animate-happy-bounce' : 'opacity-50'
               )}
             >
               {worker}
@@ -170,11 +183,11 @@ export function ConstructionCrew({ message = "Ekip çalışıyor..." }: { messag
 }
 
 // Empty State with Personality
-export function EmptyStateConstruction({ 
-  title = "Henüz hiçbir şey yok",
-  description = "Hadi ilk projeyi başlatalım!",
+export function EmptyStateConstruction({
+  title = 'Henüz hiçbir şey yok',
+  description = 'Hadi ilk projeyi başlatalım!',
   action,
-  className 
+  className,
 }: {
   title?: string
   description?: string
@@ -182,26 +195,29 @@ export function EmptyStateConstruction({
   className?: string
 }) {
   const [currentTool, setCurrentTool] = React.useState(0)
-  const tools = ["🔨", "⚒️", "🪚", "📐", "📏", "🪓"]
-  
+  const tools = ['🔨', '⚒️', '🪚', '📐', '📏', '🪓']
+
   React.useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTool(prev => (prev + 1) % tools.length)
     }, 1500)
     return () => clearInterval(interval)
   }, [])
-  
+
   return (
-    <div className={cn("flex flex-col items-center justify-center min-h-[300px] gap-6 text-center", className)}>
+    <div
+      className={cn(
+        'flex flex-col items-center justify-center min-h-[300px] gap-6 text-center',
+        className
+      )}
+    >
       <div className="relative">
-        <div className="text-6xl animate-float opacity-20">
-          🏗️
-        </div>
+        <div className="text-6xl animate-float opacity-20">🏗️</div>
         <div className="absolute -top-4 -right-4 text-2xl animate-tools-party">
           {tools[currentTool]}
         </div>
       </div>
-      
+
       <div className="space-y-2 max-w-md">
         <h3 className="text-xl font-semibold">{title}</h3>
         <p className="text-muted-foreground">{description}</p>
@@ -209,12 +225,8 @@ export function EmptyStateConstruction({
           💡 Her büyük proje tek bir tuğla ile başlar!
         </p>
       </div>
-      
-      {action && (
-        <div className="animate-spring-in">
-          {action}
-        </div>
-      )}
+
+      {action && <div className="animate-spring-in">{action}</div>}
     </div>
   )
 }

@@ -1,0 +1,17 @@
+node_modules
+.next
+out
+build
+dist
+package-lock.json
+*.min.js
+*.min.css
+.prettierrc
+.gitignore
+.eslintrc*
+*.config.js
+*.config.mjs
+*.config.ts
+docs/
+.agent/
+.claude/

@@ -2,37 +2,43 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { 
-  LineChart, 
-  Line, 
-  AreaChart, 
-  Area, 
-  BarChart, 
-  Bar, 
-  PieChart, 
-  Pie, 
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
   Cell,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from 'recharts'
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Activity, 
-  Users, 
-  CheckCircle, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Activity,
+  Users,
+  CheckCircle,
   Clock,
   Download,
   RefreshCw,
   Calendar,
-  Filter
+  Filter,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { StatCard, StatCardGrid } from './stat-card'
 import {
   Select,
@@ -85,16 +91,20 @@ export interface AnalyticsData {
 }
 
 // Mock API function - in real app this would be actual API calls
-const fetchAnalyticsData = async (timeRange: string): Promise<AnalyticsData> => {
+const fetchAnalyticsData = async (
+  timeRange: string
+): Promise<AnalyticsData> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 500))
-  
+
   const now = new Date()
   const daysBack = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90
-  
+
   // Generate time series data
   const timeSeriesData = Array.from({ length: daysBack }, (_, i) => {
-    const date = new Date(now.getTime() - (daysBack - 1 - i) * 24 * 60 * 60 * 1000)
+    const date = new Date(
+      now.getTime() - (daysBack - 1 - i) * 24 * 60 * 60 * 1000
+    )
     return {
       date: date.toISOString().split('T')[0],
       tasks: Math.floor(Math.random() * 50) + 10,
@@ -104,7 +114,10 @@ const fetchAnalyticsData = async (timeRange: string): Promise<AnalyticsData> => 
   })
 
   const totalTasks = timeSeriesData.reduce((sum, day) => sum + day.tasks, 0)
-  const completedTasks = timeSeriesData.reduce((sum, day) => sum + day.completions, 0)
+  const completedTasks = timeSeriesData.reduce(
+    (sum, day) => sum + day.completions,
+    0
+  )
 
   return {
     overview: {
@@ -118,27 +131,96 @@ const fetchAnalyticsData = async (timeRange: string): Promise<AnalyticsData> => 
     timeSeriesData,
     tasksByStatus: [
       { status: 'Completed', count: completedTasks, color: '#10b981' },
-      { status: 'In Progress', count: Math.floor(totalTasks * 0.4), color: '#3b82f6' },
-      { status: 'Pending', count: Math.floor(totalTasks * 0.3), color: '#f59e0b' },
-      { status: 'Blocked', count: Math.floor(totalTasks * 0.1), color: '#ef4444' },
+      {
+        status: 'In Progress',
+        count: Math.floor(totalTasks * 0.4),
+        color: '#3b82f6',
+      },
+      {
+        status: 'Pending',
+        count: Math.floor(totalTasks * 0.3),
+        color: '#f59e0b',
+      },
+      {
+        status: 'Blocked',
+        count: Math.floor(totalTasks * 0.1),
+        color: '#ef4444',
+      },
     ],
     tasksByPriority: [
-      { priority: 'High', count: Math.floor(totalTasks * 0.2), color: '#ef4444' },
-      { priority: 'Medium', count: Math.floor(totalTasks * 0.5), color: '#f59e0b' },
-      { priority: 'Low', count: Math.floor(totalTasks * 0.3), color: '#10b981' },
+      {
+        priority: 'High',
+        count: Math.floor(totalTasks * 0.2),
+        color: '#ef4444',
+      },
+      {
+        priority: 'Medium',
+        count: Math.floor(totalTasks * 0.5),
+        color: '#f59e0b',
+      },
+      {
+        priority: 'Low',
+        count: Math.floor(totalTasks * 0.3),
+        color: '#10b981',
+      },
     ],
     userActivity: [
-      { user: 'Ayşe Kaya', tasksCompleted: 23, hoursWorked: 38, efficiency: 95 },
-      { user: 'Mehmet Yılmaz', tasksCompleted: 19, hoursWorked: 42, efficiency: 87 },
-      { user: 'Fatma Demir', tasksCompleted: 17, hoursWorked: 35, efficiency: 92 },
-      { user: 'Ali Çelik', tasksCompleted: 15, hoursWorked: 40, efficiency: 78 },
-      { user: 'Zeynep Özkan', tasksCompleted: 21, hoursWorked: 36, efficiency: 89 },
+      {
+        user: 'Ayşe Kaya',
+        tasksCompleted: 23,
+        hoursWorked: 38,
+        efficiency: 95,
+      },
+      {
+        user: 'Mehmet Yılmaz',
+        tasksCompleted: 19,
+        hoursWorked: 42,
+        efficiency: 87,
+      },
+      {
+        user: 'Fatma Demir',
+        tasksCompleted: 17,
+        hoursWorked: 35,
+        efficiency: 92,
+      },
+      {
+        user: 'Ali Çelik',
+        tasksCompleted: 15,
+        hoursWorked: 40,
+        efficiency: 78,
+      },
+      {
+        user: 'Zeynep Özkan',
+        tasksCompleted: 21,
+        hoursWorked: 36,
+        efficiency: 89,
+      },
     ],
     projectProgress: [
-      { project: 'Site Yeniden Tasarım', completion: 78, tasks: 24, dueDate: '2024-02-15' },
-      { project: 'Mobil Uygulama', completion: 45, tasks: 31, dueDate: '2024-03-01' },
-      { project: 'API Entegrasyonu', completion: 92, tasks: 18, dueDate: '2024-01-30' },
-      { project: 'Kullanıcı Testleri', completion: 23, tasks: 12, dueDate: '2024-02-28' },
+      {
+        project: 'Site Yeniden Tasarım',
+        completion: 78,
+        tasks: 24,
+        dueDate: '2024-02-15',
+      },
+      {
+        project: 'Mobil Uygulama',
+        completion: 45,
+        tasks: 31,
+        dueDate: '2024-03-01',
+      },
+      {
+        project: 'API Entegrasyonu',
+        completion: 92,
+        tasks: 18,
+        dueDate: '2024-01-30',
+      },
+      {
+        project: 'Kullanıcı Testleri',
+        completion: 23,
+        tasks: 12,
+        dueDate: '2024-02-28',
+      },
     ],
   }
 }
@@ -151,7 +233,13 @@ interface ChartCardProps {
   onExport?: () => void
 }
 
-function ChartCard({ title, description, children, className, onExport }: ChartCardProps) {
+function ChartCard({
+  title,
+  description,
+  children,
+  className,
+  onExport,
+}: ChartCardProps) {
   return (
     <Card className={className}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -179,19 +267,16 @@ interface AnalyticsDashboardProps {
   refreshInterval?: number
 }
 
-export function AnalyticsDashboard({ className, refreshInterval = 30000 }: AnalyticsDashboardProps) {
+export function AnalyticsDashboard({
+  className,
+  refreshInterval = 30000,
+}: AnalyticsDashboardProps) {
   const [timeRange, setTimeRange] = useState('30d')
   const [isAutoRefresh, setIsAutoRefresh] = useState(true)
   const queryClient = useQueryClient()
 
   // Fetch analytics data with React Query
-  const { 
-    data, 
-    isLoading, 
-    error, 
-    refetch,
-    dataUpdatedAt 
-  } = useQuery({
+  const { data, isLoading, error, refetch, dataUpdatedAt } = useQuery({
     queryKey: ['analytics', timeRange],
     queryFn: () => fetchAnalyticsData(timeRange),
     refetchInterval: isAutoRefresh ? refreshInterval : false,
@@ -205,7 +290,7 @@ export function AnalyticsDashboard({ className, refreshInterval = 30000 }: Analy
     const headers = Object.keys(chartData[0]).join(',')
     const rows = chartData.map(row => Object.values(row).join(','))
     const csv = [headers, ...rows].join('\n')
-    
+
     const blob = new Blob([csv], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
@@ -215,7 +300,7 @@ export function AnalyticsDashboard({ className, refreshInterval = 30000 }: Analy
     link.click()
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
-    
+
     toast.success(`${dataType} data exported successfully`)
   }
 
@@ -228,7 +313,9 @@ export function AnalyticsDashboard({ className, refreshInterval = 30000 }: Analy
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <p className="text-muted-foreground mb-4">Failed to load analytics data</p>
+          <p className="text-muted-foreground mb-4">
+            Failed to load analytics data
+          </p>
           <Button onClick={handleManualRefresh}>
             <RefreshCw className="w-4 h-4 mr-2" />
             Try Again
@@ -255,7 +342,7 @@ export function AnalyticsDashboard({ className, refreshInterval = 30000 }: Analy
             )}
           </p>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Select value={timeRange} onValueChange={setTimeRange}>
             <SelectTrigger className="w-32">
@@ -267,18 +354,27 @@ export function AnalyticsDashboard({ className, refreshInterval = 30000 }: Analy
               <SelectItem value="90d">Last 90 days</SelectItem>
             </SelectContent>
           </Select>
-          
+
           <Button
             variant="outline"
             size="sm"
             onClick={() => setIsAutoRefresh(!isAutoRefresh)}
           >
-            <Activity className={`w-4 h-4 mr-2 ${isAutoRefresh ? 'text-green-500' : ''}`} />
+            <Activity
+              className={`w-4 h-4 mr-2 ${isAutoRefresh ? 'text-green-500' : ''}`}
+            />
             Auto-refresh
           </Button>
-          
-          <Button variant="outline" size="sm" onClick={handleManualRefresh} disabled={isLoading}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleManualRefresh}
+            disabled={isLoading}
+          >
+            <RefreshCw
+              className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`}
+            />
             Refresh
           </Button>
         </div>
@@ -298,8 +394,9 @@ export function AnalyticsDashboard({ className, refreshInterval = 30000 }: Analy
               value={`${data.overview.completionRate}%`}
               change={{
                 value: data.overview.completionRate > 75 ? 5 : -2,
-                type: data.overview.completionRate > 75 ? 'increase' : 'decrease',
-                period: 'geçen aya göre'
+                type:
+                  data.overview.completionRate > 75 ? 'increase' : 'decrease',
+                period: 'geçen aya göre',
               }}
               icon={TrendingUp}
             />
@@ -309,7 +406,7 @@ export function AnalyticsDashboard({ className, refreshInterval = 30000 }: Analy
               change={{
                 value: 12,
                 type: 'increase',
-                period: 'geçen aya göre'
+                period: 'geçen aya göre',
               }}
               icon={Users}
             />
@@ -319,7 +416,7 @@ export function AnalyticsDashboard({ className, refreshInterval = 30000 }: Analy
               change={{
                 value: -0.3,
                 type: 'decrease',
-                period: 'geçen aya göre'
+                period: 'geçen aya göre',
               }}
               icon={Clock}
             />
@@ -328,40 +425,46 @@ export function AnalyticsDashboard({ className, refreshInterval = 30000 }: Analy
           {/* Charts Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Task Completion Trend */}
-            <ChartCard 
-              title="Task Completion Trend" 
+            <ChartCard
+              title="Task Completion Trend"
               description="Daily task creation and completion"
-              onExport={() => handleExportCSV('task-trend', data.timeSeriesData)}
+              onExport={() =>
+                handleExportCSV('task-trend', data.timeSeriesData)
+              }
               className="lg:col-span-2"
             >
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={data.timeSeriesData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="date" 
+                  <XAxis
+                    dataKey="date"
                     tick={{ fontSize: 12 }}
-                    tickFormatter={(value) => new Date(value).toLocaleDateString()}
+                    tickFormatter={value =>
+                      new Date(value).toLocaleDateString()
+                    }
                   />
                   <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip 
-                    labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                  <Tooltip
+                    labelFormatter={value =>
+                      new Date(value).toLocaleDateString()
+                    }
                   />
                   <Legend />
-                  <Area 
-                    type="monotone" 
-                    dataKey="tasks" 
-                    stackId="1" 
-                    stroke="#8884d8" 
-                    fill="#8884d8" 
+                  <Area
+                    type="monotone"
+                    dataKey="tasks"
+                    stackId="1"
+                    stroke="#8884d8"
+                    fill="#8884d8"
                     fillOpacity={0.6}
                     name="Tasks Created"
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="completions" 
-                    stackId="1" 
-                    stroke="#82ca9d" 
-                    fill="#82ca9d" 
+                  <Area
+                    type="monotone"
+                    dataKey="completions"
+                    stackId="1"
+                    stroke="#82ca9d"
+                    fill="#82ca9d"
                     fillOpacity={0.6}
                     name="Tasks Completed"
                   />
@@ -370,9 +473,11 @@ export function AnalyticsDashboard({ className, refreshInterval = 30000 }: Analy
             </ChartCard>
 
             {/* Task Status Distribution */}
-            <ChartCard 
+            <ChartCard
               title="Task Status Distribution"
-              onExport={() => handleExportCSV('task-status', data.tasksByStatus)}
+              onExport={() =>
+                handleExportCSV('task-status', data.tasksByStatus)
+              }
             >
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -396,9 +501,11 @@ export function AnalyticsDashboard({ className, refreshInterval = 30000 }: Analy
             </ChartCard>
 
             {/* Priority Distribution */}
-            <ChartCard 
+            <ChartCard
               title="Task Priority Distribution"
-              onExport={() => handleExportCSV('task-priority', data.tasksByPriority)}
+              onExport={() =>
+                handleExportCSV('task-priority', data.tasksByPriority)
+              }
             >
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={data.tasksByPriority}>
@@ -417,8 +524,8 @@ export function AnalyticsDashboard({ className, refreshInterval = 30000 }: Analy
           </div>
 
           {/* User Activity Table */}
-          <ChartCard 
-            title="Top Performers" 
+          <ChartCard
+            title="Top Performers"
             description="Most active users this period"
             onExport={() => handleExportCSV('user-activity', data.userActivity)}
           >
@@ -427,7 +534,9 @@ export function AnalyticsDashboard({ className, refreshInterval = 30000 }: Analy
                 <thead>
                   <tr className="border-b">
                     <th className="text-left p-2 font-medium">User</th>
-                    <th className="text-left p-2 font-medium">Tasks Completed</th>
+                    <th className="text-left p-2 font-medium">
+                      Tasks Completed
+                    </th>
                     <th className="text-left p-2 font-medium">Hours Worked</th>
                     <th className="text-left p-2 font-medium">Efficiency</th>
                   </tr>
@@ -441,7 +550,7 @@ export function AnalyticsDashboard({ className, refreshInterval = 30000 }: Analy
                       <td className="p-2">
                         <div className="flex items-center gap-2">
                           <div className="w-16 h-2 bg-gray-200 rounded-full">
-                            <div 
+                            <div
                               className="h-2 bg-blue-500 rounded-full"
                               style={{ width: `${user.efficiency}%` }}
                             />
@@ -457,13 +566,16 @@ export function AnalyticsDashboard({ className, refreshInterval = 30000 }: Analy
           </ChartCard>
 
           {/* Project Progress */}
-          <ChartCard 
-            title="Project Progress" 
+          <ChartCard
+            title="Project Progress"
             description="Current project completion status"
           >
             <div className="space-y-4">
-              {data.projectProgress.map((project) => (
-                <div key={project.project} className="flex items-center justify-between">
+              {data.projectProgress.map(project => (
+                <div
+                  key={project.project}
+                  className="flex items-center justify-between"
+                >
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-medium">{project.project}</span>
@@ -472,10 +584,13 @@ export function AnalyticsDashboard({ className, refreshInterval = 30000 }: Analy
                       </span>
                     </div>
                     <div className="w-full h-2 bg-gray-200 rounded-full">
-                      <div 
+                      <div
                         className={`h-2 rounded-full transition-all duration-300 ${
-                          project.completion >= 75 ? 'bg-green-500' :
-                          project.completion >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                          project.completion >= 75
+                            ? 'bg-green-500'
+                            : project.completion >= 50
+                              ? 'bg-yellow-500'
+                              : 'bg-red-500'
                         }`}
                         style={{ width: `${project.completion}%` }}
                       />

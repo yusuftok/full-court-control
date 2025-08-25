@@ -1,11 +1,28 @@
 'use client'
 
-import { Calendar, Banknote, MapPin, Users, Building, TreePine, CheckCircle } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Calendar,
+  Banknote,
+  MapPin,
+  Users,
+  Building,
+  TreePine,
+  CheckCircle,
+} from 'lucide-react'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { ProjectFormData, ProjectCategory } from '../types/project-types'
-import { findSubcontractorById, getSubcontractorTypeLabel } from '../data/mock-subcontractors'
+import {
+  findSubcontractorById,
+  getSubcontractorTypeLabel,
+} from '../data/mock-subcontractors'
 import { mockTemplates } from '@/components/templates/template-data'
 
 interface PreviewStepProps {
@@ -14,31 +31,36 @@ interface PreviewStepProps {
 
 const CATEGORY_LABELS = {
   [ProjectCategory.RESIDENTIAL]: 'Konut',
-  [ProjectCategory.COMMERCIAL]: 'Ticari', 
+  [ProjectCategory.COMMERCIAL]: 'Ticari',
   [ProjectCategory.INFRASTRUCTURE]: 'Altyapı',
-  [ProjectCategory.RENOVATION]: 'Renovasyon'
+  [ProjectCategory.RENOVATION]: 'Renovasyon',
 }
 
 export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
-  const selectedTemplate = formData.templateId 
+  const selectedTemplate = formData.templateId
     ? mockTemplates.find(t => t.id === formData.templateId)
     : null
 
-  const constructionSubcontractor = formData.subcontractors.constructionId 
+  const constructionSubcontractor = formData.subcontractors.constructionId
     ? findSubcontractorById(formData.subcontractors.constructionId)
     : null
-  
-  const mechanicalSubcontractor = formData.subcontractors.mechanicalId 
+
+  const mechanicalSubcontractor = formData.subcontractors.mechanicalId
     ? findSubcontractorById(formData.subcontractors.mechanicalId)
     : null
-    
-  const electricalSubcontractor = formData.subcontractors.electricalId 
+
+  const electricalSubcontractor = formData.subcontractors.electricalId
     ? findSubcontractorById(formData.subcontractors.electricalId)
     : null
 
-  const projectDuration = formData.startDate && formData.endDate 
-    ? Math.ceil((new Date(formData.endDate).getTime() - new Date(formData.startDate).getTime()) / (1000 * 3600 * 24))
-    : 0
+  const projectDuration =
+    formData.startDate && formData.endDate
+      ? Math.ceil(
+          (new Date(formData.endDate).getTime() -
+            new Date(formData.startDate).getTime()) /
+            (1000 * 3600 * 24)
+        )
+      : 0
 
   const totalDivisions = formData.divisions.reduce((count, div) => {
     return count + 1 + (div.children ? div.children.length : 0)
@@ -56,7 +78,8 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
                 Proje Hazır!
               </h3>
               <p className="text-sm text-green-700 dark:text-green-300">
-                Tüm bilgiler tamamlandı. Aşağıdaki özeti kontrol edin ve "Projeyi Oluştur" butonuna tıklayın.
+                Tüm bilgiler tamamlandı. Aşağıdaki özeti kontrol edin ve
+                "Projeyi Oluştur" butonuna tıklayın.
               </p>
             </div>
           </div>
@@ -71,14 +94,14 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
             <CardTitle>Proje Bilgileri</CardTitle>
           </div>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h4 className="font-medium text-slate-900 dark:text-slate-100 mb-3">
                 {formData.name}
               </h4>
-              
+
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-slate-500" />
@@ -86,46 +109,50 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
                     {formData.location}
                   </span>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-slate-500" />
                   <span className="text-slate-600 dark:text-slate-400">
-                    {new Date(formData.startDate).toLocaleDateString('tr-TR')} - {' '}
+                    {new Date(formData.startDate).toLocaleDateString('tr-TR')} -{' '}
                     {new Date(formData.endDate).toLocaleDateString('tr-TR')}
                   </span>
                   <Badge variant="secondary" className="ml-2">
                     {projectDuration} gün
                   </Badge>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   <Banknote className="w-4 h-4 text-slate-500" />
                   <span className="text-slate-600 dark:text-slate-400">
                     {new Intl.NumberFormat('tr-TR', {
                       style: 'currency',
-                      currency: 'TRY'
+                      currency: 'TRY',
                     }).format(formData.budget)}
                   </span>
                 </div>
               </div>
             </div>
-            
+
             <div>
               <div className="space-y-3">
                 <Badge variant="outline" className="inline-block">
                   {CATEGORY_LABELS[formData.category]}
                 </Badge>
-                
+
                 {selectedTemplate && (
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Şablon:</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Şablon:
+                    </p>
                     <p className="font-medium">{selectedTemplate.name}</p>
                   </div>
                 )}
-                
+
                 {formData.description && (
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Açıklama:</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Açıklama:
+                    </p>
                     <p className="text-sm">{formData.description}</p>
                   </div>
                 )}
@@ -143,7 +170,7 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
             <CardTitle>Ana Yüklenici Ekibi</CardTitle>
           </div>
         </CardHeader>
-        
+
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-3">
@@ -155,7 +182,7 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
                   {formData.mainContractorTeam.chiefEngineer}
                 </p>
               </div>
-              
+
               <div>
                 <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   İnşaat Mühendisi
@@ -165,7 +192,7 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
                 </p>
               </div>
             </div>
-            
+
             <div className="space-y-3">
               <div>
                 <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -175,7 +202,7 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
                   {formData.mainContractorTeam.mechanicalEngineer}
                 </p>
               </div>
-              
+
               <div>
                 <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   Elektrik Mühendisi
@@ -197,7 +224,7 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
             <CardTitle>Seçili Taşeronlar</CardTitle>
           </div>
         </CardHeader>
-        
+
         <CardContent>
           <div className="space-y-4">
             {constructionSubcontractor && (
@@ -205,31 +232,34 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
                 <div>
                   <p className="font-medium">Yapı İşleri</p>
                   <p className="text-sm text-slate-600 dark:text-slate-400">
-                    {constructionSubcontractor.companyName} - {constructionSubcontractor.responsiblePerson}
+                    {constructionSubcontractor.companyName} -{' '}
+                    {constructionSubcontractor.responsiblePerson}
                   </p>
                 </div>
                 <Badge variant="outline">Yapı</Badge>
               </div>
             )}
-            
+
             {mechanicalSubcontractor && (
               <div className="flex items-center justify-between p-3 border rounded-lg">
                 <div>
                   <p className="font-medium">Mekanik İşleri</p>
                   <p className="text-sm text-slate-600 dark:text-slate-400">
-                    {mechanicalSubcontractor.companyName} - {mechanicalSubcontractor.responsiblePerson}
+                    {mechanicalSubcontractor.companyName} -{' '}
+                    {mechanicalSubcontractor.responsiblePerson}
                   </p>
                 </div>
                 <Badge variant="outline">Mekanik</Badge>
               </div>
             )}
-            
+
             {electricalSubcontractor && (
               <div className="flex items-center justify-between p-3 border rounded-lg">
                 <div>
                   <p className="font-medium">Elektrik İşleri</p>
                   <p className="text-sm text-slate-600 dark:text-slate-400">
-                    {electricalSubcontractor.companyName} - {electricalSubcontractor.responsiblePerson}
+                    {electricalSubcontractor.companyName} -{' '}
+                    {electricalSubcontractor.responsiblePerson}
                   </p>
                 </div>
                 <Badge variant="outline">Elektrik</Badge>
@@ -247,25 +277,29 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
             <CardTitle>Proje Yapısı</CardTitle>
           </div>
         </CardHeader>
-        
+
         <CardContent>
           <div className="flex items-center gap-4 mb-4">
-            <Badge variant="secondary">
-              {totalDivisions} toplam bölüm
-            </Badge>
+            <Badge variant="secondary">{totalDivisions} toplam bölüm</Badge>
             <Badge variant="secondary">
               {formData.divisions.length} ana bölüm
             </Badge>
           </div>
 
           <div className="space-y-3">
-            {formData.divisions.map((division) => (
-              <div key={division.id} className="border-l-2 border-green-300 pl-4">
+            {formData.divisions.map(division => (
+              <div
+                key={division.id}
+                className="border-l-2 border-green-300 pl-4"
+              >
                 <p className="font-medium">{division.name}</p>
                 {division.children && division.children.length > 0 && (
                   <div className="ml-4 mt-2 space-y-1">
-                    {division.children.map((child) => (
-                      <p key={child.id} className="text-sm text-slate-600 dark:text-slate-400">
+                    {division.children.map(child => (
+                      <p
+                        key={child.id}
+                        className="text-sm text-slate-600 dark:text-slate-400"
+                      >
                         • {child.name}
                       </p>
                     ))}
@@ -298,7 +332,8 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
                 <p>✅ Taşeronlar seçildi</p>
                 <p>✅ Proje yapısı oluşturuldu</p>
                 <p className="mt-3 font-medium">
-                  "Projeyi Oluştur" butonuna tıklayarak projeyi kaydetebilirsiniz.
+                  "Projeyi Oluştur" butonuna tıklayarak projeyi
+                  kaydetebilirsiniz.
                 </p>
               </div>
             </div>

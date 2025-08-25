@@ -17,7 +17,7 @@ export const mockSubcontractors: Subcontractor[] = [
     completedProjects: 24,
     averageRating: 4.3,
     totalRevenue: 15750000,
-    specializations: ['Betonarme İnşaat', 'Çelik Yapı', 'Prefabrik Sistem']
+    specializations: ['Betonarme İnşaat', 'Çelik Yapı', 'Prefabrik Sistem'],
   },
   {
     id: 'sub-construction-2',
@@ -34,7 +34,7 @@ export const mockSubcontractors: Subcontractor[] = [
     completedProjects: 18,
     averageRating: 4.1,
     totalRevenue: 12300000,
-    specializations: ['Konut İnşaatı', 'Villa Projesi', 'Restorasyon']
+    specializations: ['Konut İnşaatı', 'Villa Projesi', 'Restorasyon'],
   },
   {
     id: 'sub-construction-3',
@@ -51,7 +51,7 @@ export const mockSubcontractors: Subcontractor[] = [
     completedProjects: 31,
     averageRating: 4.6,
     totalRevenue: 28900000,
-    specializations: ['Altyapı İnşaatı', 'Köprü Yapımı', 'Tünel İnşaatı']
+    specializations: ['Altyapı İnşaatı', 'Köprü Yapımı', 'Tünel İnşaatı'],
   },
 
   // Mekanik İşleri Taşeronları
@@ -70,7 +70,12 @@ export const mockSubcontractors: Subcontractor[] = [
     completedProjects: 42,
     averageRating: 4.4,
     totalRevenue: 8750000,
-    specializations: ['HVAC Sistemleri', 'Merkezi Isıtma', 'Soğutma Sistemleri', 'Havalandırma']
+    specializations: [
+      'HVAC Sistemleri',
+      'Merkezi Isıtma',
+      'Soğutma Sistemleri',
+      'Havalandırma',
+    ],
   },
   {
     id: 'sub-mechanical-2',
@@ -87,7 +92,12 @@ export const mockSubcontractors: Subcontractor[] = [
     completedProjects: 38,
     averageRating: 4.2,
     totalRevenue: 9200000,
-    specializations: ['Su Tesisatı', 'Doğalgaz Sistemleri', 'Yangın Söndürme', 'Temiz Su']
+    specializations: [
+      'Su Tesisatı',
+      'Doğalgaz Sistemleri',
+      'Yangın Söndürme',
+      'Temiz Su',
+    ],
   },
   {
     id: 'sub-mechanical-3',
@@ -104,7 +114,12 @@ export const mockSubcontractors: Subcontractor[] = [
     completedProjects: 29,
     averageRating: 4.5,
     totalRevenue: 11800000,
-    specializations: ['Endüstriyel HVAC', 'Kazan Sistemleri', 'Kompresör Montajı', 'Buhar Sistemleri']
+    specializations: [
+      'Endüstriyel HVAC',
+      'Kazan Sistemleri',
+      'Kompresör Montajı',
+      'Buhar Sistemleri',
+    ],
   },
 
   // Elektrik İşleri Taşeronları
@@ -123,7 +138,12 @@ export const mockSubcontractors: Subcontractor[] = [
     completedProjects: 47,
     averageRating: 4.7,
     totalRevenue: 6900000,
-    specializations: ['Güçlü Akım', 'Zayıf Akım', 'Aydınlatma Sistemleri', 'Pano Montajı']
+    specializations: [
+      'Güçlü Akım',
+      'Zayıf Akım',
+      'Aydınlatma Sistemleri',
+      'Pano Montajı',
+    ],
   },
   {
     id: 'sub-electrical-2',
@@ -140,7 +160,12 @@ export const mockSubcontractors: Subcontractor[] = [
     completedProjects: 35,
     averageRating: 4.3,
     totalRevenue: 8400000,
-    specializations: ['Bina Otomasyonu', 'Güvenlik Sistemleri', 'Yangın Alarm', 'Ses Sistemleri']
+    specializations: [
+      'Bina Otomasyonu',
+      'Güvenlik Sistemleri',
+      'Yangın Alarm',
+      'Ses Sistemleri',
+    ],
   },
   {
     id: 'sub-electrical-3',
@@ -157,7 +182,12 @@ export const mockSubcontractors: Subcontractor[] = [
     completedProjects: 52,
     averageRating: 4.1,
     totalRevenue: 13200000,
-    specializations: ['Yüksek Gerilim', 'Transformatör', 'Generator Sistemleri', 'İletim Hatları']
+    specializations: [
+      'Yüksek Gerilim',
+      'Transformatör',
+      'Generator Sistemleri',
+      'İletim Hatları',
+    ],
   },
 
   // Pasif taşeron örneği
@@ -176,12 +206,14 @@ export const mockSubcontractors: Subcontractor[] = [
     completedProjects: 8,
     averageRating: 2.1,
     totalRevenue: 2100000,
-    specializations: ['Tadilat İşleri']
-  }
+    specializations: ['Tadilat İşleri'],
+  },
 ]
 
 // Taşeron türüne göre filtreleme yardımcı fonksiyonu
-export const getSubcontractorsByType = (type: SubcontractorType): Subcontractor[] => {
+export const getSubcontractorsByType = (
+  type: SubcontractorType
+): Subcontractor[] => {
   return mockSubcontractors.filter(sub => sub.type === type && sub.isActive)
 }
 
@@ -190,7 +222,7 @@ export const getSubcontractorOptions = (type: SubcontractorType) => {
   return getSubcontractorsByType(type).map(sub => ({
     value: sub.id,
     label: `${sub.companyName} - ${sub.responsiblePerson}`,
-    subcontractor: sub
+    subcontractor: sub,
   }))
 }
 
@@ -209,6 +241,8 @@ export const getSubcontractorTypeLabel = (type: SubcontractorType): string => {
 }
 
 // ID'ye göre taşeron bulma
-export const findSubcontractorById = (id: string): Subcontractor | undefined => {
+export const findSubcontractorById = (
+  id: string
+): Subcontractor | undefined => {
   return mockSubcontractors.find(sub => sub.id === id)
 }

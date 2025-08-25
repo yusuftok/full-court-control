@@ -1,11 +1,11 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { Header } from "@/components/layout/header"
-import { Sidebar } from "@/components/layout/sidebar"
-import { AppLayout } from "@/components/layout/page-container"
-import { Toaster } from "@/components/ui/sonner"
-import QueryProvider from "@/components/providers/query-provider"
+import * as React from 'react'
+import { Header } from '@/components/layout/header'
+import { Sidebar } from '@/components/layout/sidebar'
+import { AppLayout } from '@/components/layout/page-container'
+import { Toaster } from '@/components/ui/sonner'
+import QueryProvider from '@/components/providers/query-provider'
 
 export default function DashboardLayout({
   children,
@@ -32,7 +32,7 @@ export default function DashboardLayout({
           </div>
 
           {/* Mobile Sidebar */}
-          <Sidebar 
+          <Sidebar
             isMobile
             isOpen={isMobileMenuOpen}
             onClose={handleMobileMenuClose}
@@ -41,9 +41,7 @@ export default function DashboardLayout({
           {/* Main Content Area */}
           <div className="flex flex-col flex-1 min-w-0">
             <Header onMobileMenuToggle={handleMobileMenuToggle} />
-            <div className="flex-1 overflow-auto">
-              {children}
-            </div>
+            <div className="flex-1 overflow-auto">{children}</div>
           </div>
         </div>
         <Toaster position="bottom-right" richColors />

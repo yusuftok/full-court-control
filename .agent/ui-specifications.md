@@ -3,9 +3,11 @@
 ## Brand Foundation
 
 ### Brand Mission
+
 Empowering construction professionals with reliable, efficient project management tools that simplify complex workflows and enhance team collaboration.
 
 ### Brand Values
+
 - **Reliability**: Dependable tools that construction teams can trust
 - **Efficiency**: Streamlined workflows that save time and reduce errors
 - **Clarity**: Clear, intuitive interfaces that reduce learning curves
@@ -13,6 +15,7 @@ Empowering construction professionals with reliable, efficient project managemen
 - **Industry Expertise**: Built by people who understand construction challenges
 
 ### Brand Personality
+
 - **Professional**: Serious about construction business needs
 - **Approachable**: Friendly without being casual
 - **Confident**: Assured in our industry knowledge
@@ -22,18 +25,21 @@ Empowering construction professionals with reliable, efficient project managemen
 ### Brand Voice & Tone
 
 **Voice Characteristics:**
+
 - Clear and direct communication
 - Industry-knowledgeable but not jargon-heavy
 - Helpful and supportive
 - Results-oriented
 
 **Tone Guidelines:**
+
 - **Professional**: Maintain industry credibility
 - **Supportive**: Help users succeed
 - **Efficient**: Respect users' time constraints
 - **Encouraging**: Build confidence in digital adoption
 
 **Writing Style:**
+
 - Use active voice
 - Keep sentences concise
 - Lead with benefits
@@ -41,6 +47,7 @@ Empowering construction professionals with reliable, efficient project managemen
 - Provide clear next steps
 
 **Example Voice Applications:**
+
 - Error messages: "Let's fix this quickly so you can get back to work"
 - Success messages: "Great! Your team can now see the updated status"
 - Onboarding: "Set up your first project in under 5 minutes"
@@ -51,16 +58,19 @@ Empowering construction professionals with reliable, efficient project managemen
 ### Logo System
 
 **Primary Logo:**
+
 - Logotype: "Full Court Control Pro" in Inter Bold
 - Minimum size: 120px wide (digital), 1 inch wide (print)
 - Clear space: 0.5x logo height on all sides
 
 **Secondary Mark:**
+
 - Icon: "FCC Pro" abbreviation in circular badge
 - Used for favicons, app icons, small spaces
 - Minimum size: 16x16px
 
 **Logo Usage Guidelines:**
+
 - Primary logo on white/light backgrounds
 - White logo on dark backgrounds
 - Never stretch, rotate, or add effects
@@ -73,84 +83,84 @@ Empowering construction professionals with reliable, efficient project managemen
 
 ```css
 /* Brand Primary - Professional Blue */
---brand-primary: #1E40AF;        /* Primary actions, headers */
---brand-primary-50: #EFF6FF;     /* Light backgrounds */
---brand-primary-100: #DBEAFE;    /* Hover states */
---brand-primary-200: #BFDBFE;    /* Disabled states */
---brand-primary-600: #2563EB;    /* Interactive elements */
---brand-primary-700: #1D4ED8;    /* Pressed states */
---brand-primary-900: #1E3A8A;    /* Dark text */
+--brand-primary: #1e40af; /* Primary actions, headers */
+--brand-primary-50: #eff6ff; /* Light backgrounds */
+--brand-primary-100: #dbeafe; /* Hover states */
+--brand-primary-200: #bfdbfe; /* Disabled states */
+--brand-primary-600: #2563eb; /* Interactive elements */
+--brand-primary-700: #1d4ed8; /* Pressed states */
+--brand-primary-900: #1e3a8a; /* Dark text */
 
 /* Brand Secondary - Construction Orange */
---brand-secondary: #EA580C;      /* Accent actions, warnings */
---brand-secondary-50: #FFF7ED;   /* Light backgrounds */
---brand-secondary-100: #FFEDD5;  /* Hover states */
---brand-secondary-600: #DC2626;  /* Interactive elements */
---brand-secondary-700: #B91C1C;  /* Pressed states */
+--brand-secondary: #ea580c; /* Accent actions, warnings */
+--brand-secondary-50: #fff7ed; /* Light backgrounds */
+--brand-secondary-100: #ffedd5; /* Hover states */
+--brand-secondary-600: #dc2626; /* Interactive elements */
+--brand-secondary-700: #b91c1c; /* Pressed states */
 ```
 
 #### Functional Colors
 
 ```css
 /* Success States */
---success: #10B981;              /* Green for completed tasks */
---success-50: #ECFDF5;
---success-100: #D1FAE5;
+--success: #10b981; /* Green for completed tasks */
+--success-50: #ecfdf5;
+--success-100: #d1fae5;
 --success-700: #047857;
 
 /* Warning States */
---warning: #F59E0B;              /* Amber for pending approvals */
---warning-50: #FFFBEB;
---warning-100: #FEF3C7;
---warning-700: #B45309;
+--warning: #f59e0b; /* Amber for pending approvals */
+--warning-50: #fffbeb;
+--warning-100: #fef3c7;
+--warning-700: #b45309;
 
 /* Error States */
---error: #EF4444;                /* Red for failed/rejected items */
---error-50: #FEF2F2;
---error-100: #FEE2E2;
---error-700: #C53030;
+--error: #ef4444; /* Red for failed/rejected items */
+--error-50: #fef2f2;
+--error-100: #fee2e2;
+--error-700: #c53030;
 
 /* Information */
---info: #3B82F6;                 /* Blue for informational states */
---info-50: #EFF6FF;
---info-100: #DBEAFE;
---info-700: #1D4ED8;
+--info: #3b82f6; /* Blue for informational states */
+--info-50: #eff6ff;
+--info-100: #dbeafe;
+--info-700: #1d4ed8;
 ```
 
 #### Neutral Palette
 
 ```css
 /* Gray Scale */
---gray-50: #F9FAFB;              /* Page backgrounds */
---gray-100: #F3F4F6;             /* Card backgrounds */
---gray-200: #E5E7EB;             /* Borders, dividers */
---gray-300: #D1D5DB;             /* Input borders */
---gray-400: #9CA3AF;             /* Placeholder text */
---gray-500: #6B7280;             /* Secondary text */
---gray-600: #4B5563;             /* Body text */
---gray-700: #374151;             /* Headings */
---gray-800: #1F2937;             /* Dark headings */
---gray-900: #111827;             /* Primary text */
+--gray-50: #f9fafb; /* Page backgrounds */
+--gray-100: #f3f4f6; /* Card backgrounds */
+--gray-200: #e5e7eb; /* Borders, dividers */
+--gray-300: #d1d5db; /* Input borders */
+--gray-400: #9ca3af; /* Placeholder text */
+--gray-500: #6b7280; /* Secondary text */
+--gray-600: #4b5563; /* Body text */
+--gray-700: #374151; /* Headings */
+--gray-800: #1f2937; /* Dark headings */
+--gray-900: #111827; /* Primary text */
 ```
 
 #### Semantic Color Usage
 
 ```css
 /* Text Colors */
---text-primary: var(--gray-900);     /* Main content */
---text-secondary: var(--gray-600);   /* Supporting text */
---text-muted: var(--gray-500);       /* Captions, metadata */
---text-inverse: #FFFFFF;             /* Text on dark backgrounds */
+--text-primary: var(--gray-900); /* Main content */
+--text-secondary: var(--gray-600); /* Supporting text */
+--text-muted: var(--gray-500); /* Captions, metadata */
+--text-inverse: #ffffff; /* Text on dark backgrounds */
 
 /* Background Colors */
---bg-primary: #FFFFFF;               /* Main content areas */
---bg-secondary: var(--gray-50);      /* Page backgrounds */
---bg-muted: var(--gray-100);         /* Subtle backgrounds */
+--bg-primary: #ffffff; /* Main content areas */
+--bg-secondary: var(--gray-50); /* Page backgrounds */
+--bg-muted: var(--gray-100); /* Subtle backgrounds */
 
 /* Border Colors */
---border-primary: var(--gray-200);   /* Default borders */
---border-muted: var(--gray-100);     /* Subtle dividers */
---border-strong: var(--gray-300);    /* Emphasized borders */
+--border-primary: var(--gray-200); /* Default borders */
+--border-muted: var(--gray-100); /* Subtle dividers */
+--border-strong: var(--gray-300); /* Emphasized borders */
 ```
 
 ### Typography System
@@ -158,23 +168,37 @@ Empowering construction professionals with reliable, efficient project managemen
 #### Font Family
 
 **Primary Font: Inter**
+
 - UI elements, headings, body text
 - Modern, highly legible, construction professional-appropriate
 - Web font with fallback stack
 
 **System Font Stack:**
+
 ```css
-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+font-family:
+  'Inter',
+  -apple-system,
+  BlinkMacSystemFont,
+  'Segoe UI',
+  Roboto,
+  'Helvetica Neue',
+  Arial,
+  sans-serif;
 ```
 
 **Monospace Stack (for data/codes):**
+
 ```css
-font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+font-family:
+  'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New',
+  monospace;
 ```
 
 #### Typography Scale
 
 **Desktop (1024px+)**
+
 ```css
 /* Display - Marketing/Hero sections only */
 --text-display: 48px;
@@ -182,50 +206,51 @@ line-height: 1.1;
 font-weight: 700;
 
 /* Headings */
---text-h1: 32px;     /* Page titles */
+--text-h1: 32px; /* Page titles */
 line-height: 1.1;
 font-weight: 600;
 
---text-h2: 28px;     /* Section headers */
+--text-h2: 28px; /* Section headers */
 line-height: 1.2;
 font-weight: 600;
 
---text-h3: 24px;     /* Subsection headers */
+--text-h3: 24px; /* Subsection headers */
 line-height: 1.3;
 font-weight: 500;
 
---text-h4: 20px;     /* Card headers */
+--text-h4: 20px; /* Card headers */
 line-height: 1.4;
 font-weight: 500;
 
 /* Body Text */
---text-body-lg: 18px;    /* Lead text */
+--text-body-lg: 18px; /* Lead text */
 line-height: 1.5;
 font-weight: 400;
 
---text-body: 16px;       /* Standard body */
+--text-body: 16px; /* Standard body */
 line-height: 1.5;
 font-weight: 400;
 
---text-body-sm: 14px;    /* Supporting text */
+--text-body-sm: 14px; /* Supporting text */
 line-height: 1.4;
 font-weight: 400;
 
 /* UI Elements */
---text-caption: 12px;    /* Captions, metadata */
+--text-caption: 12px; /* Captions, metadata */
 line-height: 1.3;
 font-weight: 400;
 
---text-button: 16px;     /* Button labels */
-line-height: 1.0;
+--text-button: 16px; /* Button labels */
+line-height: 1;
 font-weight: 500;
 
---text-label: 14px;      /* Form labels */
+--text-label: 14px; /* Form labels */
 line-height: 1.2;
 font-weight: 500;
 ```
 
 **Tablet (768px-1023px)**
+
 ```css
 --text-h1: 28px;
 --text-h2: 24px;
@@ -234,6 +259,7 @@ font-weight: 500;
 ```
 
 **Mobile (320px-767px)**
+
 ```css
 --text-h1: 24px;
 --text-h2: 20px;
@@ -244,41 +270,44 @@ font-weight: 500;
 #### Font Weight Usage
 
 ```css
---font-light: 300;      /* Rare accent use only */
---font-regular: 400;    /* Body text, captions */
---font-medium: 500;     /* UI labels, buttons, H3-H4 */
---font-semibold: 600;   /* H1-H2, important UI elements */
---font-bold: 700;       /* Logo, display text, emphasis */
+--font-light: 300; /* Rare accent use only */
+--font-regular: 400; /* Body text, captions */
+--font-medium: 500; /* UI labels, buttons, H3-H4 */
+--font-semibold: 600; /* H1-H2, important UI elements */
+--font-bold: 700; /* Logo, display text, emphasis */
 ```
 
 ### Spacing System
 
 #### Base Unit System
+
 ```css
 /* 4px base unit with 8px grid alignment */
 --space-0: 0px;
---space-1: 4px;      /* Tight spacing */
---space-2: 8px;      /* Standard gap */
---space-3: 12px;     /* Comfortable spacing */
---space-4: 16px;     /* Section spacing */
---space-5: 20px;     /* Card padding */
---space-6: 24px;     /* Large spacing */
---space-8: 32px;     /* Section breaks */
---space-10: 40px;    /* Major sections */
---space-12: 48px;    /* Page sections */
---space-16: 64px;    /* Large page breaks */
---space-20: 80px;    /* Hero sections */
+--space-1: 4px; /* Tight spacing */
+--space-2: 8px; /* Standard gap */
+--space-3: 12px; /* Comfortable spacing */
+--space-4: 16px; /* Section spacing */
+--space-5: 20px; /* Card padding */
+--space-6: 24px; /* Large spacing */
+--space-8: 32px; /* Section breaks */
+--space-10: 40px; /* Major sections */
+--space-12: 48px; /* Page sections */
+--space-16: 64px; /* Large page breaks */
+--space-20: 80px; /* Hero sections */
 ```
 
 #### Spacing Usage Guidelines
 
 **Component Spacing:**
+
 - Input padding: `var(--space-3) var(--space-4)` (12px 16px)
 - Button padding: `var(--space-3) var(--space-6)` (12px 24px)
 - Card padding: `var(--space-6)` (24px)
 - Section spacing: `var(--space-8)` (32px)
 
 **Layout Spacing:**
+
 - Grid gap: `var(--space-6)` (24px)
 - List item gap: `var(--space-3)` (12px)
 - Form field gap: `var(--space-4)` (16px)
@@ -289,14 +318,15 @@ font-weight: 500;
 ```css
 /* Border Radius Scale */
 --radius-none: 0px;
---radius-sm: 4px;      /* Small inputs, tags */
---radius-md: 8px;      /* Cards, buttons, modals */
---radius-lg: 16px;     /* Large cards, panels */
---radius-xl: 24px;     /* Hero sections */
+--radius-sm: 4px; /* Small inputs, tags */
+--radius-md: 8px; /* Cards, buttons, modals */
+--radius-lg: 16px; /* Large cards, panels */
+--radius-xl: 24px; /* Hero sections */
 --radius-full: 9999px; /* Pills, avatars */
 ```
 
 #### Border Radius Usage
+
 - **Input fields**: `var(--radius-sm)` (4px)
 - **Buttons**: `var(--radius-sm)` (4px)
 - **Cards**: `var(--radius-md)` (8px)
@@ -308,22 +338,24 @@ font-weight: 500;
 
 ```css
 /* Elevation Shadows */
---shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);        /* Subtle borders */
---shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12),         /* Cards */
-             0 1px 2px rgba(0, 0, 0, 0.24);
---shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07),         /* Dropdowns */
-             0 2px 4px rgba(0, 0, 0, 0.12);
---shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1),        /* Modals */
-             0 4px 6px rgba(0, 0, 0, 0.12);
---shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15),       /* Large modals */
-             0 10px 10px rgba(0, 0, 0, 0.04);
+--shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05); /* Subtle borders */
+--shadow-sm:
+  0 1px 3px rgba(0, 0, 0, 0.12), /* Cards */ 0 1px 2px rgba(0, 0, 0, 0.24);
+--shadow-md:
+  0 4px 6px rgba(0, 0, 0, 0.07), /* Dropdowns */ 0 2px 4px rgba(0, 0, 0, 0.12);
+--shadow-lg:
+  0 10px 15px rgba(0, 0, 0, 0.1), /* Modals */ 0 4px 6px rgba(0, 0, 0, 0.12);
+--shadow-xl:
+  0 20px 25px rgba(0, 0, 0, 0.15),
+  /* Large modals */ 0 10px 10px rgba(0, 0, 0, 0.04);
 
 /* Focus Shadows */
---shadow-focus: 0 0 0 3px rgba(30, 64, 175, 0.1);   /* Focus rings */
---shadow-error: 0 0 0 3px rgba(239, 68, 68, 0.1);   /* Error states */
+--shadow-focus: 0 0 0 3px rgba(30, 64, 175, 0.1); /* Focus rings */
+--shadow-error: 0 0 0 3px rgba(239, 68, 68, 0.1); /* Error states */
 ```
 
 #### Shadow Usage Guidelines
+
 - **Cards**: `var(--shadow-sm)`
 - **Dropdowns**: `var(--shadow-md)`
 - **Modals**: `var(--shadow-lg)`
@@ -336,6 +368,7 @@ font-weight: 500;
 ### Button System
 
 #### Primary Button
+
 ```css
 .button-primary {
   background-color: var(--brand-primary);
@@ -367,6 +400,7 @@ font-weight: 500;
 ```
 
 #### Secondary Button
+
 ```css
 .button-secondary {
   background-color: transparent;
@@ -386,6 +420,7 @@ font-weight: 500;
 ```
 
 #### Danger Button
+
 ```css
 .button-danger {
   background-color: var(--error);
@@ -402,6 +437,7 @@ font-weight: 500;
 ### Form Elements
 
 #### Input Fields
+
 ```css
 .input {
   background-color: var(--bg-primary);
@@ -431,6 +467,7 @@ font-weight: 500;
 ```
 
 #### Form Labels
+
 ```css
 .label {
   font-size: var(--text-label);
@@ -450,6 +487,7 @@ font-weight: 500;
 ### Card System
 
 #### Standard Card
+
 ```css
 .card {
   background-color: var(--bg-primary);
@@ -474,6 +512,7 @@ font-weight: 500;
 ```
 
 #### Status Cards
+
 ```css
 .card-success {
   border-left: 4px solid var(--success);
@@ -491,6 +530,7 @@ font-weight: 500;
 ### Status System
 
 #### Status Badges
+
 ```css
 .badge {
   display: inline-flex;
@@ -530,6 +570,7 @@ font-weight: 500;
 ```
 
 #### Progress Indicators
+
 ```css
 .progress {
   width: 100%;
@@ -558,6 +599,7 @@ font-weight: 500;
 ### Navigation Elements
 
 #### Sidebar Navigation
+
 ```css
 .nav-sidebar {
   width: 240px;
@@ -597,6 +639,7 @@ font-weight: 500;
 ```
 
 #### Breadcrumbs
+
 ```css
 .breadcrumb {
   display: flex;
@@ -630,6 +673,7 @@ font-weight: 500;
 ### Data Display
 
 #### Tables
+
 ```css
 .table {
   width: 100%;
@@ -663,6 +707,7 @@ font-weight: 500;
 ```
 
 #### Lists
+
 ```css
 .list {
   background-color: var(--bg-primary);
@@ -692,6 +737,7 @@ font-weight: 500;
 ### Grid System
 
 #### CSS Grid Foundation
+
 ```css
 .grid {
   display: grid;
@@ -759,12 +805,13 @@ font-weight: 500;
 ### Page Layouts
 
 #### Dashboard Layout
+
 ```css
 .layout-dashboard {
   display: grid;
-  grid-template-areas: 
-    "sidebar header"
-    "sidebar main";
+  grid-template-areas:
+    'sidebar header'
+    'sidebar main';
   grid-template-columns: 240px 1fr;
   grid-template-rows: auto 1fr;
   min-height: 100vh;
@@ -789,12 +836,12 @@ font-weight: 500;
 
 @media (max-width: 768px) {
   .layout-dashboard {
-    grid-template-areas: 
-      "header"
-      "main";
+    grid-template-areas:
+      'header'
+      'main';
     grid-template-columns: 1fr;
   }
-  
+
   .layout-sidebar {
     position: fixed;
     top: 0;
@@ -802,7 +849,7 @@ font-weight: 500;
     height: 100vh;
     transition: left 0.3s ease;
   }
-  
+
   .layout-sidebar.open {
     left: 0;
   }
@@ -812,18 +859,20 @@ font-weight: 500;
 ## Responsive Design System
 
 ### Breakpoints
+
 ```css
 /* Mobile First Approach */
 :root {
-  --breakpoint-sm: 640px;   /* Large mobile */
-  --breakpoint-md: 768px;   /* Tablet */
-  --breakpoint-lg: 1024px;  /* Desktop */
-  --breakpoint-xl: 1280px;  /* Large desktop */
+  --breakpoint-sm: 640px; /* Large mobile */
+  --breakpoint-md: 768px; /* Tablet */
+  --breakpoint-lg: 1024px; /* Desktop */
+  --breakpoint-xl: 1280px; /* Large desktop */
   --breakpoint-2xl: 1536px; /* Extra large desktop */
 }
 ```
 
 ### Responsive Typography
+
 ```css
 /* Fluid typography for better responsive scaling */
 h1 {
@@ -846,6 +895,7 @@ h3 {
 ### Mobile Optimizations
 
 #### Touch Targets
+
 ```css
 .touch-target {
   min-height: 44px;
@@ -860,7 +910,7 @@ h3 {
   .button {
     padding: var(--space-4) var(--space-6);
   }
-  
+
   .nav-item {
     padding: var(--space-4);
   }
@@ -870,7 +920,9 @@ h3 {
 ## Animation & Microinteractions
 
 ### Professional Delight Philosophy
+
 Full Court Control Pro uses construction-appropriate micro-interactions that:
+
 - **Enhance productivity** without slowing down workflows
 - **Provide instant feedback** for user actions
 - **Build confidence** through satisfying interactions
@@ -878,6 +930,7 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 - **Guide users** through complex construction workflows
 
 ### Transition Standards
+
 ```css
 :root {
   --transition-fast: 0.15s ease;
@@ -889,7 +942,7 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 
 /* Enhanced default transitions with spring physics */
 * {
-  transition: 
+  transition:
     color var(--transition-fast),
     background-color var(--transition-fast),
     border-color var(--transition-fast),
@@ -899,6 +952,7 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 ```
 
 ### Interactive Button States
+
 ```css
 /* Primary button with construction-professional micro-interactions */
 .button-primary {
@@ -923,9 +977,17 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 
 /* Success state animation */
 @keyframes success-pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.3); }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.3);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
 }
 
 .button-success {
@@ -934,6 +996,7 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 ```
 
 ### Card Hover & Drag States
+
 ```css
 /* Interactive project cards */
 .card {
@@ -969,12 +1032,18 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 }
 
 @keyframes drop-zone-pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 0.8; }
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 ```
 
 ### Tree Node Interactions
+
 ```css
 /* Expandable tree nodes with smooth animations */
 .tree-node {
@@ -1020,6 +1089,7 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 ```
 
 ### Progress Animations
+
 ```css
 /* Animated progress bars with construction theme */
 .progress-bar {
@@ -1045,17 +1115,31 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 }
 
 @keyframes progress-shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Milestone celebration */
 @keyframes milestone-celebration {
-  0% { transform: scale(1); }
-  25% { transform: scale(1.1) rotate(5deg); }
-  50% { transform: scale(1.05) rotate(-3deg); }
-  75% { transform: scale(1.08) rotate(2deg); }
-  100% { transform: scale(1) rotate(0deg); }
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.1) rotate(5deg);
+  }
+  50% {
+    transform: scale(1.05) rotate(-3deg);
+  }
+  75% {
+    transform: scale(1.08) rotate(2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
 }
 
 .milestone-achieved {
@@ -1064,6 +1148,7 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 ```
 
 ### Status Badge Animations
+
 ```css
 /* Status change animations */
 .status-badge {
@@ -1076,9 +1161,15 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 }
 
 @keyframes status-update {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* Approval success animation */
@@ -1087,15 +1178,15 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 }
 
 @keyframes approval-success {
-  0% { 
+  0% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
   }
-  70% { 
+  70% {
     transform: scale(1.1);
     box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
   }
-  100% { 
+  100% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
   }
@@ -1103,10 +1194,12 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 ```
 
 ### Loading States with Construction Themes
+
 ```css
 /* Construction-themed loading animations */
 @keyframes construction-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -1122,28 +1215,37 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 
 /* Skeleton loader with shimmer effect */
 @keyframes skeleton-shimmer {
-  0% { background-position: -200px 0; }
-  100% { background-position: calc(200px + 100%) 0; }
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
 }
 
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    #f3f4f6 25%,
-    #e5e7eb 37%,
-    #f3f4f6 63%
-  );
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 37%, #f3f4f6 63%);
   background-size: 400px 100%;
   animation: skeleton-shimmer 1.5s ease-in-out infinite;
 }
 
 /* Loading spinner with construction hard hat */
 @keyframes hard-hat-spin {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(90deg) scale(1.1); }
-  50% { transform: rotate(180deg); }
-  75% { transform: rotate(270deg) scale(1.1); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(90deg) scale(1.1);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  75% {
+    transform: rotate(270deg) scale(1.1);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .spinner-construction {
@@ -1152,6 +1254,7 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 ```
 
 ### Photo Upload & Preview Animations
+
 ```css
 /* Photo upload with progress indication */
 .photo-upload {
@@ -1179,15 +1282,28 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 }
 
 @keyframes upload-progress {
-  0% { width: 0%; }
-  100% { width: 100%; }
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
 }
 
 /* Upload success celebration */
 @keyframes upload-success {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.9; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .photo-upload-success {
@@ -1196,6 +1312,7 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 ```
 
 ### Toast Notification Animations
+
 ```css
 /* Slide-in toast notifications */
 .toast {
@@ -1224,11 +1341,11 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 }
 
 @keyframes checkmark-draw {
-  0% { 
+  0% {
     stroke-dasharray: 0, 100;
     stroke-dashoffset: 0;
   }
-  100% { 
+  100% {
     stroke-dasharray: 100, 0;
     stroke-dashoffset: 0;
   }
@@ -1236,6 +1353,7 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 ```
 
 ### Approval Swipe Animations
+
 ```css
 /* Mobile swipe-to-approve interactions */
 .approval-card {
@@ -1278,6 +1396,7 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 ```
 
 ### Empty State Animations
+
 ```css
 /* Construction-themed empty states */
 .empty-state-icon {
@@ -1285,8 +1404,13 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 }
 
 @keyframes gentle-float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .empty-state.construction-theme .empty-state-icon {
@@ -1294,13 +1418,21 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 }
 
 @keyframes construction-work {
-  0%, 100% { transform: rotate(0deg) translateY(0px); }
-  25% { transform: rotate(2deg) translateY(-5px); }
-  75% { transform: rotate(-2deg) translateY(-5px); }
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0px);
+  }
+  25% {
+    transform: rotate(2deg) translateY(-5px);
+  }
+  75% {
+    transform: rotate(-2deg) translateY(-5px);
+  }
 }
 ```
 
 ### Confetti Celebration System
+
 ```css
 /* Subtle confetti for major achievements */
 @keyframes confetti-fall {
@@ -1336,6 +1468,7 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 ```
 
 ### Performance Considerations
+
 ```css
 /* Reduce motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
@@ -1344,7 +1477,7 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  
+
   .confetti-piece,
   .skeleton,
   .progress-shimmer {
@@ -1367,6 +1500,7 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 ## Accessibility Standards
 
 ### Focus Management
+
 ```css
 .focus-ring {
   outline: 2px solid var(--brand-primary);
@@ -1384,6 +1518,7 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 ```
 
 ### High Contrast Mode Support
+
 ```css
 @media (prefers-contrast: high) {
   :root {
@@ -1394,6 +1529,7 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 ```
 
 ### Reduced Motion Support
+
 ```css
 @media (prefers-reduced-motion: reduce) {
   * {
@@ -1407,34 +1543,36 @@ Full Court Control Pro uses construction-appropriate micro-interactions that:
 ## Implementation Guidelines
 
 ### CSS Custom Properties Structure
+
 ```css
 :root {
   /* Colors */
-  --brand-primary: #1E40AF;
-  --brand-secondary: #EA580C;
-  
+  --brand-primary: #1e40af;
+  --brand-secondary: #ea580c;
+
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --text-h1: 32px;
   --text-body: 16px;
-  
+
   /* Spacing */
   --space-4: 16px;
   --space-6: 24px;
-  
+
   /* Layout */
   --radius-sm: 4px;
   --radius-md: 8px;
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
-  
+
   /* Transitions */
   --transition-fast: 0.15s ease;
 }
 ```
 
 ### Design Token Usage
+
 ```javascript
 // Example usage in Tailwind config
 module.exports = {
@@ -1446,15 +1584,15 @@ module.exports = {
         // ... additional tokens
       },
       fontFamily: {
-        'sans': ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       spacing: {
-        '4': 'var(--space-4)',
-        '6': 'var(--space-6)',
+        4: 'var(--space-4)',
+        6: 'var(--space-6)',
         // ... additional spacing
-      }
-    }
-  }
+      },
+    },
+  },
 }
 ```
 
@@ -1485,6 +1623,7 @@ module.exports = {
 ### Testing Checklist
 
 **Visual Testing:**
+
 - [ ] Renders correctly at all breakpoints
 - [ ] Colors match brand specifications
 - [ ] Typography scales appropriately
@@ -1494,6 +1633,7 @@ module.exports = {
 - [ ] Animations respect reduced-motion preferences
 
 **Accessibility Testing:**
+
 - [ ] Keyboard navigation works completely
 - [ ] Screen reader announces all content
 - [ ] Color contrast meets WCAG AA standards
@@ -1503,6 +1643,7 @@ module.exports = {
 - [ ] All interactive feedback is accessible
 
 **Performance Testing:**
+
 - [ ] LCP < 2.5s
 - [ ] CLS < 0.1
 - [ ] INP < 200ms
@@ -1512,6 +1653,7 @@ module.exports = {
 - [ ] Memory usage stable during interactions
 
 **Micro-Interaction Testing:**
+
 - [ ] All button hovers provide visual feedback
 - [ ] Loading states are informative and engaging
 - [ ] Success states celebrate appropriately
@@ -1548,9 +1690,11 @@ This comprehensive brand specification provides the foundation for building Full
 ## Construction-Specific Micro-Interactions & Delightful Moments
 
 ### Philosophy: Professional Joy in Construction Workflows
+
 Full Court Control Pro transforms mundane construction management tasks into satisfying, confidence-building experiences. Every interaction reinforces the user's expertise while celebrating their achievements.
 
 ### Task Completion Celebrations
+
 ```css
 /* Task completion with construction checkmark */
 .task-complete {
@@ -1565,7 +1709,8 @@ Full Court Control Pro transforms mundane construction management tasks into sat
   transform: translateY(-50%) scale(0);
   color: var(--success);
   font-weight: bold;
-  animation: task-completion 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+  animation: task-completion 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)
+    forwards;
 }
 
 @keyframes task-completion {
@@ -1589,15 +1734,28 @@ Full Court Control Pro transforms mundane construction management tasks into sat
 }
 
 @keyframes milestone-achievement {
-  0% { transform: scale(1); }
-  25% { transform: scale(1.05); box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
-  50% { transform: scale(1.1); }
-  75% { transform: scale(1.03); }
-  100% { transform: scale(1); box-shadow: 0 0 0 rgba(16, 185, 129, 0); }
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  75% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(16, 185, 129, 0);
+  }
 }
 ```
 
 ### Approval Workflow Micro-Interactions
+
 ```css
 /* Approval button with construction stamp effect */
 .approve-button {
@@ -1641,13 +1799,21 @@ Full Court Control Pro transforms mundane construction management tasks into sat
 }
 
 @keyframes rejection-shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  75% { transform: translateX(4px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
 }
 ```
 
 ### Photo Upload Construction Moments
+
 ```css
 /* Photo upload with construction site preview */
 .photo-upload-area {
@@ -1700,12 +1866,17 @@ Full Court Control Pro transforms mundane construction management tasks into sat
 }
 
 @keyframes crane-lifting {
-  0% { left: -20px; }
-  100% { left: calc(100% - 20px); }
+  0% {
+    left: -20px;
+  }
+  100% {
+    left: calc(100% - 20px);
+  }
 }
 ```
 
 ### WhatsApp Integration Feedback
+
 ```css
 /* WhatsApp message sent confirmation */
 .whatsapp-sent {
@@ -1758,6 +1929,7 @@ Full Court Control Pro transforms mundane construction management tasks into sat
 ```
 
 ### Template Designer Interactions
+
 ```css
 /* Node creation with construction blueprint feel */
 .template-node.newly-created {
@@ -1827,6 +1999,7 @@ Full Court Control Pro transforms mundane construction management tasks into sat
 ```
 
 ### Dashboard Analytics Delights
+
 ```css
 /* Chart data loading with construction theme */
 .chart-loading {
@@ -1844,7 +2017,8 @@ Full Court Control Pro transforms mundane construction management tasks into sat
 }
 
 @keyframes data-processing {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(-50%, -50%) scale(1);
     opacity: 0.7;
   }
@@ -1872,7 +2046,8 @@ Full Court Control Pro transforms mundane construction management tasks into sat
     transform: scale(1);
     opacity: 1;
   }
-  75%, 100% {
+  75%,
+  100% {
     transform: scale(1.5);
     opacity: 0;
   }
@@ -1895,6 +2070,7 @@ Full Court Control Pro transforms mundane construction management tasks into sat
 ```
 
 ### Error States with Construction Humor
+
 ```css
 /* Construction-themed error messages */
 .error-state {
@@ -1911,7 +2087,8 @@ Full Court Control Pro transforms mundane construction management tasks into sat
 }
 
 @keyframes construction-warning {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(-50%) rotate(-5deg);
   }
   50% {
@@ -1925,7 +2102,8 @@ Full Court Control Pro transforms mundane construction management tasks into sat
 }
 
 @keyframes gentle-attention {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.1);
   }
   50% {
@@ -1935,6 +2113,7 @@ Full Court Control Pro transforms mundane construction management tasks into sat
 ```
 
 ### Success Feedback System
+
 ```css
 /* Project creation success */
 .project-created {
@@ -1985,6 +2164,7 @@ Full Court Control Pro transforms mundane construction management tasks into sat
 ```
 
 ### Mobile Touch Interactions
+
 ```css
 /* Touch ripple effect for buttons */
 .touch-ripple {
@@ -2029,6 +2209,7 @@ Full Court Control Pro transforms mundane construction management tasks into sat
 ```
 
 ### Keyboard Navigation Enhancements
+
 ```css
 /* Focus ring with construction theme */
 .focus-visible {
@@ -2047,7 +2228,8 @@ Full Court Control Pro transforms mundane construction management tasks into sat
 }
 
 @keyframes focus-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -2090,6 +2272,7 @@ Full Court Control Pro transforms mundane construction management tasks into sat
 ```
 
 These construction-specific micro-interactions create a professional yet delightful experience that:
+
 - **Celebrates achievements** with appropriate, industry-fitting animations
 - **Provides instant feedback** for all user actions
 - **Guides users** through complex workflows with visual cues
@@ -2106,6 +2289,7 @@ These construction-specific micro-interactions create a professional yet delight
 ### Fixed Sidebar Navigation
 
 **Desktop Sidebar (240px wide)**
+
 ```tsx
 // Main sidebar container
 const Sidebar = () => (
@@ -2116,10 +2300,12 @@ const Sidebar = () => (
         <div className="w-8 h-8 bg-blue-700 rounded-md flex items-center justify-center">
           <span className="text-white font-bold text-sm">FCC</span>
         </div>
-        <span className="font-semibold text-gray-900 text-lg">Full Court Control Pro</span>
+        <span className="font-semibold text-gray-900 text-lg">
+          Full Court Control Pro
+        </span>
       </div>
     </div>
-    
+
     {/* Navigation items */}
     <div className="flex-1 p-4 space-y-1">
       <NavItem icon={HomeIcon} label="Dashboard" href="/" active />
@@ -2131,27 +2317,31 @@ const Sidebar = () => (
       <NavItem icon={CogIcon} label="Settings" href="/settings" />
     </div>
   </nav>
-);
+)
 
 // Individual navigation item
 const NavItem = ({ icon: Icon, label, href, active = false }) => (
-  <a 
+  <a
     href={href}
     className={`
       flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200
-      ${active 
-        ? 'bg-blue-50 text-blue-700 border border-blue-200' 
-        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+      ${
+        active
+          ? 'bg-blue-50 text-blue-700 border border-blue-200'
+          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
       }
     `}
   >
-    <Icon className={`mr-3 h-5 w-5 ${active ? 'text-blue-600' : 'text-gray-400'}`} />
+    <Icon
+      className={`mr-3 h-5 w-5 ${active ? 'text-blue-600' : 'text-gray-400'}`}
+    />
     {label}
   </a>
-);
+)
 ```
 
 **Mobile Bottom Navigation**
+
 ```tsx
 const BottomNavigation = () => (
   <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-1 md:hidden">
@@ -2163,64 +2353,83 @@ const BottomNavigation = () => (
       <BottomNavItem icon={UserIcon} label="Profile" href="/profile" />
     </div>
   </nav>
-);
+)
 
 const BottomNavItem = ({ icon: Icon, label, href, active = false }) => (
-  <a href={href} className="flex flex-col items-center py-2 px-3 min-w-0 flex-1">
-    <Icon className={`h-6 w-6 mb-1 ${active ? 'text-blue-600' : 'text-gray-400'}`} />
-    <span className={`text-xs ${active ? 'text-blue-600 font-medium' : 'text-gray-500'}`}>
+  <a
+    href={href}
+    className="flex flex-col items-center py-2 px-3 min-w-0 flex-1"
+  >
+    <Icon
+      className={`h-6 w-6 mb-1 ${active ? 'text-blue-600' : 'text-gray-400'}`}
+    />
+    <span
+      className={`text-xs ${active ? 'text-blue-600 font-medium' : 'text-gray-500'}`}
+    >
       {label}
     </span>
   </a>
-);
+)
 ```
 
 **Mobile Drawer Menu**
+
 ```tsx
 const MobileDrawer = ({ isOpen, onClose }) => (
   <>
     {/* Overlay */}
-    <div 
+    <div
       className={`fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden transition-opacity ${
         isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
       onClick={onClose}
     />
-    
+
     {/* Drawer */}
-    <nav className={`
+    <nav
+      className={`
       fixed top-0 left-0 h-full w-80 max-w-xs bg-white z-50 md:hidden
       transform transition-transform duration-300 ease-in-out
       ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       flex flex-col
-    `}>
+    `}
+    >
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-gray-200">
         <span className="text-lg font-semibold text-gray-900">Menu</span>
-        <button 
+        <button
           onClick={onClose}
           className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
         >
           <XIcon className="h-5 w-5" />
         </button>
       </div>
-      
+
       {/* Menu items */}
       <div className="flex-1 px-4 py-6 space-y-1">
         <DrawerNavItem icon={HomeIcon} label="Dashboard" href="/" />
         <DrawerNavItem icon={FolderIcon} label="Projects" href="/projects" />
-        <DrawerNavItem icon={TemplateIcon} label="Templates" href="/templates" />
-        <DrawerNavItem icon={UsersIcon} label="Subcontractors" href="/subcontractors" />
+        <DrawerNavItem
+          icon={TemplateIcon}
+          label="Templates"
+          href="/templates"
+        />
+        <DrawerNavItem
+          icon={UsersIcon}
+          label="Subcontractors"
+          href="/subcontractors"
+        />
         <DrawerNavItem icon={ChartIcon} label="Analytics" href="/analytics" />
         <DrawerNavItem icon={DocumentIcon} label="Reports" href="/reports" />
         <DrawerNavItem icon={CogIcon} label="Settings" href="/settings" />
       </div>
     </nav>
   </>
-);
+)
 ```
 
 ### Breadcrumb Navigation
+
 ```tsx
 const Breadcrumb = ({ items }) => (
   <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-6">
@@ -2230,8 +2439,8 @@ const Breadcrumb = ({ items }) => (
           <ChevronRightIcon className="h-4 w-4 mx-2 text-gray-400" />
         )}
         {item.href ? (
-          <a 
-            href={item.href} 
+          <a
+            href={item.href}
             className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
           >
             {item.label}
@@ -2242,7 +2451,7 @@ const Breadcrumb = ({ items }) => (
       </div>
     ))}
   </nav>
-);
+)
 
 // Usage example:
 // <Breadcrumb items={[
@@ -2255,40 +2464,44 @@ const Breadcrumb = ({ items }) => (
 ## Card Components
 
 ### Standard Card System
+
 ```tsx
 // Base card component
 const Card = ({ children, className = '' }) => (
-  <div className={`bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 ${className}`}>
+  <div
+    className={`bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 ${className}`}
+  >
     {children}
   </div>
-);
+)
 
 const CardHeader = ({ children, className = '' }) => (
   <div className={`px-6 py-4 border-b border-gray-100 ${className}`}>
     {children}
   </div>
-);
+)
 
 const CardTitle = ({ children, className = '' }) => (
   <h3 className={`text-lg font-medium text-gray-900 ${className}`}>
     {children}
   </h3>
-);
+)
 
 const CardContent = ({ children, className = '' }) => (
-  <div className={`px-6 py-4 ${className}`}>
-    {children}
-  </div>
-);
+  <div className={`px-6 py-4 ${className}`}>{children}</div>
+)
 
 const CardFooter = ({ children, className = '' }) => (
-  <div className={`px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-lg ${className}`}>
+  <div
+    className={`px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-lg ${className}`}
+  >
     {children}
   </div>
-);
+)
 ```
 
 ### Project Cards
+
 ```tsx
 const ProjectCard = ({ project }) => (
   <Card className="hover:border-blue-200 cursor-pointer group">
@@ -2301,7 +2514,7 @@ const ProjectCard = ({ project }) => (
         <StatusBadge status={project.status} />
       </div>
     </CardHeader>
-    
+
     <CardContent>
       {/* Progress bar */}
       <div className="mb-4">
@@ -2311,29 +2524,35 @@ const ProjectCard = ({ project }) => (
         </div>
         <ProgressBar value={project.progress} className="h-2" />
       </div>
-      
+
       {/* Key metrics */}
       <div className="grid grid-cols-3 gap-4 text-center border-t border-gray-100 pt-4">
         <div>
-          <div className="text-lg font-semibold text-gray-900">{project.totalTasks}</div>
+          <div className="text-lg font-semibold text-gray-900">
+            {project.totalTasks}
+          </div>
           <div className="text-xs text-gray-500">Total Tasks</div>
         </div>
         <div>
-          <div className="text-lg font-semibold text-green-600">{project.completedTasks}</div>
+          <div className="text-lg font-semibold text-green-600">
+            {project.completedTasks}
+          </div>
           <div className="text-xs text-gray-500">Completed</div>
         </div>
         <div>
-          <div className="text-lg font-semibold text-orange-600">{project.pendingApprovals}</div>
+          <div className="text-lg font-semibold text-orange-600">
+            {project.pendingApprovals}
+          </div>
           <div className="text-xs text-gray-500">Pending</div>
         </div>
       </div>
     </CardContent>
-    
+
     <CardFooter>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <img 
-            src={project.manager.avatar} 
+          <img
+            src={project.manager.avatar}
             alt={project.manager.name}
             className="h-6 w-6 rounded-full"
           />
@@ -2343,10 +2562,11 @@ const ProjectCard = ({ project }) => (
       </div>
     </CardFooter>
   </Card>
-);
+)
 ```
 
 ### Status Cards with Color Coding
+
 ```tsx
 const StatusCard = ({ title, value, status, icon: Icon, trend }) => {
   const statusStyles = {
@@ -2354,17 +2574,17 @@ const StatusCard = ({ title, value, status, icon: Icon, trend }) => {
     warning: 'border-l-yellow-500 bg-yellow-50',
     error: 'border-l-red-500 bg-red-50',
     info: 'border-l-blue-500 bg-blue-50',
-    neutral: 'border-l-gray-400 bg-gray-50'
-  };
-  
+    neutral: 'border-l-gray-400 bg-gray-50',
+  }
+
   const iconStyles = {
     success: 'text-green-600',
     warning: 'text-yellow-600',
     error: 'text-red-600',
     info: 'text-blue-600',
-    neutral: 'text-gray-600'
-  };
-  
+    neutral: 'text-gray-600',
+  }
+
   return (
     <Card className={`border-l-4 ${statusStyles[status]}`}>
       <CardContent className="py-6">
@@ -2373,10 +2593,20 @@ const StatusCard = ({ title, value, status, icon: Icon, trend }) => {
             <p className="text-sm font-medium text-gray-600">{title}</p>
             <p className="text-2xl font-bold text-gray-900">{value}</p>
             {trend && (
-              <p className={`text-sm flex items-center mt-2 ${
-                trend.direction === 'up' ? 'text-green-600' : trend.direction === 'down' ? 'text-red-600' : 'text-gray-500'
-              }`}>
-                {trend.direction === 'up' ? '↗' : trend.direction === 'down' ? '↘' : '→'}
+              <p
+                className={`text-sm flex items-center mt-2 ${
+                  trend.direction === 'up'
+                    ? 'text-green-600'
+                    : trend.direction === 'down'
+                      ? 'text-red-600'
+                      : 'text-gray-500'
+                }`}
+              >
+                {trend.direction === 'up'
+                  ? '↗'
+                  : trend.direction === 'down'
+                    ? '↘'
+                    : '→'}
                 <span className="ml-1">{trend.value}</span>
               </p>
             )}
@@ -2389,19 +2619,20 @@ const StatusCard = ({ title, value, status, icon: Icon, trend }) => {
         </div>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 ```
 
 ## Tree Components (Division/Task Hierarchy)
 
 ### Expandable Tree Structure
+
 ```tsx
 const TreeView = ({ data, onNodeToggle, onNodeSelect, selectedNode }) => {
   return (
     <div className="bg-white border border-gray-200 rounded-lg">
       {data.map(node => (
-        <TreeNode 
+        <TreeNode
           key={node.id}
           node={node}
           level={0}
@@ -2411,17 +2642,17 @@ const TreeView = ({ data, onNodeToggle, onNodeSelect, selectedNode }) => {
         />
       ))}
     </div>
-  );
-};
+  )
+}
 
 const TreeNode = ({ node, level, onToggle, onSelect, selected }) => {
-  const hasChildren = node.children && node.children.length > 0;
-  const indentClass = level > 0 ? `ml-${level * 6}` : '';
-  
+  const hasChildren = node.children && node.children.length > 0
+  const indentClass = level > 0 ? `ml-${level * 6}` : ''
+
   return (
     <div>
       {/* Node row */}
-      <div 
+      <div
         className={`
           flex items-center py-3 px-4 border-b border-gray-100 last:border-b-0
           hover:bg-gray-50 cursor-pointer group transition-colors
@@ -2433,22 +2664,22 @@ const TreeNode = ({ node, level, onToggle, onSelect, selected }) => {
         {/* Expand/collapse button */}
         {hasChildren ? (
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggle(node.id);
+            onClick={e => {
+              e.stopPropagation()
+              onToggle(node.id)
             }}
             className="mr-2 p-1 rounded hover:bg-gray-200 transition-colors"
           >
-            <ChevronRightIcon 
+            <ChevronRightIcon
               className={`h-4 w-4 text-gray-400 transform transition-transform ${
                 node.expanded ? 'rotate-90' : ''
-              }`} 
+              }`}
             />
           </button>
         ) : (
           <div className="w-6 mr-2" /> // Spacer for alignment
         )}
-        
+
         {/* Drag handle (visible on hover) */}
         <div className="opacity-0 group-hover:opacity-100 mr-3 cursor-move transition-opacity">
           <div className="grid grid-cols-2 gap-0.5 w-3 h-3">
@@ -2460,19 +2691,27 @@ const TreeNode = ({ node, level, onToggle, onSelect, selected }) => {
             <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
           </div>
         </div>
-        
+
         {/* Node icon */}
         <div className="mr-3">
-          {node.type === 'division' && <FolderIcon className="h-5 w-5 text-blue-500" />}
-          {node.type === 'task' && <CheckSquareIcon className="h-5 w-5 text-green-500" />}
-          {node.type === 'category' && <TagIcon className="h-5 w-5 text-purple-500" />}
+          {node.type === 'division' && (
+            <FolderIcon className="h-5 w-5 text-blue-500" />
+          )}
+          {node.type === 'task' && (
+            <CheckSquareIcon className="h-5 w-5 text-green-500" />
+          )}
+          {node.type === 'category' && (
+            <TagIcon className="h-5 w-5 text-purple-500" />
+          )}
         </div>
-        
+
         {/* Node content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <span className="font-medium text-gray-900 truncate">{node.name}</span>
+              <span className="font-medium text-gray-900 truncate">
+                {node.name}
+              </span>
               {node.weight && (
                 <span className="text-sm text-gray-500">({node.weight}%)</span>
               )}
@@ -2488,16 +2727,18 @@ const TreeNode = ({ node, level, onToggle, onSelect, selected }) => {
             </div>
           </div>
           {node.description && (
-            <p className="text-sm text-gray-500 mt-1 truncate">{node.description}</p>
+            <p className="text-sm text-gray-500 mt-1 truncate">
+              {node.description}
+            </p>
           )}
         </div>
       </div>
-      
+
       {/* Children nodes */}
       {hasChildren && node.expanded && (
         <div>
           {node.children.map(child => (
-            <TreeNode 
+            <TreeNode
               key={child.id}
               node={child}
               level={level + 1}
@@ -2509,41 +2750,48 @@ const TreeNode = ({ node, level, onToggle, onSelect, selected }) => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 ```
 
 ## Button System
 
 ### Primary, Secondary, and Danger Buttons
+
 ```tsx
 // Primary button for main actions
-const Button = ({ 
-  variant = 'primary', 
-  size = 'md', 
-  disabled = false, 
+const Button = ({
+  variant = 'primary',
+  size = 'md',
+  disabled = false,
   loading = false,
-  children, 
+  children,
   className = '',
-  ...props 
+  ...props
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
-  
+  const baseClasses =
+    'inline-flex items-center justify-center rounded-md font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
+
   const variants = {
-    primary: 'bg-blue-700 text-white hover:bg-blue-800 focus:ring-blue-500 shadow-sm hover:shadow-md active:transform active:scale-[0.98]',
-    secondary: 'bg-white text-blue-700 border border-blue-700 hover:bg-blue-50 focus:ring-blue-500 shadow-sm hover:shadow-md',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm hover:shadow-md active:transform active:scale-[0.98]',
-    ghost: 'text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:ring-gray-300',
-    outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-300 shadow-sm'
-  };
-  
+    primary:
+      'bg-blue-700 text-white hover:bg-blue-800 focus:ring-blue-500 shadow-sm hover:shadow-md active:transform active:scale-[0.98]',
+    secondary:
+      'bg-white text-blue-700 border border-blue-700 hover:bg-blue-50 focus:ring-blue-500 shadow-sm hover:shadow-md',
+    danger:
+      'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm hover:shadow-md active:transform active:scale-[0.98]',
+    ghost:
+      'text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:ring-gray-300',
+    outline:
+      'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-gray-300 shadow-sm',
+  }
+
   const sizes = {
     sm: 'px-3 py-1.5 text-sm min-h-[32px]',
     md: 'px-6 py-2.5 text-sm min-h-[44px]',
     lg: 'px-8 py-3 text-base min-h-[48px]',
-    xl: 'px-10 py-4 text-lg min-h-[56px]'
-  };
-  
+    xl: 'px-10 py-4 text-lg min-h-[56px]',
+  }
+
   return (
     <button
       className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`}
@@ -2551,25 +2799,48 @@ const Button = ({
       {...props}
     >
       {loading && (
-        <svg className="animate-spin -ml-1 mr-3 h-4 w-4" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <svg
+          className="animate-spin -ml-1 mr-3 h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
         </svg>
       )}
       {children}
     </button>
-  );
-};
+  )
+}
 
 // Icon button variant
-const IconButton = ({ icon: Icon, variant = 'ghost', size = 'md', ...props }) => (
+const IconButton = ({
+  icon: Icon,
+  variant = 'ghost',
+  size = 'md',
+  ...props
+}) => (
   <Button variant={variant} size={size} className="p-2" {...props}>
-    <Icon className={`h-${size === 'sm' ? '4' : size === 'lg' ? '6' : '5'} w-${size === 'sm' ? '4' : size === 'lg' ? '6' : '5'}`} />
+    <Icon
+      className={`h-${size === 'sm' ? '4' : size === 'lg' ? '6' : '5'} w-${size === 'sm' ? '4' : size === 'lg' ? '6' : '5'}`}
+    />
   </Button>
-);
+)
 ```
 
 ### Floating Action Button (Mobile)
+
 ```tsx
 const FloatingActionButton = ({ onClick, icon: Icon, label }) => (
   <button
@@ -2584,26 +2855,27 @@ const FloatingActionButton = ({ onClick, icon: Icon, label }) => (
   >
     <Icon className="h-6 w-6" />
   </button>
-);
+)
 ```
 
 ## Form Components
 
 ### Input Fields with Floating Labels
+
 ```tsx
-const FloatingLabelInput = ({ 
-  id, 
-  label, 
-  type = 'text', 
-  error, 
-  required = false, 
-  value, 
-  onChange, 
+const FloatingLabelInput = ({
+  id,
+  label,
+  type = 'text',
+  error,
+  required = false,
+  value,
+  onChange,
   className = '',
-  ...props 
+  ...props
 }) => {
-  const hasValue = value && value.length > 0;
-  
+  const hasValue = value && value.length > 0
+
   return (
     <div className={`relative ${className}`}>
       <input
@@ -2616,9 +2888,10 @@ const FloatingLabelInput = ({
           peer w-full px-4 pt-6 pb-2 text-gray-900 bg-white border rounded-md
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           placeholder-transparent transition-all duration-200
-          ${error 
-            ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-            : 'border-gray-300'
+          ${
+            error
+              ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+              : 'border-gray-300'
           }
           ${hasValue ? 'pt-6 pb-2' : 'pt-4 pb-4'}
         `}
@@ -2645,23 +2918,23 @@ const FloatingLabelInput = ({
         </p>
       )}
     </div>
-  );
-};
+  )
+}
 
 // Textarea variant
-const FloatingLabelTextarea = ({ 
-  id, 
-  label, 
-  rows = 4, 
-  error, 
-  required = false, 
-  value, 
-  onChange, 
+const FloatingLabelTextarea = ({
+  id,
+  label,
+  rows = 4,
+  error,
+  required = false,
+  value,
+  onChange,
   className = '',
-  ...props 
+  ...props
 }) => {
-  const hasValue = value && value.length > 0;
-  
+  const hasValue = value && value.length > 0
+
   return (
     <div className={`relative ${className}`}>
       <textarea
@@ -2674,9 +2947,10 @@ const FloatingLabelTextarea = ({
           peer w-full px-4 pt-6 pb-2 text-gray-900 bg-white border rounded-md
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           placeholder-transparent transition-all duration-200 resize-vertical
-          ${error 
-            ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-            : 'border-gray-300'
+          ${
+            error
+              ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+              : 'border-gray-300'
           }
         `}
         placeholder={label}
@@ -2702,30 +2976,31 @@ const FloatingLabelTextarea = ({
         </p>
       )}
     </div>
-  );
-};
+  )
+}
 ```
 
 ### Select Dropdown with Search
+
 ```tsx
-const SearchableSelect = ({ 
-  options, 
-  value, 
-  onChange, 
-  placeholder = 'Select...', 
+const SearchableSelect = ({
+  options,
+  value,
+  onChange,
+  placeholder = 'Select...',
   label,
   error,
-  required = false 
+  required = false,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [search, setSearch] = useState('');
-  
+  const [isOpen, setIsOpen] = useState(false)
+  const [search, setSearch] = useState('')
+
   const filteredOptions = options.filter(option =>
     option.label.toLowerCase().includes(search.toLowerCase())
-  );
-  
-  const selectedOption = options.find(opt => opt.value === value);
-  
+  )
+
+  const selectedOption = options.find(opt => opt.value === value)
+
   return (
     <div className="relative">
       {label && (
@@ -2734,7 +3009,7 @@ const SearchableSelect = ({
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
-      
+
       <div className="relative">
         <button
           type="button"
@@ -2743,9 +3018,10 @@ const SearchableSelect = ({
             relative w-full bg-white border rounded-md pl-4 pr-10 py-3 text-left
             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
             transition-all duration-200
-            ${error 
-              ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-              : 'border-gray-300'
+            ${
+              error
+                ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                : 'border-gray-300'
             }
           `}
         >
@@ -2756,7 +3032,7 @@ const SearchableSelect = ({
             <ChevronDownIcon className="h-5 w-5 text-gray-400" />
           </span>
         </button>
-        
+
         {isOpen && (
           <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none">
             {/* Search input */}
@@ -2764,22 +3040,22 @@ const SearchableSelect = ({
               <input
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={e => setSearch(e.target.value)}
                 placeholder="Search..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
-            
+
             {/* Options list */}
             <div>
-              {filteredOptions.map((option) => (
+              {filteredOptions.map(option => (
                 <button
                   key={option.value}
                   type="button"
                   onClick={() => {
-                    onChange(option.value);
-                    setIsOpen(false);
-                    setSearch('');
+                    onChange(option.value)
+                    setIsOpen(false)
+                    setSearch('')
                   }}
                   className={`
                     w-full text-left px-4 py-2 text-sm hover:bg-gray-100
@@ -2789,15 +3065,17 @@ const SearchableSelect = ({
                   {option.label}
                 </button>
               ))}
-              
+
               {filteredOptions.length === 0 && (
-                <div className="px-4 py-2 text-sm text-gray-500">No options found</div>
+                <div className="px-4 py-2 text-sm text-gray-500">
+                  No options found
+                </div>
               )}
             </div>
           </div>
         )}
       </div>
-      
+
       {error && (
         <p className="mt-1 text-sm text-red-600 flex items-center">
           <ExclamationCircleIcon className="h-4 w-4 mr-1" />
@@ -2805,11 +3083,12 @@ const SearchableSelect = ({
         </p>
       )}
     </div>
-  );
-};
+  )
+}
 ```
 
 ### Form Validation States
+
 ```tsx
 const FormField = ({ children, error, success, className = '' }) => (
   <div className={`space-y-1 ${className}`}>
@@ -2827,14 +3106,23 @@ const FormField = ({ children, error, success, className = '' }) => (
       </div>
     )}
   </div>
-);
+)
 ```
 
 ## Chart Components (Using Recharts)
 
 ### Progress Chart
+
 ```tsx
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
 
 const ProgressChart = ({ data, title }) => (
   <Card>
@@ -2843,34 +3131,37 @@ const ProgressChart = ({ data, title }) => (
     </CardHeader>
     <CardContent>
       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <BarChart
+          data={data}
+          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+        >
           <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-          <XAxis 
-            dataKey="name" 
+          <XAxis
+            dataKey="name"
             stroke="#6b7280"
             fontSize={12}
             tickLine={false}
             axisLine={false}
           />
-          <YAxis 
+          <YAxis
             stroke="#6b7280"
             fontSize={12}
             tickLine={false}
             axisLine={false}
-            tickFormatter={(value) => `${value}%`}
+            tickFormatter={value => `${value}%`}
           />
-          <Tooltip 
+          <Tooltip
             contentStyle={{
               backgroundColor: 'white',
               border: '1px solid #e5e7eb',
               borderRadius: '8px',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
             }}
-            formatter={(value) => [`${value}%`, 'Progress']}
+            formatter={value => [`${value}%`, 'Progress']}
           />
-          <Bar 
-            dataKey="progress" 
-            fill="#1e40af" 
+          <Bar
+            dataKey="progress"
+            fill="#1e40af"
             radius={[4, 4, 0, 0]}
             className="hover:opacity-80 transition-opacity"
           />
@@ -2878,12 +3169,21 @@ const ProgressChart = ({ data, title }) => (
       </ResponsiveContainer>
     </CardContent>
   </Card>
-);
+)
 ```
 
 ### Task Completion Trend
+
 ```tsx
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
 
 const TaskCompletionTrend = ({ data }) => (
   <Card>
@@ -2893,35 +3193,38 @@ const TaskCompletionTrend = ({ data }) => (
     </CardHeader>
     <CardContent>
       <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+        <LineChart
+          data={data}
+          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        >
           <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-          <XAxis 
-            dataKey="week" 
+          <XAxis
+            dataKey="week"
             stroke="#6b7280"
             fontSize={12}
             tickLine={false}
             axisLine={false}
           />
-          <YAxis 
+          <YAxis
             stroke="#6b7280"
             fontSize={12}
             tickLine={false}
             axisLine={false}
-            tickFormatter={(value) => `${value}%`}
+            tickFormatter={value => `${value}%`}
           />
-          <Tooltip 
+          <Tooltip
             contentStyle={{
               backgroundColor: 'white',
               border: '1px solid #e5e7eb',
               borderRadius: '8px',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
             }}
-            formatter={(value) => [`${value}%`, 'Completion Rate']}
+            formatter={value => [`${value}%`, 'Completion Rate']}
           />
-          <Line 
-            type="monotone" 
-            dataKey="completion" 
-            stroke="#10b981" 
+          <Line
+            type="monotone"
+            dataKey="completion"
+            stroke="#10b981"
             strokeWidth={3}
             dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
             activeDot={{ r: 6, stroke: '#10b981', strokeWidth: 2 }}
@@ -2930,33 +3233,34 @@ const TaskCompletionTrend = ({ data }) => (
       </ResponsiveContainer>
     </CardContent>
   </Card>
-);
+)
 ```
 
 ## Table Components
 
 ### Sortable Data Table
+
 ```tsx
-const DataTable = ({ 
-  columns, 
-  data, 
-  sortKey, 
-  sortDirection, 
-  onSort, 
+const DataTable = ({
+  columns,
+  data,
+  sortKey,
+  sortDirection,
+  onSort,
   onRowClick,
-  loading = false 
+  loading = false,
 }) => {
   if (loading) {
-    return <TableSkeleton />;
+    return <TableSkeleton />
   }
-  
+
   return (
     <div className="bg-white shadow-sm border border-gray-200 rounded-lg overflow-hidden">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              {columns.map((column) => (
+              {columns.map(column => (
                 <th
                   key={column.key}
                   className={`
@@ -2969,17 +3273,17 @@ const DataTable = ({
                     <span>{column.title}</span>
                     {column.sortable && (
                       <div className="flex flex-col">
-                        <ChevronUpIcon 
+                        <ChevronUpIcon
                           className={`h-3 w-3 ${
-                            sortKey === column.key && sortDirection === 'asc' 
-                              ? 'text-gray-900' 
+                            sortKey === column.key && sortDirection === 'asc'
+                              ? 'text-gray-900'
                               : 'text-gray-400'
                           }`}
                         />
-                        <ChevronDownIcon 
+                        <ChevronDownIcon
                           className={`h-3 w-3 -mt-1 ${
-                            sortKey === column.key && sortDirection === 'desc' 
-                              ? 'text-gray-900' 
+                            sortKey === column.key && sortDirection === 'desc'
+                              ? 'text-gray-900'
                               : 'text-gray-400'
                           }`}
                         />
@@ -2992,7 +3296,7 @@ const DataTable = ({
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {data.map((row, index) => (
-              <tr 
+              <tr
                 key={row.id || index}
                 className={`
                   hover:bg-gray-50 transition-colors
@@ -3001,29 +3305,36 @@ const DataTable = ({
                 `}
                 onClick={() => onRowClick && onRowClick(row)}
               >
-                {columns.map((column) => (
-                  <td key={column.key} className="px-6 py-4 whitespace-nowrap text-sm">
-                    {column.render ? column.render(row[column.key], row) : row[column.key]}
+                {columns.map(column => (
+                  <td
+                    key={column.key}
+                    className="px-6 py-4 whitespace-nowrap text-sm"
+                  >
+                    {column.render
+                      ? column.render(row[column.key], row)
+                      : row[column.key]}
                   </td>
                 ))}
               </tr>
             ))}
           </tbody>
         </table>
-        
+
         {data.length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-400">
               <DocumentIcon className="mx-auto h-12 w-12 mb-4" />
               <p className="text-lg font-medium">No data available</p>
-              <p className="text-sm">There are no items to display at this time.</p>
+              <p className="text-sm">
+                There are no items to display at this time.
+              </p>
             </div>
           </div>
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
 // Table skeleton for loading state
 const TableSkeleton = () => (
@@ -3049,12 +3360,13 @@ const TableSkeleton = () => (
       ))}
     </div>
   </div>
-);
+)
 ```
 
 ## Status Badge System
 
 ### Construction Status Badges
+
 ```tsx
 const StatusBadge = ({ status, size = 'md', className = '' }) => {
   const statusConfig = {
@@ -3062,72 +3374,74 @@ const StatusBadge = ({ status, size = 'md', className = '' }) => {
     'not-started': {
       label: 'Not Started',
       className: 'bg-gray-100 text-gray-700 border border-gray-200',
-      icon: ClockIcon
+      icon: ClockIcon,
     },
     'in-progress': {
       label: 'In Progress',
       className: 'bg-blue-100 text-blue-700 border border-blue-200',
-      icon: PlayIcon
+      icon: PlayIcon,
     },
     'pending-approval': {
       label: 'Pending Review',
       className: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
-      icon: ExclamationTriangleIcon
+      icon: ExclamationTriangleIcon,
     },
-    'completed': {
+    completed: {
       label: 'Completed',
       className: 'bg-green-100 text-green-700 border border-green-200',
-      icon: CheckCircleIcon
+      icon: CheckCircleIcon,
     },
     'on-hold': {
       label: 'On Hold',
       className: 'bg-red-100 text-red-700 border border-red-200',
-      icon: PauseIcon
+      icon: PauseIcon,
     },
-    
+
     // Approval statuses
-    'approved': {
+    approved: {
       label: 'Approved',
       className: 'bg-green-100 text-green-700 border border-green-200',
-      icon: CheckCircleIcon
+      icon: CheckCircleIcon,
     },
-    'rejected': {
+    rejected: {
       label: 'Rejected',
       className: 'bg-red-100 text-red-700 border border-red-200',
-      icon: XCircleIcon
+      icon: XCircleIcon,
     },
     'needs-revision': {
       label: 'Needs Revision',
       className: 'bg-orange-100 text-orange-700 border border-orange-200',
-      icon: ExclamationTriangleIcon
-    }
-  };
-  
-  const config = statusConfig[status] || statusConfig['not-started'];
-  const Icon = config.icon;
-  
+      icon: ExclamationTriangleIcon,
+    },
+  }
+
+  const config = statusConfig[status] || statusConfig['not-started']
+  const Icon = config.icon
+
   const sizes = {
     sm: 'px-2 py-1 text-xs',
     md: 'px-3 py-1 text-sm',
-    lg: 'px-4 py-2 text-base'
-  };
-  
+    lg: 'px-4 py-2 text-base',
+  }
+
   const iconSizes = {
     sm: 'h-3 w-3',
     md: 'h-4 w-4',
-    lg: 'h-5 w-5'
-  };
-  
+    lg: 'h-5 w-5',
+  }
+
   return (
-    <span className={`
+    <span
+      className={`
       inline-flex items-center space-x-1 rounded-full font-medium
       ${config.className} ${sizes[size]} ${className}
-    `}>
+    `}
+    >
       <Icon className={iconSizes[size]} />
       <span>{config.label}</span>
     </span>
-  );
-};
+  )
+}
 
 // Priority badge variant
 const PriorityBadge = ({ priority, size = 'md' }) => {
@@ -3135,43 +3449,52 @@ const PriorityBadge = ({ priority, size = 'md' }) => {
     low: {
       label: 'Low',
       className: 'bg-gray-100 text-gray-600',
-      dot: 'bg-gray-400'
+      dot: 'bg-gray-400',
     },
     medium: {
       label: 'Medium',
       className: 'bg-yellow-100 text-yellow-700',
-      dot: 'bg-yellow-400'
+      dot: 'bg-yellow-400',
     },
     high: {
       label: 'High',
       className: 'bg-orange-100 text-orange-700',
-      dot: 'bg-orange-500'
+      dot: 'bg-orange-500',
     },
     urgent: {
       label: 'Urgent',
       className: 'bg-red-100 text-red-700',
-      dot: 'bg-red-500'
-    }
-  };
-  
-  const config = priorityConfig[priority] || priorityConfig['medium'];
-  
+      dot: 'bg-red-500',
+    },
+  }
+
+  const config = priorityConfig[priority] || priorityConfig['medium']
+
   return (
-    <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${config.className}`}>
+    <span
+      className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${config.className}`}
+    >
       <div className={`w-2 h-2 rounded-full ${config.dot}`}></div>
       <span>{config.label}</span>
     </span>
-  );
-};
+  )
+}
 ```
 
 ## Progress Bar Components
 
 ### Multi-segment Progress Bar
+
 ```tsx
-const ProgressBar = ({ value, max = 100, segments, className = '', showLabel = true }) => {
-  const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
-  
+const ProgressBar = ({
+  value,
+  max = 100,
+  segments,
+  className = '',
+  showLabel = true,
+}) => {
+  const percentage = Math.min(Math.max((value / max) * 100, 0), 100)
+
   if (segments) {
     // Multi-segment progress bar for project phases
     return (
@@ -3184,15 +3507,15 @@ const ProgressBar = ({ value, max = 100, segments, className = '', showLabel = t
         )}
         <div className="flex h-3 bg-gray-200 rounded-full overflow-hidden">
           {segments.map((segment, index) => {
-            const segmentWidth = (segment.value / max) * 100;
+            const segmentWidth = (segment.value / max) * 100
             const colors = [
               'bg-blue-500',
               'bg-green-500',
               'bg-yellow-500',
               'bg-purple-500',
-              'bg-indigo-500'
-            ];
-            
+              'bg-indigo-500',
+            ]
+
             return (
               <div
                 key={index}
@@ -3200,7 +3523,7 @@ const ProgressBar = ({ value, max = 100, segments, className = '', showLabel = t
                 style={{ width: `${segmentWidth}%` }}
                 title={`${segment.label}: ${segment.value}%`}
               ></div>
-            );
+            )
           })}
         </div>
         <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -3209,9 +3532,9 @@ const ProgressBar = ({ value, max = 100, segments, className = '', showLabel = t
           ))}
         </div>
       </div>
-    );
+    )
   }
-  
+
   // Single progress bar
   return (
     <div className={`w-full ${className}`}>
@@ -3224,36 +3547,44 @@ const ProgressBar = ({ value, max = 100, segments, className = '', showLabel = t
       <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
         <div
           className={`h-full transition-all duration-500 rounded-full ${
-            percentage >= 100 ? 'bg-green-500' :
-            percentage >= 75 ? 'bg-blue-500' :
-            percentage >= 50 ? 'bg-yellow-500' :
-            'bg-orange-500'
+            percentage >= 100
+              ? 'bg-green-500'
+              : percentage >= 75
+                ? 'bg-blue-500'
+                : percentage >= 50
+                  ? 'bg-yellow-500'
+                  : 'bg-orange-500'
           }`}
           style={{ width: `${percentage}%` }}
         ></div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 // Circular progress indicator
-const CircularProgress = ({ value, max = 100, size = 'md', showLabel = true }) => {
-  const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
-  const circumference = 2 * Math.PI * 45; // radius of 45
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
-  
+const CircularProgress = ({
+  value,
+  max = 100,
+  size = 'md',
+  showLabel = true,
+}) => {
+  const percentage = Math.min(Math.max((value / max) * 100, 0), 100)
+  const circumference = 2 * Math.PI * 45 // radius of 45
+  const strokeDashoffset = circumference - (percentage / 100) * circumference
+
   const sizes = {
     sm: 'w-16 h-16',
     md: 'w-24 h-24',
-    lg: 'w-32 h-32'
-  };
-  
+    lg: 'w-32 h-32',
+  }
+
   const textSizes = {
     sm: 'text-sm',
     md: 'text-base',
-    lg: 'text-lg'
-  };
-  
+    lg: 'text-lg',
+  }
+
   return (
     <div className={`relative ${sizes[size]}`}>
       <svg className="transform -rotate-90 w-full h-full">
@@ -3288,26 +3619,32 @@ const CircularProgress = ({ value, max = 100, size = 'md', showLabel = true }) =
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 ```
 
 ## Empty State Components
 
 ### Construction-themed Empty States
+
 ```tsx
-const EmptyState = ({ 
-  icon: Icon, 
-  title, 
-  description, 
-  action, 
-  illustration = 'construction' 
+const EmptyState = ({
+  icon: Icon,
+  title,
+  description,
+  action,
+  illustration = 'construction',
 }) => {
   const illustrations = {
     construction: (
       <div className="mx-auto w-24 h-24 text-gray-300">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1}
+            d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+          />
         </svg>
       </div>
     ),
@@ -3320,9 +3657,9 @@ const EmptyState = ({
       <div className="mx-auto w-24 h-24 text-gray-300">
         <CheckSquareIcon />
       </div>
-    )
-  };
-  
+    ),
+  }
+
   return (
     <div className="text-center py-12">
       {Icon ? (
@@ -3334,8 +3671,8 @@ const EmptyState = ({
       <p className="text-gray-500 max-w-sm mx-auto mb-6">{description}</p>
       {action && action}
     </div>
-  );
-};
+  )
+}
 
 // Specific empty states for construction app
 const NoProjectsEmptyState = ({ onCreateProject }) => (
@@ -3350,7 +3687,7 @@ const NoProjectsEmptyState = ({ onCreateProject }) => (
       </Button>
     }
   />
-);
+)
 
 const NoTasksEmptyState = ({ onAddTask }) => (
   <EmptyState
@@ -3364,7 +3701,7 @@ const NoTasksEmptyState = ({ onAddTask }) => (
       </Button>
     }
   />
-);
+)
 
 const NoApprovalsEmptyState = () => (
   <EmptyState
@@ -3372,12 +3709,13 @@ const NoApprovalsEmptyState = () => (
     title="All caught up!"
     description="No pending approvals at this time. New submissions will appear here for your review."
   />
-);
+)
 ```
 
 ## Loading States
 
 ### Skeleton Components
+
 ```tsx
 const CardSkeleton = () => (
   <div className="bg-white border border-gray-200 rounded-lg p-6 animate-pulse">
@@ -3406,7 +3744,7 @@ const CardSkeleton = () => (
       </div>
     </div>
   </div>
-);
+)
 
 const ListSkeleton = ({ items = 5 }) => (
   <div className="bg-white border border-gray-200 rounded-lg divide-y divide-gray-200 animate-pulse">
@@ -3423,52 +3761,52 @@ const ListSkeleton = ({ items = 5 }) => (
       </div>
     ))}
   </div>
-);
+)
 ```
 
 ## Modal and Dialog Components
 
 ### Confirmation Dialog
+
 ```tsx
-const ConfirmDialog = ({ 
-  isOpen, 
-  onClose, 
-  onConfirm, 
-  title, 
-  message, 
-  confirmLabel = 'Confirm', 
+const ConfirmDialog = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
-  variant = 'primary' 
+  variant = 'primary',
 }) => {
-  if (!isOpen) return null;
-  
+  if (!isOpen) return null
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
         onClick={onClose}
       ></div>
-      
+
       {/* Dialog */}
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
           <div className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              {title}
+            </h3>
             <p className="text-gray-600 mb-6">{message}</p>
-            
+
             <div className="flex space-x-3 justify-end">
-              <Button
-                variant="outline"
-                onClick={onClose}
-              >
+              <Button variant="outline" onClick={onClose}>
                 {cancelLabel}
               </Button>
               <Button
                 variant={variant}
                 onClick={() => {
-                  onConfirm();
-                  onClose();
+                  onConfirm()
+                  onClose()
                 }}
               >
                 {confirmLabel}
@@ -3478,13 +3816,14 @@ const ConfirmDialog = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 ```
 
 ## Responsive Layout Patterns
 
 ### Dashboard Grid Layout
+
 ```tsx
 const DashboardLayout = ({ children }) => (
   <div className="min-h-screen bg-gray-50">
@@ -3492,54 +3831,51 @@ const DashboardLayout = ({ children }) => (
     <div className="hidden md:fixed md:inset-y-0 md:flex md:w-60 md:flex-col">
       <Sidebar />
     </div>
-    
+
     {/* Mobile header */}
     <div className="md:hidden">
       <MobileHeader />
     </div>
-    
+
     {/* Main content */}
     <div className="md:pl-60">
-      <main className="p-4 md:p-8">
-        {children}
-      </main>
+      <main className="p-4 md:p-8">{children}</main>
     </div>
-    
+
     {/* Mobile bottom navigation */}
     <BottomNavigation />
   </div>
-);
+)
 
 // Grid system for responsive cards
 const ResponsiveGrid = ({ children, className = '' }) => (
-  <div className={`
+  <div
+    className={`
     grid gap-6
     grid-cols-1
     sm:grid-cols-2
     lg:grid-cols-3
     xl:grid-cols-4
     ${className}
-  `}>
+  `}
+  >
     {children}
   </div>
-);
+)
 
 // Two-column layout with sidebar
 const TwoColumnLayout = ({ sidebar, main }) => (
   <div className="flex flex-col lg:flex-row gap-8">
-    <aside className="lg:w-80 flex-shrink-0">
-      {sidebar}
-    </aside>
-    <main className="flex-1 min-w-0">
-      {main}
-    </main>
+    <aside className="lg:w-80 flex-shrink-0">{sidebar}</aside>
+    <main className="flex-1 min-w-0">{main}</main>
   </div>
-);
+)
 ```
 
 ## Interactive States and Microinteractions
 
 ### Hover and Focus States
+
 ```tsx
 // Enhanced button with microinteractions
 const InteractiveButton = ({ children, onClick, variant = 'primary' }) => (
@@ -3549,19 +3885,20 @@ const InteractiveButton = ({ children, onClick, variant = 'primary' }) => (
       inline-flex items-center justify-center px-6 py-2.5 text-sm font-medium
       rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
       transform hover:scale-[1.02] active:scale-[0.98]
-      ${variant === 'primary' 
-        ? 'bg-blue-700 text-white hover:bg-blue-800 focus:ring-blue-500 shadow-sm hover:shadow-md' 
-        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-300'
+      ${
+        variant === 'primary'
+          ? 'bg-blue-700 text-white hover:bg-blue-800 focus:ring-blue-500 shadow-sm hover:shadow-md'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-300'
       }
     `}
   >
     {children}
   </button>
-);
+)
 
 // Card with hover animation
 const AnimatedCard = ({ children, onClick }) => (
-  <div 
+  <div
     onClick={onClick}
     className="
       bg-white border border-gray-200 rounded-lg p-6 cursor-pointer
@@ -3571,45 +3908,48 @@ const AnimatedCard = ({ children, onClick }) => (
   >
     {children}
   </div>
-);
+)
 ```
 
 ## Notification System
 
 ### Toast Notifications
+
 ```tsx
 const Toast = ({ message, type = 'info', onClose, duration = 5000 }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
-      onClose();
-    }, duration);
-    
-    return () => clearTimeout(timer);
-  }, [duration, onClose]);
-  
+      onClose()
+    }, duration)
+
+    return () => clearTimeout(timer)
+  }, [duration, onClose])
+
   const typeStyles = {
     success: 'bg-green-100 border-green-500 text-green-800',
     error: 'bg-red-100 border-red-500 text-red-800',
     warning: 'bg-yellow-100 border-yellow-500 text-yellow-800',
-    info: 'bg-blue-100 border-blue-500 text-blue-800'
-  };
-  
+    info: 'bg-blue-100 border-blue-500 text-blue-800',
+  }
+
   const icons = {
     success: CheckCircleIcon,
     error: XCircleIcon,
     warning: ExclamationTriangleIcon,
-    info: InformationCircleIcon
-  };
-  
-  const Icon = icons[type];
-  
+    info: InformationCircleIcon,
+  }
+
+  const Icon = icons[type]
+
   return (
-    <div className={`
+    <div
+      className={`
       fixed top-4 right-4 z-50 max-w-sm w-full
       border-l-4 p-4 rounded-md shadow-lg
       transform transition-all duration-300 ease-in-out
       ${typeStyles[type]}
-    `}>
+    `}
+    >
       <div className="flex items-center">
         <Icon className="h-5 w-5 mr-3 flex-shrink-0" />
         <p className="text-sm font-medium flex-1">{message}</p>
@@ -3621,8 +3961,8 @@ const Toast = ({ message, type = 'info', onClose, duration = 5000 }) => {
         </button>
       </div>
     </div>
-  );
-};
+  )
+}
 ```
 
 This comprehensive component system provides all the building blocks needed for Full Court Control Pro, with exact Tailwind CSS classes that follow the established design system. Each component includes responsive variants, interactive states, loading states, and accessibility considerations appropriate for construction professionals working across desktop and mobile devices.

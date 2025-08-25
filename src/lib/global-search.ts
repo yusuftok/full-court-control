@@ -9,7 +9,6 @@ export interface SearchItem {
 }
 
 export const searchableItems: SearchItem[] = [
-
   // Projects
   {
     id: 'project-1',
@@ -18,34 +17,34 @@ export const searchableItems: SearchItem[] = [
     description: 'İstanbul merkez lokasyonda 15 katlı ofis projesi',
     url: '/projects/1',
     category: 'Projeler',
-    emoji: '🏢'
+    emoji: '🏢',
   },
   {
-    id: 'project-2', 
+    id: 'project-2',
     type: 'project',
     name: 'Konut Kulesi A',
-    description: 'Ankara\'da 25 katlı lüks konut projesi',
+    description: "Ankara'da 25 katlı lüks konut projesi",
     url: '/projects/2',
     category: 'Projeler',
-    emoji: '🏠'
+    emoji: '🏠',
   },
   {
     id: 'project-3',
-    type: 'project', 
+    type: 'project',
     name: 'Alışveriş Merkezi Genişletme',
     description: 'İzmir AVM genişletme projesi',
     url: '/projects/3',
     category: 'Projeler',
-    emoji: '🛒'
+    emoji: '🛒',
   },
   {
     id: 'project-4',
     type: 'project',
     name: 'Otoyol Köprüsü Yenileme',
     description: 'Bursa otoyolu köprü yenileme işleri',
-    url: '/projects/4', 
+    url: '/projects/4',
     category: 'Projeler',
-    emoji: '🌉'
+    emoji: '🌉',
   },
   {
     id: 'project-5',
@@ -53,8 +52,8 @@ export const searchableItems: SearchItem[] = [
     name: 'Hastane Ek Binası İnşaatı',
     description: 'İstanbul devlet hastanesi ek bina inşaatı',
     url: '/projects/5',
-    category: 'Projeler', 
-    emoji: '🏥'
+    category: 'Projeler',
+    emoji: '🏥',
   },
 
   // Templates
@@ -65,16 +64,16 @@ export const searchableItems: SearchItem[] = [
     description: '10 kattan yüksek konut kuleleri için standart şablon',
     url: '/templates?selected=1',
     category: 'Şablonlar',
-    emoji: '🏗️'
+    emoji: '🏗️',
   },
   {
     id: 'template-2',
-    type: 'template', 
+    type: 'template',
     name: 'Ticari Ofis Kompleksi',
     description: 'Orta ve büyük ticari ofis binaları için şablon',
     url: '/templates?selected=2',
     category: 'Şablonlar',
-    emoji: '🏢'
+    emoji: '🏢',
   },
   {
     id: 'template-3',
@@ -83,7 +82,7 @@ export const searchableItems: SearchItem[] = [
     description: 'Karayolu ve demiryolu köprü inşaat şablonu',
     url: '/templates?selected=3',
     category: 'Şablonlar',
-    emoji: '🌉'
+    emoji: '🌉',
   },
 
   // Tasks/Görevler
@@ -94,7 +93,7 @@ export const searchableItems: SearchItem[] = [
     description: 'Şehir Merkezi Ofis Kompleksi - Temel kazısı ve beton dökümü',
     url: '/projects/1/tasks/temel-atma',
     category: 'Görevler',
-    emoji: '🏗️'
+    emoji: '🏗️',
   },
   {
     id: 'task-2',
@@ -103,7 +102,7 @@ export const searchableItems: SearchItem[] = [
     description: 'Konut Kulesi A - Ana elektrik hattı döşeme çalışmaları',
     url: '/projects/2/tasks/elektrik',
     category: 'Görevler',
-    emoji: '⚡'
+    emoji: '⚡',
   },
   {
     id: 'task-3',
@@ -112,7 +111,7 @@ export const searchableItems: SearchItem[] = [
     description: 'Hastane Ek Binası - Cam montajı ve son cephe işlemleri',
     url: '/projects/5/tasks/finisaj',
     category: 'Görevler',
-    emoji: '🏢'
+    emoji: '🏢',
   },
   {
     id: 'task-4',
@@ -121,7 +120,7 @@ export const searchableItems: SearchItem[] = [
     description: 'Alışveriş Merkezi - Ana su hattı ve sızdırmazlık testleri',
     url: '/projects/3/tasks/su-tesisat',
     category: 'Görevler',
-    emoji: '💧'
+    emoji: '💧',
   },
 
   // People/Kişiler
@@ -132,7 +131,7 @@ export const searchableItems: SearchItem[] = [
     description: 'Proje Yöneticisi - Şehir Merkezi Ofis Kompleksi',
     url: '/people/ahmet-yilmaz',
     category: 'Kişiler',
-    emoji: '👨‍💼'
+    emoji: '👨‍💼',
   },
   {
     id: 'person-2',
@@ -141,7 +140,7 @@ export const searchableItems: SearchItem[] = [
     description: 'Proje Yöneticisi - Konut Kulesi A',
     url: '/people/fatma-demir',
     category: 'Kişiler',
-    emoji: '👩‍💼'
+    emoji: '👩‍💼',
   },
   {
     id: 'person-3',
@@ -150,7 +149,7 @@ export const searchableItems: SearchItem[] = [
     description: 'Saha Şefi - Alışveriş Merkezi Genişletme',
     url: '/people/mehmet-kaya',
     category: 'Kişiler',
-    emoji: '👷‍♂️'
+    emoji: '👷‍♂️',
   },
   {
     id: 'person-4',
@@ -159,7 +158,7 @@ export const searchableItems: SearchItem[] = [
     description: 'Baş Mimar - Hastane Ek Binası İnşaatı',
     url: '/people/can-bulut',
     category: 'Kişiler',
-    emoji: '👨‍🔧'
+    emoji: '👨‍🔧',
   },
   {
     id: 'person-5',
@@ -168,15 +167,15 @@ export const searchableItems: SearchItem[] = [
     description: 'Elektrik Mühendisi - Otoyol Köprüsü Yenileme',
     url: '/people/ayse-ozkan',
     category: 'Kişiler',
-    emoji: '👩‍🔧'
-  }
+    emoji: '👩‍🔧',
+  },
 ]
 
 export function searchItems(query: string, limit = 8): SearchItem[] {
   if (!query.trim()) return []
 
   const searchTerm = query.toLowerCase().trim()
-  
+
   const results = searchableItems.filter(item => {
     return (
       item.name.toLowerCase().includes(searchTerm) ||
@@ -195,13 +194,18 @@ export function searchItems(query: string, limit = 8): SearchItem[] {
   return results.slice(0, limit)
 }
 
-export function groupSearchResults(results: SearchItem[]): Record<string, SearchItem[]> {
-  return results.reduce((groups, item) => {
-    const category = item.category
-    if (!groups[category]) {
-      groups[category] = []
-    }
-    groups[category].push(item)
-    return groups
-  }, {} as Record<string, SearchItem[]>)
+export function groupSearchResults(
+  results: SearchItem[]
+): Record<string, SearchItem[]> {
+  return results.reduce(
+    (groups, item) => {
+      const category = item.category
+      if (!groups[category]) {
+        groups[category] = []
+      }
+      groups[category].push(item)
+      return groups
+    },
+    {} as Record<string, SearchItem[]>
+  )
 }

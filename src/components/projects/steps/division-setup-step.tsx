@@ -3,7 +3,13 @@
 import { useState } from 'react'
 import { TreePine, Plus, Settings, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { TreeHierarchy, TreeNode } from '@/components/ui/tree-hierarchy'
 import { ProjectFormData, DivisionNode } from '../types/project-types'
 
@@ -14,7 +20,7 @@ interface DivisionSetupStepProps {
 
 export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
   formData,
-  updateFormData
+  updateFormData,
 }) => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
 
@@ -24,14 +30,21 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
       id: division.id,
       label: division.name,
       type: 'folder',
-      children: division.children ? convertToTreeNodes(division.children) : undefined,
+      children: division.children
+        ? convertToTreeNodes(division.children)
+        : undefined,
       metadata: {
         description: division.description,
         count: division.children?.length,
-        status: division.status === 'completed' ? 'active' : 
-                division.status === 'in-progress' ? 'active' :
-                division.status === 'on-hold' ? 'inactive' : 'draft'
-      }
+        status:
+          division.status === 'completed'
+            ? 'active'
+            : division.status === 'in-progress'
+              ? 'active'
+              : division.status === 'on-hold'
+                ? 'inactive'
+                : 'draft',
+      },
     }))
   }
 
@@ -40,10 +53,16 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
     return treeNodes.map(node => ({
       id: node.id,
       name: node.label,
-      children: node.children ? convertToDivisionNodes(node.children) : undefined,
+      children: node.children
+        ? convertToDivisionNodes(node.children)
+        : undefined,
       description: node.metadata?.description,
-      status: node.metadata?.status === 'active' ? 'in-progress' :
-              node.metadata?.status === 'inactive' ? 'on-hold' : 'planned'
+      status:
+        node.metadata?.status === 'active'
+          ? 'in-progress'
+          : node.metadata?.status === 'inactive'
+            ? 'on-hold'
+            : 'planned',
     }))
   }
 
@@ -52,15 +71,19 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
       id: `division-${Date.now()}`,
       name: 'Yeni Bölüm',
       children: [],
-      status: 'planned'
+      status: 'planned',
     }
 
     updateFormData({
-      divisions: [...formData.divisions, newDivision]
+      divisions: [...formData.divisions, newDivision],
     })
   }
 
-  const handleNodeMove = (draggedNodeId: string, targetNodeId: string, position: 'before' | 'after' | 'inside') => {
+  const handleNodeMove = (
+    draggedNodeId: string,
+    targetNodeId: string,
+    position: 'before' | 'after' | 'inside'
+  ) => {
     // This would be a complex implementation to handle drag & drop
     // For MVP, we'll show a simple message
     console.log('Node move:', { draggedNodeId, targetNodeId, position })
@@ -84,11 +107,12 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
             <CardTitle>Proje Bölüm Yapısı</CardTitle>
           </div>
           <CardDescription>
-            Projenizin bölümlerini düzenleyin. Drag & drop ile sıralama yapabilir, 
-            alt bölümler ekleyebilir ve her bölüme taşeron atayabilirsiniz.
+            Projenizin bölümlerini düzenleyin. Drag & drop ile sıralama
+            yapabilir, alt bölümler ekleyebilir ve her bölüme taşeron
+            atayabilirsiniz.
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent>
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
@@ -99,12 +123,8 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
                 <strong>{formData.divisions.length}</strong> ana bölüm
               </div>
             </div>
-            
-            <Button
-              onClick={handleAddRootDivision}
-              size="sm"
-              className="gap-2"
-            >
+
+            <Button onClick={handleAddRootDivision} size="sm" className="gap-2">
               <Plus className="w-4 h-4" />
               Ana Bölüm Ekle
             </Button>
@@ -131,12 +151,10 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
                   Henüz bölüm yapısı oluşturulmamış
                 </h3>
                 <p className="text-sm text-slate-500 dark:text-slate-500 text-center mb-4">
-                  Projenizin bölümlerini oluşturmak için bir şablon seçin veya manuel olarak ekleyin
+                  Projenizin bölümlerini oluşturmak için bir şablon seçin veya
+                  manuel olarak ekleyin
                 </p>
-                <Button
-                  onClick={handleAddRootDivision}
-                  className="gap-2"
-                >
+                <Button onClick={handleAddRootDivision} className="gap-2">
                   <Plus className="w-4 h-4" />
                   İlk Bölümü Ekle
                 </Button>
@@ -158,13 +176,14 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
               Seçili bölümün özelliklerini düzenleyin
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
             <div className="text-sm text-slate-600 dark:text-slate-400">
               Seçili bölüm: <strong>{selectedNodeId}</strong>
             </div>
             <p className="text-xs text-slate-500 mt-2">
-              Bu özellik geliştirilme aşamasında. Şimdilik bölümleri görüntüleyebilirsiniz.
+              Bu özellik geliştirilme aşamasında. Şimdilik bölümleri
+              görüntüleyebilirsiniz.
             </p>
           </CardContent>
         </Card>
@@ -182,8 +201,9 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
                     Bölüm Yapısı Gerekli
                   </h4>
                   <p className="text-sm text-amber-700 dark:text-amber-300">
-                    Proje oluşturmak için en az bir bölüm tanımlamanız gerekiyor. 
-                    Önceki adımda bir şablon seçmediniz, lütfen manuel olarak bölümler ekleyin.
+                    Proje oluşturmak için en az bir bölüm tanımlamanız
+                    gerekiyor. Önceki adımda bir şablon seçmediniz, lütfen
+                    manuel olarak bölümler ekleyin.
                   </p>
                 </div>
               </div>
@@ -201,10 +221,16 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
                     Proje Yapısı Hazır
                   </h4>
                   <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                    <p>• Bölümler arasında drag & drop ile sıralama yapabilirsiniz</p>
+                    <p>
+                      • Bölümler arasında drag & drop ile sıralama
+                      yapabilirsiniz
+                    </p>
                     <p>• Her bölüme farklı taşeronlar atayabilirsiniz</p>
                     <p>• Alt bölümler ekleyerek detaylandırabilirsiniz</p>
-                    <p>• Proje oluşturulduktan sonra da düzenlemeler yapabilirsiniz</p>
+                    <p>
+                      • Proje oluşturulduktan sonra da düzenlemeler
+                      yapabilirsiniz
+                    </p>
                   </div>
                 </div>
               </div>

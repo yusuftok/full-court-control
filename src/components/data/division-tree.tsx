@@ -24,7 +24,14 @@ import {
   SortableContext as SortableProvider,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { ChevronDown, ChevronRight, Plus, Trash2, MoreHorizontal, Edit } from 'lucide-react'
+import {
+  ChevronDown,
+  ChevronRight,
+  Plus,
+  Trash2,
+  MoreHorizontal,
+  Edit,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -98,13 +105,16 @@ function SortableTreeNode({
     setEditingId(null)
   }, [node.name, setEditingId])
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSaveEdit()
-    } else if (e.key === 'Escape') {
-      handleCancelEdit()
-    }
-  }, [handleSaveEdit, handleCancelEdit])
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        handleSaveEdit()
+      } else if (e.key === 'Escape') {
+        handleCancelEdit()
+      }
+    },
+    [handleSaveEdit, handleCancelEdit]
+  )
 
   const hasChildren = node.children.length > 0
 
@@ -115,15 +125,20 @@ function SortableTreeNode({
           ref={setNodeRef}
           style={style}
           className={cn(
-            "group flex items-center gap-2 p-2 rounded-lg border transition-all duration-200",
-            "construction-hover hover:bg-muted/50 hover:border-primary/20",
-            isDragging ? 'opacity-50 animate-construction-bounce' : 'animate-build-up',
-            "hover:shadow-sm"
+            'group flex items-center gap-2 p-2 rounded-lg border transition-all duration-200',
+            'construction-hover hover:bg-muted/50 hover:border-primary/20',
+            isDragging
+              ? 'opacity-50 animate-construction-bounce'
+              : 'animate-build-up',
+            'hover:shadow-sm'
           )}
           {...attributes}
           {...listeners}
         >
-          <div style={{ marginLeft: `${depth * 20}px` }} className="flex items-center gap-2">
+          <div
+            style={{ marginLeft: `${depth * 20}px` }}
+            className="flex items-center gap-2"
+          >
             {/* Expand/Collapse Button */}
             {hasChildren && (
               <Button
@@ -139,27 +154,31 @@ function SortableTreeNode({
                 )}
               </Button>
             )}
-            
+
             {/* Node Icon */}
-            <div className={cn(
-              "w-3 h-3 rounded-full transition-all duration-200 group-hover:scale-125",
-              node.type === 'division' ? 'bg-blue-500 group-hover:bg-blue-600' :
-              node.type === 'subdiv' ? 'bg-green-500 group-hover:bg-green-600' : 
-              'bg-orange-500 group-hover:bg-orange-600'
-            )} />
+            <div
+              className={cn(
+                'w-3 h-3 rounded-full transition-all duration-200 group-hover:scale-125',
+                node.type === 'division'
+                  ? 'bg-blue-500 group-hover:bg-blue-600'
+                  : node.type === 'subdiv'
+                    ? 'bg-green-500 group-hover:bg-green-600'
+                    : 'bg-orange-500 group-hover:bg-orange-600'
+              )}
+            />
 
             {/* Editable Name */}
             {isEditing ? (
               <Input
                 value={tempName}
-                onChange={(e) => setTempName(e.target.value)}
+                onChange={e => setTempName(e.target.value)}
                 onBlur={handleSaveEdit}
                 onKeyDown={handleKeyDown}
                 className="h-6 px-2 text-sm"
                 autoFocus
               />
             ) : (
-              <span 
+              <span
                 className="text-sm font-medium cursor-pointer"
                 onDoubleClick={handleStartEdit}
               >
@@ -168,14 +187,21 @@ function SortableTreeNode({
             )}
 
             {/* Type Badge */}
-            <span className={cn(
-              "px-2 py-1 text-xs rounded-full transition-colors duration-200",
-              node.type === 'division' ? 'bg-blue-100 text-blue-700 group-hover:bg-blue-200' :
-              node.type === 'subdiv' ? 'bg-green-100 text-green-700 group-hover:bg-green-200' :
-              'bg-orange-100 text-orange-700 group-hover:bg-orange-200'
-            )}>
-              {node.type === 'division' ? '🏢 Division' : 
-               node.type === 'subdiv' ? '🔧 Subdiv' : '🔨 Task'}
+            <span
+              className={cn(
+                'px-2 py-1 text-xs rounded-full transition-colors duration-200',
+                node.type === 'division'
+                  ? 'bg-blue-100 text-blue-700 group-hover:bg-blue-200'
+                  : node.type === 'subdiv'
+                    ? 'bg-green-100 text-green-700 group-hover:bg-green-200'
+                    : 'bg-orange-100 text-orange-700 group-hover:bg-orange-200'
+              )}
+            >
+              {node.type === 'division'
+                ? '🏢 Division'
+                : node.type === 'subdiv'
+                  ? '🔧 Subdiv'
+                  : '🔨 Task'}
             </span>
           </div>
 
@@ -219,7 +245,7 @@ function SortableTreeNode({
           Rename
         </ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuItem 
+        <ContextMenuItem
           onClick={() => onDelete(node.id)}
           className="text-destructive focus:text-destructive"
         >
@@ -239,93 +265,130 @@ interface TreeProps {
 function Tree({ nodes, onNodesChange }: TreeProps) {
   const [editingId, setEditingId] = useState<string | null>(null)
 
-  const flattenTree = useCallback((nodes: DivisionNode[], depth = 0): Array<{ node: DivisionNode; depth: number }> => {
-    const result: Array<{ node: DivisionNode; depth: number }> = []
-    
-    for (const node of nodes) {
-      result.push({ node, depth })
-      if (node.isExpanded && node.children.length > 0) {
-        result.push(...flattenTree(node.children, depth + 1))
-      }
-    }
-    
-    return result
-  }, [])
+  const flattenTree = useCallback(
+    (
+      nodes: DivisionNode[],
+      depth = 0
+    ): Array<{ node: DivisionNode; depth: number }> => {
+      const result: Array<{ node: DivisionNode; depth: number }> = []
 
-  const updateNode = useCallback((nodes: DivisionNode[], id: string, updates: Partial<DivisionNode>): DivisionNode[] => {
-    return nodes.map(node => {
-      if (node.id === id) {
-        return { ...node, ...updates }
-      }
-      if (node.children.length > 0) {
-        return { ...node, children: updateNode(node.children, id, updates) }
-      }
-      return node
-    })
-  }, [])
-
-  const deleteNode = useCallback((nodes: DivisionNode[], id: string): DivisionNode[] => {
-    return nodes.filter(node => {
-      if (node.id === id) {
-        return false
-      }
-      if (node.children.length > 0) {
-        return { ...node, children: deleteNode(node.children, id) }
-      }
-      return true
-    }).map(node => ({
-      ...node,
-      children: deleteNode(node.children, id)
-    }))
-  }, [])
-
-  const addChildNode = useCallback((nodes: DivisionNode[], parentId: string): DivisionNode[] => {
-    const newNode: DivisionNode = {
-      id: `node-${Date.now()}`,
-      name: 'New Node',
-      children: [],
-      isExpanded: false,
-      type: 'subdiv',
-    }
-
-    return nodes.map(node => {
-      if (node.id === parentId) {
-        return {
-          ...node,
-          children: [...node.children, newNode],
-          isExpanded: true,
+      for (const node of nodes) {
+        result.push({ node, depth })
+        if (node.isExpanded && node.children.length > 0) {
+          result.push(...flattenTree(node.children, depth + 1))
         }
       }
-      if (node.children.length > 0) {
-        return { ...node, children: addChildNode(node.children, parentId) }
+
+      return result
+    },
+    []
+  )
+
+  const updateNode = useCallback(
+    (
+      nodes: DivisionNode[],
+      id: string,
+      updates: Partial<DivisionNode>
+    ): DivisionNode[] => {
+      return nodes.map(node => {
+        if (node.id === id) {
+          return { ...node, ...updates }
+        }
+        if (node.children.length > 0) {
+          return { ...node, children: updateNode(node.children, id, updates) }
+        }
+        return node
+      })
+    },
+    []
+  )
+
+  const deleteNode = useCallback(
+    (nodes: DivisionNode[], id: string): DivisionNode[] => {
+      return nodes
+        .filter(node => {
+          if (node.id === id) {
+            return false
+          }
+          if (node.children.length > 0) {
+            return { ...node, children: deleteNode(node.children, id) }
+          }
+          return true
+        })
+        .map(node => ({
+          ...node,
+          children: deleteNode(node.children, id),
+        }))
+    },
+    []
+  )
+
+  const addChildNode = useCallback(
+    (nodes: DivisionNode[], parentId: string): DivisionNode[] => {
+      const newNode: DivisionNode = {
+        id: `node-${Date.now()}`,
+        name: 'New Node',
+        children: [],
+        isExpanded: false,
+        type: 'subdiv',
       }
-      return node
-    })
-  }, [])
 
-  const handleToggle = useCallback((id: string) => {
-    const updatedNodes = updateNode(nodes, id, {})
-    const targetNode = flattenTree(updatedNodes).find(({ node }) => node.id === id)?.node
-    if (targetNode) {
-      const newNodes = updateNode(nodes, id, { isExpanded: !targetNode.isExpanded })
+      return nodes.map(node => {
+        if (node.id === parentId) {
+          return {
+            ...node,
+            children: [...node.children, newNode],
+            isExpanded: true,
+          }
+        }
+        if (node.children.length > 0) {
+          return { ...node, children: addChildNode(node.children, parentId) }
+        }
+        return node
+      })
+    },
+    []
+  )
+
+  const handleToggle = useCallback(
+    (id: string) => {
+      const updatedNodes = updateNode(nodes, id, {})
+      const targetNode = flattenTree(updatedNodes).find(
+        ({ node }) => node.id === id
+      )?.node
+      if (targetNode) {
+        const newNodes = updateNode(nodes, id, {
+          isExpanded: !targetNode.isExpanded,
+        })
+        onNodesChange(newNodes)
+      }
+    },
+    [nodes, onNodesChange, updateNode, flattenTree]
+  )
+
+  const handleRename = useCallback(
+    (id: string, name: string) => {
+      const newNodes = updateNode(nodes, id, { name })
       onNodesChange(newNodes)
-    }
-  }, [nodes, onNodesChange, updateNode, flattenTree])
+    },
+    [nodes, onNodesChange, updateNode]
+  )
 
-  const handleRename = useCallback((id: string, name: string) => {
-    const newNodes = updateNode(nodes, id, { name })
-    onNodesChange(newNodes)
-  }, [nodes, onNodesChange, updateNode])
+  const handleDelete = useCallback(
+    (id: string) => {
+      const newNodes = deleteNode(nodes, id)
+      onNodesChange(newNodes)
+    },
+    [nodes, onNodesChange, deleteNode]
+  )
 
-  const handleDelete = useCallback((id: string) => {
-    const newNodes = deleteNode(nodes, id)
-    onNodesChange(newNodes)
-  }, [nodes, onNodesChange, deleteNode])
-
-  const handleAddChild = useCallback((parentId: string) => {
-    const newNodes = addChildNode(nodes, parentId)
-    onNodesChange(newNodes)
-  }, [nodes, onNodesChange, addChildNode])
+  const handleAddChild = useCallback(
+    (parentId: string) => {
+      const newNodes = addChildNode(nodes, parentId)
+      onNodesChange(newNodes)
+    },
+    [nodes, onNodesChange, addChildNode]
+  )
 
   const flattenedNodes = flattenTree(nodes)
 
@@ -356,7 +419,7 @@ export interface DivisionTreeProps {
 
 export function DivisionTree({ data, onChange, className }: DivisionTreeProps) {
   const [activeId, setActiveId] = useState<string | null>(null)
-  
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -370,7 +433,7 @@ export function DivisionTree({ data, onChange, className }: DivisionTreeProps) {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
-    
+
     if (active.id !== over?.id) {
       // Find the active and over nodes
       const flattenTree = (nodes: DivisionNode[]): DivisionNode[] => {
@@ -427,13 +490,13 @@ export function DivisionTree({ data, onChange, className }: DivisionTreeProps) {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <SortableContext 
+        <SortableContext
           items={data.map(node => node.id)}
           strategy={verticalListSortingStrategy}
         >
           <Tree nodes={data} onNodesChange={onChange} />
         </SortableContext>
-        
+
         <DragOverlay>
           {activeId ? (
             <div className="p-2 bg-background border rounded-lg shadow-lg">

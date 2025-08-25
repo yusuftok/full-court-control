@@ -9,7 +9,7 @@ This design guide outlines a comprehensive tree hierarchy visualization system s
 ### Core Principles
 
 1. **Visual Clarity First**: Every design decision prioritizes immediate understanding of hierarchical relationships
-2. **Professional Aesthetics**: Clean, modern styling that conveys competence and reliability  
+2. **Professional Aesthetics**: Clean, modern styling that conveys competence and reliability
 3. **Turkish Context**: Designed specifically for Turkish construction professionals with appropriate terminology
 4. **Rapid Development**: Built with existing component libraries and proven patterns for quick implementation
 5. **Accessibility by Default**: WCAG compliant with keyboard navigation and screen reader support
@@ -28,24 +28,28 @@ This design guide outlines a comprehensive tree hierarchy visualization system s
 #### Primary Connection Styles
 
 **Standard Lines (Default)**
+
 - Clean 1px solid lines in slate-300 (#cbd5e1)
 - Dark mode: slate-600 (#475569)
 - Hover state: Interactive blue highlighting
 - Best for: General use, clear hierarchy indication
 
 **Curved Connections**
+
 - SVG-based smooth curves with 4px radius
 - More modern, organic feel
 - Better for complex nested structures
 - Best for: Marketing materials, client presentations
 
 **Dotted Style**
+
 - 2px dotted border pattern
-- Subtle, less overwhelming appearance  
+- Subtle, less overwhelming appearance
 - Good for dense information displays
 - Best for: Technical documentation, detailed views
 
 **Minimal Style**
+
 - No connection lines, relies on indentation only
 - Clean, modern aesthetic
 - Faster rendering performance
@@ -70,14 +74,15 @@ This design guide outlines a comprehensive tree hierarchy visualization system s
 ### 2. Node Styling Framework
 
 #### Node Structure
+
 ```jsx
 <div className="tree-node">
   {/* Priority Indicator */}
   <div className="priority-bar" />
-  
+
   {/* Connection Lines */}
   <div className="connection-lines" />
-  
+
   {/* Node Content */}
   <div className="node-content">
     <Button className="expand-button" />
@@ -92,18 +97,21 @@ This design guide outlines a comprehensive tree hierarchy visualization system s
 #### Visual Enhancement Features
 
 **Hover Effects**
+
 - Subtle scale transform (1.02x)
 - Soft shadow elevation
 - Connection line highlighting
 - Action button reveal animation
 
 **Selection States**
+
 - Blue-tinted background (#eff6ff)
 - Border highlighting (#dbeafe)
 - Enhanced shadow depth
 - Connection line emphasis
 
 **Priority Indicators**
+
 - Left-border color coding:
   - Critical: Red (#ef4444)
   - High: Orange (#f97316)
@@ -115,6 +123,7 @@ This design guide outlines a comprehensive tree hierarchy visualization system s
 #### Construction Industry Icons
 
 **Project Type Icons**
+
 - Building2: Main project/building
 - Calendar: Project phases
 - Package: Project sections
@@ -125,6 +134,7 @@ This design guide outlines a comprehensive tree hierarchy visualization system s
 - Clock: Milestones
 
 **Icon Styling**
+
 ```css
 .tree-icon {
   width: 32px;
@@ -145,21 +155,25 @@ This design guide outlines a comprehensive tree hierarchy visualization system s
 #### Status Color Palette
 
 **Tamamlanan (Completed)**
+
 - Background: #dcfce7 (green-100)
 - Text: #166534 (green-800)
 - Border: #bbf7d0 (green-200)
 
 **Devam Eden (In Progress)**
+
 - Background: #dbeafe (blue-100)
 - Text: #1e40af (blue-800)
 - Border: #93c5fd (blue-200)
 
 **Planlanan (Planned)**
+
 - Background: #f1f5f9 (slate-100)
 - Text: #475569 (slate-600)
 - Border: #e2e8f0 (slate-200)
 
 **Beklemede (On Hold)**
+
 - Background: #fee2e2 (red-100)
 - Text: #991b1b (red-800)
 - Border: #fecaca (red-200)
@@ -167,21 +181,25 @@ This design guide outlines a comprehensive tree hierarchy visualization system s
 #### Priority Color System
 
 **Kritik (Critical)**
+
 - Indicator: #dc2626 (red-600)
 - Badge: Red color scheme
 - Visual weight: Bold, attention-grabbing
 
 **Yüksek (High)**
+
 - Indicator: #ea580c (orange-600)
 - Badge: Orange color scheme
 - Visual weight: Prominent
 
 **Orta (Medium)**
+
 - Indicator: #d97706 (yellow-600)
 - Badge: Yellow color scheme
 - Visual weight: Standard
 
 **Düşük (Low)**
+
 - Indicator: #16a34a (green-600)
 - Badge: Green color scheme
 - Visual weight: Subtle
@@ -222,6 +240,7 @@ ProjectTreeEditor (Construction-Specific)
 ### Performance Optimizations
 
 #### Virtualization Support
+
 ```jsx
 // For large datasets (1000+ nodes)
 import { FixedSizeList as List } from 'react-window'
@@ -239,6 +258,7 @@ const VirtualizedTree = ({ nodes }) => (
 ```
 
 #### Lazy Loading
+
 ```jsx
 // Load children on expansion
 const [loadedChildren, setLoadedChildren] = useState<Set<string>>(new Set())
@@ -256,17 +276,16 @@ const handleExpand = async (nodeId: string) => {
 ### Accessibility Features
 
 #### Keyboard Navigation
+
 - Tab: Navigate between nodes
 - Enter/Space: Select node
 - Arrow keys: Navigate hierarchy
 - Home/End: Jump to first/last node
 
 #### Screen Reader Support
+
 ```jsx
-<div 
-  role="tree"
-  aria-label="Proje yapısı ağaç görünümü"
->
+<div role="tree" aria-label="Proje yapısı ağaç görünümü">
   <div
     role="treeitem"
     aria-expanded={isExpanded}
@@ -283,12 +302,13 @@ const handleExpand = async (nodeId: string) => {
 ## Usage Patterns
 
 ### Basic Implementation
+
 ```jsx
 import { TreeHierarchy } from '@/components/ui/tree-hierarchy'
 
 const MyProjectTree = () => {
   const [selectedId, setSelectedId] = useState<string>()
-  
+
   return (
     <TreeHierarchy
       data={projectData}
@@ -302,12 +322,13 @@ const MyProjectTree = () => {
 ```
 
 ### Advanced Construction Project
+
 ```jsx
 import { ProjectTreeEditor } from '@/components/templates/project-tree-editor'
 
 const ConstructionProjectEditor = () => {
   const [projectData, setProjectData] = useState(initialData)
-  
+
   return (
     <ProjectTreeEditor
       data={projectData}
@@ -321,6 +342,7 @@ const ConstructionProjectEditor = () => {
 ```
 
 ### Connection Style Variations
+
 ```jsx
 import { AdvancedTreeHierarchy } from '@/components/ui/tree-hierarchy-advanced'
 
@@ -341,6 +363,7 @@ const StyleVariationDemo = () => {
 ### Industry-Specific Terminology
 
 **Project Structure**
+
 - Proje (Project)
 - Faz (Phase)
 - Bölüm (Section)
@@ -350,12 +373,14 @@ const StyleVariationDemo = () => {
 - Kilometre Taşı (Milestone)
 
 **Status Terms**
+
 - Tamamlanan (Completed)
 - Devam Eden (In Progress)
 - Planlanan (Planned)
 - Beklemede (On Hold)
 
 **Priority Levels**
+
 - Kritik (Critical)
 - Yüksek (High)
 - Orta (Medium)
@@ -364,18 +389,21 @@ const StyleVariationDemo = () => {
 ### Cultural Design Considerations
 
 **Professional Trust**
+
 - Clean, conservative styling
 - Authoritative color palette
 - Clear hierarchy indication
 - No overly playful elements
 
 **Information Density**
+
 - Turkish text tends to be longer
 - Allow for text overflow handling
 - Responsive design for mobile use
 - Clear typography hierarchy
 
 **Construction Industry Needs**
+
 - Quick visual scanning
 - Status at-a-glance
 - Priority highlighting
@@ -384,6 +412,7 @@ const StyleVariationDemo = () => {
 ## Best Practices
 
 ### Do's
+
 - Use consistent indentation (24px per level)
 - Provide clear visual feedback for all interactions
 - Implement proper loading states
@@ -394,6 +423,7 @@ const StyleVariationDemo = () => {
 - Include progress indicators where appropriate
 
 ### Don'ts
+
 - Don't make connection lines too thick (>2px)
 - Don't use too many colors simultaneously
 - Don't skip responsive breakpoints
@@ -420,6 +450,7 @@ const StyleVariationDemo = () => {
 ## Future Enhancements
 
 ### Planned Features
+
 1. **Drag & Drop Reordering**: Allow hierarchy restructuring
 2. **Bulk Operations**: Multi-select for batch actions
 3. **Export Options**: PDF/Excel export functionality
@@ -430,6 +461,7 @@ const StyleVariationDemo = () => {
 8. **Mobile App Support**: React Native compatibility
 
 ### Integration Opportunities
+
 - **Project Management Tools**: Jira, Trello integration
 - **CAD Software**: AutoCAD, SketchUp connections
 - **Financial Systems**: Cost tracking integration

@@ -1,7 +1,13 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { FormProvider, useForm } from 'react-hook-form'
-import { FormField, TextField, TextAreaField, NumberField, FormSection } from './form-field'
+import {
+  FormField,
+  TextField,
+  TextAreaField,
+  NumberField,
+  FormSection,
+} from './form-field'
 
 // Mock UI components
 jest.mock('@/components/ui/input', () => ({
@@ -11,9 +17,7 @@ jest.mock('@/components/ui/input', () => ({
 }))
 
 jest.mock('@/components/ui/label', () => ({
-  Label: ({ children, ...props }: any) => (
-    <label {...props}>{children}</label>
-  ),
+  Label: ({ children, ...props }: any) => <label {...props}>{children}</label>,
 }))
 
 // Test wrapper component with react-hook-form context
@@ -23,9 +27,17 @@ interface TestFormWrapperProps {
   errors?: any
 }
 
-function TestFormWrapper({ children, defaultValues = {}, errors = {} }: TestFormWrapperProps) {
+function TestFormWrapper({
+  children,
+  defaultValues = {},
+  errors = {},
+}: TestFormWrapperProps) {
   const mockForm = {
-    register: jest.fn((name: string) => ({ name, onChange: jest.fn(), onBlur: jest.fn() })),
+    register: jest.fn((name: string) => ({
+      name,
+      onChange: jest.fn(),
+      onBlur: jest.fn(),
+    })),
     formState: { errors },
     handleSubmit: jest.fn(),
     watch: jest.fn(),
@@ -35,7 +47,9 @@ function TestFormWrapper({ children, defaultValues = {}, errors = {} }: TestForm
   }
 
   // Mock useFormContext to return our mock form
-  jest.spyOn(require('react-hook-form'), 'useFormContext').mockReturnValue(mockForm)
+  jest
+    .spyOn(require('react-hook-form'), 'useFormContext')
+    .mockReturnValue(mockForm)
 
   return <div>{children}</div>
 }
@@ -71,7 +85,11 @@ describe('FormField Component', () => {
     it('renders description when provided', () => {
       render(
         <TestFormWrapper>
-          <FormField name="test" label="Test Field" description="Test description" />
+          <FormField
+            name="test"
+            label="Test Field"
+            description="Test description"
+          />
         </TestFormWrapper>
       )
 
@@ -103,7 +121,11 @@ describe('FormField Component', () => {
       )
 
       const label = screen.getByText('Test Field')
-      expect(label).toHaveClass("after:content-['*']", 'after:ml-0.5', 'after:text-destructive')
+      expect(label).toHaveClass(
+        "after:content-['*']",
+        'after:ml-0.5',
+        'after:text-destructive'
+      )
     })
 
     it('does not show asterisk for non-required fields', () => {
@@ -121,7 +143,7 @@ describe('FormField Component', () => {
   describe('Error Handling', () => {
     it('displays error message when field has error', () => {
       const errors = {
-        test: { message: 'This field is required' }
+        test: { message: 'This field is required' },
       }
 
       render(
@@ -135,7 +157,7 @@ describe('FormField Component', () => {
 
     it('applies error styling to label when field has error', () => {
       const errors = {
-        test: { message: 'This field is required' }
+        test: { message: 'This field is required' },
       }
 
       render(
@@ -150,7 +172,7 @@ describe('FormField Component', () => {
 
     it('applies error styling to input when field has error', () => {
       const errors = {
-        test: { message: 'This field is required' }
+        test: { message: 'This field is required' },
       }
 
       render(
@@ -160,12 +182,15 @@ describe('FormField Component', () => {
       )
 
       const input = screen.getByTestId('input')
-      expect(input).toHaveClass('border-destructive', 'focus:border-destructive')
+      expect(input).toHaveClass(
+        'border-destructive',
+        'focus:border-destructive'
+      )
     })
 
     it('sets aria-invalid when field has error', () => {
       const errors = {
-        test: { message: 'This field is required' }
+        test: { message: 'This field is required' },
       }
 
       render(
@@ -197,20 +222,27 @@ describe('FormField Component', () => {
     it('sets aria-describedby for description', () => {
       render(
         <TestFormWrapper>
-          <FormField name="test" label="Test Field" description="Test description" />
+          <FormField
+            name="test"
+            label="Test Field"
+            description="Test description"
+          />
         </TestFormWrapper>
       )
 
       const input = screen.getByTestId('input')
       const description = screen.getByText('Test description')
 
-      expect(input).toHaveAttribute('aria-describedby', 'field-test-description')
+      expect(input).toHaveAttribute(
+        'aria-describedby',
+        'field-test-description'
+      )
       expect(description).toHaveAttribute('id', 'field-test-description')
     })
 
     it('sets aria-describedby for error message', () => {
       const errors = {
-        test: { message: 'This field is required' }
+        test: { message: 'This field is required' },
       }
 
       render(
@@ -229,17 +261,24 @@ describe('FormField Component', () => {
 
     it('combines aria-describedby for both description and error', () => {
       const errors = {
-        test: { message: 'This field is required' }
+        test: { message: 'This field is required' },
       }
 
       render(
         <TestFormWrapper errors={errors}>
-          <FormField name="test" label="Test Field" description="Test description" />
+          <FormField
+            name="test"
+            label="Test Field"
+            description="Test description"
+          />
         </TestFormWrapper>
       )
 
       const input = screen.getByTestId('input')
-      expect(input).toHaveAttribute('aria-describedby', 'field-test-description field-test-error')
+      expect(input).toHaveAttribute(
+        'aria-describedby',
+        'field-test-description field-test-error'
+      )
     })
   })
 
@@ -247,7 +286,11 @@ describe('FormField Component', () => {
     it('applies custom className', () => {
       render(
         <TestFormWrapper>
-          <FormField name="test" className="custom-field" data-testid="field-wrapper" />
+          <FormField
+            name="test"
+            className="custom-field"
+            data-testid="field-wrapper"
+          />
         </TestFormWrapper>
       )
 
@@ -384,9 +427,17 @@ describe('TextAreaField Component', () => {
 
     const textarea = screen.getByRole('textbox')
     expect(textarea).toHaveClass(
-      'flex', 'min-h-[60px]', 'w-full', 'rounded-md',
-      'border', 'border-input', 'bg-background', 'px-3', 'py-2',
-      'text-sm', 'resize-none'
+      'flex',
+      'min-h-[60px]',
+      'w-full',
+      'rounded-md',
+      'border',
+      'border-input',
+      'bg-background',
+      'px-3',
+      'py-2',
+      'text-sm',
+      'resize-none'
     )
   })
 })
@@ -477,15 +528,17 @@ describe('FormSection Component', () => {
 
   it('renders description when provided', () => {
     render(
-      <FormSection 
-        title="Personal Information" 
+      <FormSection
+        title="Personal Information"
         description="Please provide your personal details"
       >
         <div>Content</div>
       </FormSection>
     )
 
-    expect(screen.getByText('Please provide your personal details')).toBeInTheDocument()
+    expect(
+      screen.getByText('Please provide your personal details')
+    ).toBeInTheDocument()
   })
 
   it('does not render header section when no title or description', () => {

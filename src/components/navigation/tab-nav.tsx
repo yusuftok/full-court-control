@@ -1,12 +1,12 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { LucideIcon } from "lucide-react"
+import * as React from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { LucideIcon } from 'lucide-react'
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 
 export interface TabNavItem {
   id: string
@@ -20,38 +20,35 @@ export interface TabNavItem {
 interface TabNavProps {
   items: TabNavItem[]
   className?: string
-  variant?: "default" | "pills" | "underline"
+  variant?: 'default' | 'pills' | 'underline'
 }
 
-export function TabNav({ 
-  items, 
-  className,
-  variant = "default"
-}: TabNavProps) {
+export function TabNav({ items, className, variant = 'default' }: TabNavProps) {
   const pathname = usePathname()
 
   const isActive = (href: string) => {
-    return pathname === href || pathname.startsWith(href + "/")
+    return pathname === href || pathname.startsWith(href + '/')
   }
 
-  const baseStyles = "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50"
-  
+  const baseStyles =
+    'inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50'
+
   const variantStyles = {
     default: {
-      container: "border-b",
-      item: "border-b-2 border-transparent px-4 py-2 hover:text-foreground data-[active=true]:border-primary data-[active=true]:text-foreground",
-      active: ""
+      container: 'border-b',
+      item: 'border-b-2 border-transparent px-4 py-2 hover:text-foreground data-[active=true]:border-primary data-[active=true]:text-foreground',
+      active: '',
     },
     pills: {
-      container: "bg-muted p-1 rounded-lg",
-      item: "px-3 py-1.5 rounded-md hover:bg-background hover:text-foreground data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm",
-      active: ""
+      container: 'bg-muted p-1 rounded-lg',
+      item: 'px-3 py-1.5 rounded-md hover:bg-background hover:text-foreground data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-sm',
+      active: '',
     },
     underline: {
-      container: "",
-      item: "relative px-4 py-2 text-muted-foreground hover:text-foreground data-[active=true]:text-foreground after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-primary after:opacity-0 after:transition-opacity data-[active=true]:after:opacity-100",
-      active: ""
-    }
+      container: '',
+      item: 'relative px-4 py-2 text-muted-foreground hover:text-foreground data-[active=true]:text-foreground after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-primary after:opacity-0 after:transition-opacity data-[active=true]:after:opacity-100',
+      active: '',
+    },
   }
 
   const styles = variantStyles[variant]
@@ -59,10 +56,10 @@ export function TabNav({
   return (
     <nav className={cn(styles.container, className)}>
       <div className="flex items-center space-x-1">
-        {items.map((item) => {
+        {items.map(item => {
           const Icon = item.icon
           const active = isActive(item.href)
-          
+
           if (item.disabled) {
             return (
               <div
@@ -70,7 +67,7 @@ export function TabNav({
                 className={cn(
                   baseStyles,
                   styles.item,
-                  "cursor-not-allowed opacity-50"
+                  'cursor-not-allowed opacity-50'
                 )}
               >
                 {Icon && <Icon className="size-4" />}
@@ -88,22 +85,20 @@ export function TabNav({
             <Link
               key={item.id}
               href={item.href}
-              className={cn(
-                baseStyles,
-                styles.item,
-                "text-muted-foreground"
-              )}
+              className={cn(baseStyles, styles.item, 'text-muted-foreground')}
               data-active={active}
             >
               {Icon && <Icon className="size-4" />}
               <span>{item.label}</span>
               {item.badge && (
-                <span className={cn(
-                  "inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full",
-                  active 
-                    ? "bg-primary/10 text-primary" 
-                    : "bg-muted text-muted-foreground"
-                )}>
+                <span
+                  className={cn(
+                    'inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full',
+                    active
+                      ? 'bg-primary/10 text-primary'
+                      : 'bg-muted text-muted-foreground'
+                  )}
+                >
                   {item.badge}
                 </span>
               )}
@@ -124,13 +119,13 @@ export function MobileTabNav({
   items,
   maxVisibleItems = 3,
   className,
-  variant = "default"
+  variant = 'default',
 }: MobileTabNavProps) {
   const pathname = usePathname()
   const [showAll, setShowAll] = React.useState(false)
 
   const isActive = (href: string) => {
-    return pathname === href || pathname.startsWith(href + "/")
+    return pathname === href || pathname.startsWith(href + '/')
   }
 
   const visibleItems = showAll ? items : items.slice(0, maxVisibleItems)
@@ -153,7 +148,9 @@ export function MobileTabNav({
               size="sm"
               onClick={() => setShowAll(!showAll)}
             >
-              {showAll ? "Show Less" : `Show ${items.length - maxVisibleItems} More`}
+              {showAll
+                ? 'Show Less'
+                : `Show ${items.length - maxVisibleItems} More`}
             </Button>
           </div>
         )}
@@ -170,8 +167,8 @@ interface ScrollableTabNavProps extends TabNavProps {
 export function ScrollableTabNav({
   items,
   className,
-  variant = "default",
-  showScrollButtons = true
+  variant = 'default',
+  showScrollButtons = true,
 }: ScrollableTabNavProps) {
   const scrollRef = React.useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = React.useState(false)
@@ -191,7 +188,7 @@ export function ScrollableTabNav({
     if (element) {
       element.addEventListener('scroll', checkScroll)
       window.addEventListener('resize', checkScroll)
-      
+
       return () => {
         element.removeEventListener('scroll', checkScroll)
         window.removeEventListener('resize', checkScroll)
@@ -204,13 +201,13 @@ export function ScrollableTabNav({
       const scrollAmount = 200
       scrollRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
+        behavior: 'smooth',
       })
     }
   }
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn('relative', className)}>
       {showScrollButtons && canScrollLeft && (
         <Button
           variant="ghost"
@@ -221,15 +218,15 @@ export function ScrollableTabNav({
           ←
         </Button>
       )}
-      
-      <div 
+
+      <div
         ref={scrollRef}
         className="overflow-x-auto scrollbar-hide"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         <TabNav items={items} variant={variant} />
       </div>
-      
+
       {showScrollButtons && canScrollRight && (
         <Button
           variant="ghost"

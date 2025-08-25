@@ -1,31 +1,46 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { useTranslations } from "next-intl"
-import { Building2, Mail } from "lucide-react"
+import * as React from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useTranslations } from 'next-intl'
+import { Building2, Mail } from 'lucide-react'
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { OTPInput } from "@/components/form/otp-input"
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { OTPInput } from '@/components/form/otp-input'
 
-const createEmailSchema = (t: any) => z.object({
-  email: z.string().email(t('validation.invalidEmail')),
-})
+const createEmailSchema = (t: any) =>
+  z.object({
+    email: z.string().email(t('validation.invalidEmail')),
+  })
 
-const createOtpSchema = (t: any) => z.object({
-  otp: z.string().min(6, t('validation.invalidOtp')),
-})
+const createOtpSchema = (t: any) =>
+  z.object({
+    otp: z.string().min(6, t('validation.invalidOtp')),
+  })
 
 export default function SignInPage() {
   const t = useTranslations()
-  const [step, setStep] = React.useState<"email" | "otp">("email")
-  const [email, setEmail] = React.useState("")
+  const [step, setStep] = React.useState<'email' | 'otp'>('email')
+  const [email, setEmail] = React.useState('')
   const [isLoading, setIsLoading] = React.useState(false)
   const [canResend, setCanResend] = React.useState(false)
   const [countdown, setCountdown] = React.useState(0)
@@ -38,12 +53,12 @@ export default function SignInPage() {
 
   const emailForm = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
-    defaultValues: { email: "" }
+    defaultValues: { email: '' },
   })
 
   const otpForm = useForm<OTPFormData>({
     resolver: zodResolver(otpSchema),
-    defaultValues: { otp: "" }
+    defaultValues: { otp: '' },
   })
 
   // Countdown timer for resend functionality
@@ -61,18 +76,18 @@ export default function SignInPage() {
     try {
       // TODO: Integrate with Supabase Auth
       // await supabase.auth.signInWithOtp({ email: data.email })
-      
-      console.log("Sending OTP to:", data.email)
-      
+
+      console.log('Sending OTP to:', data.email)
+
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500))
-      
+
       setEmail(data.email)
-      setStep("otp")
+      setStep('otp')
       setCountdown(60)
       setCanResend(false)
     } catch (error) {
-      console.error("Error sending OTP:", error)
+      console.error('Error sending OTP:', error)
       // TODO: Show error message
     } finally {
       setIsLoading(false)
@@ -84,19 +99,18 @@ export default function SignInPage() {
     try {
       // TODO: Integrate with Supabase Auth
       // await supabase.auth.verifyOtp({ email, token: data.otp, type: 'email' })
-      
-      console.log("Verifying OTP:", data.otp, "for email:", email)
-      
+
+      console.log('Verifying OTP:', data.otp, 'for email:', email)
+
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500))
-      
+
       // TODO: Redirect to dashboard after successful verification
-      console.log("OTP verified successfully")
-      
+      console.log('OTP verified successfully')
     } catch (error) {
-      console.error("Error verifying OTP:", error)
+      console.error('Error verifying OTP:', error)
       // TODO: Show error message
-      otpForm.setError("otp", { message: t('auth.invalidOtp') })
+      otpForm.setError('otp', { message: t('auth.invalidOtp') })
     } finally {
       setIsLoading(false)
     }
@@ -104,24 +118,24 @@ export default function SignInPage() {
 
   const handleResendOTP = async () => {
     if (!canResend) return
-    
+
     setIsLoading(true)
     try {
       // TODO: Integrate with Supabase Auth
       // await supabase.auth.signInWithOtp({ email })
-      
-      console.log("Resending OTP to:", email)
-      
+
+      console.log('Resending OTP to:', email)
+
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
+
       setCountdown(60)
       setCanResend(false)
-      
+
       // Clear any existing OTP
       otpForm.reset()
     } catch (error) {
-      console.error("Error resending OTP:", error)
+      console.error('Error resending OTP:', error)
       // TODO: Show error message
     } finally {
       setIsLoading(false)
@@ -129,8 +143,8 @@ export default function SignInPage() {
   }
 
   const handleBackToEmail = () => {
-    setStep("email")
-    setEmail("")
+    setStep('email')
+    setEmail('')
     otpForm.reset()
     setCanResend(false)
     setCountdown(0)
@@ -146,19 +160,23 @@ export default function SignInPage() {
             </div>
           </div>
           <CardTitle className="text-2xl">
-            {step === "email" ? "Tekrar Hoşgeldiniz" : "E-postanızı Kontrol Edin"}
+            {step === 'email'
+              ? 'Tekrar Hoşgeldiniz'
+              : 'E-postanızı Kontrol Edin'}
           </CardTitle>
           <CardDescription>
-            {step === "email" 
-              ? "Hesabınıza giriş yapmak için e-posta adresinizi girin" 
-              : `${email} adresine doğrulama kodu gönderdik`
-            }
+            {step === 'email'
+              ? 'Hesabınıza giriş yapmak için e-posta adresinizi girin'
+              : `${email} adresine doğrulama kodu gönderdik`}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {step === "email" ? (
+          {step === 'email' ? (
             <Form {...emailForm}>
-              <form onSubmit={emailForm.handleSubmit(handleEmailSubmit)} className="space-y-4">
+              <form
+                onSubmit={emailForm.handleSubmit(handleEmailSubmit)}
+                className="space-y-4"
+              >
                 <FormField
                   control={emailForm.control}
                   name="email"
@@ -182,13 +200,16 @@ export default function SignInPage() {
                   )}
                 />
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Kod Gönderiliyor..." : "Doğrulama Kodu Gönder"}
+                  {isLoading ? 'Kod Gönderiliyor...' : 'Doğrulama Kodu Gönder'}
                 </Button>
               </form>
             </Form>
           ) : (
             <Form {...otpForm}>
-              <form onSubmit={otpForm.handleSubmit(handleOTPSubmit)} className="space-y-6">
+              <form
+                onSubmit={otpForm.handleSubmit(handleOTPSubmit)}
+                className="space-y-6"
+              >
                 <FormField
                   control={otpForm.control}
                   name="otp"
@@ -200,7 +221,7 @@ export default function SignInPage() {
                           length={6}
                           value={field.value}
                           onChange={field.onChange}
-                          onComplete={(value) => {
+                          onComplete={value => {
                             field.onChange(value)
                             // Auto-submit when complete
                             if (value.length === 6) {
@@ -215,12 +236,12 @@ export default function SignInPage() {
                     </FormItem>
                   )}
                 />
-                
+
                 <div className="space-y-4">
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Doğrulanıyor..." : "Kodu Doğrula"}
+                    {isLoading ? 'Doğrulanıyor...' : 'Kodu Doğrula'}
                   </Button>
-                  
+
                   <div className="text-center space-y-2">
                     <p className="text-sm text-muted-foreground">
                       Kodu almadınız mı?
@@ -232,13 +253,12 @@ export default function SignInPage() {
                       disabled={!canResend || isLoading}
                       className="text-sm"
                     >
-                      {canResend 
-                        ? "Kodu Tekrar Gönder" 
-                        : `${countdown}s sonra tekrar gönder`
-                      }
+                      {canResend
+                        ? 'Kodu Tekrar Gönder'
+                        : `${countdown}s sonra tekrar gönder`}
                     </Button>
                   </div>
-                  
+
                   <Button
                     type="button"
                     variant="outline"
