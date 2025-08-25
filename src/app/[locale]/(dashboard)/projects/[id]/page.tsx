@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { useParams } from 'next/navigation'
+import Link from 'next/link'
 import {
   ArrowLeft,
   Building2,
@@ -270,10 +271,10 @@ export default function ProjectDashboardPage() {
                 Aradığınız proje mevcut değil veya erişim izniniz bulunmuyor.
               </p>
               <Button asChild>
-                <a href="/dashboard">
+                <Link href="/dashboard">
                   <ArrowLeft className="size-4 mr-2" />
                   Ana Panele Dön
-                </a>
+                </Link>
               </Button>
             </div>
           </div>
@@ -299,9 +300,9 @@ export default function ProjectDashboardPage() {
             asChild
             className="construction-hover"
           >
-            <a href="/dashboard">
+            <Link href="/dashboard">
               <ArrowLeft className="size-4" />
-            </a>
+            </Link>
           </Button>
           <div>
             <h1 className="text-2xl font-semibold">{project.name}</h1>

@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 import {
   Breadcrumbs,
   generateBreadcrumbs,
@@ -7,12 +8,16 @@ import {
 } from './breadcrumbs'
 
 // Mock components
-jest.mock('next/link', () => {
-  return ({ children, href, className, ...rest }: any) => (
+vi.mock('next/link', () => {
+  const MockLink = ({ children, href, className, ...rest }: any) => (
     <a href={href} className={className} {...rest}>
       {children}
     </a>
   )
+  return {
+    default: MockLink,
+    __esModule: true,
+  }
 })
 
 // Mock icon for testing
@@ -25,7 +30,7 @@ const HomeIcon = ({ className }: { className?: string }) => (
 )
 
 // Mock Lucide icons
-jest.mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   ChevronRight: ({ className }: any) => (
     <svg data-testid="chevron-right" className={className} />
   ),

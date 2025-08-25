@@ -7,12 +7,12 @@ import {
   within,
 } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import '@testing-library/jest-dom'
+import { vi } from 'vitest'
 import DivisionTemplatesPage from './page'
 
 // Mock additional Lucide React icons used in the component
-jest.mock('lucide-react', () => {
-  const originalModule = jest.requireActual('lucide-react')
+vi.mock('lucide-react', () => {
+  const originalModule = vi.importActual('lucide-react')
   return {
     ...originalModule,
     Plus: ({ className, ...props }: any) => (
@@ -52,14 +52,14 @@ jest.mock('lucide-react', () => {
 })
 
 // Mock window.alert and window.confirm
-const mockAlert = jest.fn()
-const mockConfirm = jest.fn()
+const mockAlert = vi.fn()
+const mockConfirm = vi.fn()
 Object.defineProperty(window, 'alert', { value: mockAlert, writable: true })
 Object.defineProperty(window, 'confirm', { value: mockConfirm, writable: true })
 
 describe('DivisionTemplatesPage', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('Temel Render Testleri', () => {

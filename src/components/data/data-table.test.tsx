@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { vi } from 'vitest'
 import {
   DataTable,
   DataTableSkeleton,
@@ -10,7 +11,7 @@ import {
 } from './data-table'
 
 // Mock UI components
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, className, ...props }: any) => (
     <button onClick={onClick} className={className} {...props}>
       {children}
@@ -172,7 +173,7 @@ describe('DataTable Component', () => {
   })
 
   describe('Sorting Functionality', () => {
-    const mockOnSort = jest.fn()
+    const mockOnSort = vi.fn()
 
     beforeEach(() => {
       mockOnSort.mockClear()
@@ -256,7 +257,7 @@ describe('DataTable Component', () => {
   })
 
   describe('Row Interaction', () => {
-    const mockOnRowClick = jest.fn()
+    const mockOnRowClick = vi.fn()
 
     beforeEach(() => {
       mockOnRowClick.mockClear()
@@ -356,7 +357,7 @@ describe('DataTable Component', () => {
         <DataTable
           data={sampleData}
           columns={sampleColumns}
-          onSort={jest.fn()}
+          onSort={vi.fn()}
         />
       )
 
@@ -408,9 +409,9 @@ describe('DataTableSkeleton Component', () => {
 
 describe('TableAction Component', () => {
   const mockHandlers = {
-    onView: jest.fn(),
-    onEdit: jest.fn(),
-    onDelete: jest.fn(),
+    onView: vi.fn(),
+    onEdit: vi.fn(),
+    onDelete: vi.fn(),
   }
 
   beforeEach(() => {
@@ -453,7 +454,7 @@ describe('TableAction Component', () => {
       <TableAction
         className="custom-actions"
         data-testid="table-action"
-        onEdit={jest.fn()}
+        onEdit={vi.fn()}
       />
     )
 

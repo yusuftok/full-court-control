@@ -1,3 +1,6 @@
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+import storybook from "eslint-plugin-storybook";
+
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { FlatCompat } from '@eslint/eslintrc'
@@ -9,29 +12,25 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 })
 
-const eslintConfig = [
-  {
-    ignores: [
-      'node_modules/**',
-      '.next/**',
-      'out/**',
-      'build/**',
-      'dist/**',
-      '.prettierrc',
-      '*.config.js',
-      '*.config.mjs',
-      'jest.config.js',
-      'jest.setup.js',
-    ],
+const eslintConfig = [{
+  ignores: [
+    'node_modules/**',
+    '.next/**',
+    'out/**',
+    'build/**',
+    'dist/**',
+    '.prettierrc',
+    '*.config.js',
+    '*.config.mjs',
+    'jest.config.js',
+    'jest.setup.js',
+  ],
+}, ...compat.extends('next/core-web-vitals', 'next/typescript'), {
+  files: ['**/*.{js,jsx,ts,tsx}'],
+  languageOptions: {
+    ecmaVersion: 2024,
+    sourceType: 'module',
   },
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
-  {
-    files: ['**/*.{js,jsx,ts,tsx}'],
-    languageOptions: {
-      ecmaVersion: 2024,
-      sourceType: 'module',
-    },
-  },
-]
+}, ...storybook.configs["flat/recommended"]]
 
 export default eslintConfig

@@ -6,7 +6,6 @@ import {
   PageHeader,
   PageContent,
 } from '@/components/layout/page-container'
-import { TabNav } from '@/components/navigation/tab-nav'
 import { DivisionTree, DivisionNode } from '@/components/data/division-tree'
 import { TaskManager, Task } from '@/components/data/task-manager'
 import { AnalyticsDashboard } from '@/components/data/analytics-dashboard'
@@ -15,6 +14,16 @@ import { VirtualTable } from '@/components/data/virtual-list'
 import { Button } from '@/components/ui/button'
 import { Download, Zap } from 'lucide-react'
 import { toast } from 'sonner'
+
+// Interface for virtual table data
+interface VirtualTableItem {
+  id: string
+  name: string
+  category: 'Alpha' | 'Beta' | 'Gamma' | 'Delta'
+  value: number
+  status: 'active' | 'inactive' | 'pending'
+  date: string
+}
 
 // Mock data for demonstrations
 const initialDivisions: DivisionNode[] = [
@@ -165,7 +174,7 @@ export default function AdvancedDemoPage() {
       id: 'id',
       header: 'ID',
       width: '100px',
-      render: (item: any) => (
+      render: (item: VirtualTableItem) => (
         <span className="font-mono text-xs">{item.id}</span>
       ),
     },
@@ -173,13 +182,13 @@ export default function AdvancedDemoPage() {
       id: 'name',
       header: 'Name',
       width: '200px',
-      render: (item: any) => <span className="font-medium">{item.name}</span>,
+      render: (item: VirtualTableItem) => <span className="font-medium">{item.name}</span>,
     },
     {
       id: 'category',
       header: 'Category',
       width: '120px',
-      render: (item: any) => (
+      render: (item: VirtualTableItem) => (
         <span
           className={`px-2 py-1 rounded-full text-xs ${
             {
@@ -198,7 +207,7 @@ export default function AdvancedDemoPage() {
       id: 'value',
       header: 'Value',
       width: '100px',
-      render: (item: any) => (
+      render: (item: VirtualTableItem) => (
         <span className="font-mono">${item.value.toLocaleString()}</span>
       ),
     },
@@ -206,7 +215,7 @@ export default function AdvancedDemoPage() {
       id: 'status',
       header: 'Status',
       width: '100px',
-      render: (item: any) => (
+      render: (item: VirtualTableItem) => (
         <span
           className={`px-2 py-1 rounded-full text-xs ${
             {
@@ -224,7 +233,7 @@ export default function AdvancedDemoPage() {
       id: 'date',
       header: 'Date',
       width: '120px',
-      render: (item: any) => <span className="text-sm">{item.date}</span>,
+      render: (item: VirtualTableItem) => <span className="text-sm">{item.date}</span>,
     },
   ]
 

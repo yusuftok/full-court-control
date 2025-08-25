@@ -1,24 +1,29 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { vi } from 'vitest'
 import { TabNav, MobileTabNav, ScrollableTabNav, TabNavItem } from './tab-nav'
 
 // Mock next/navigation
-const mockUsePathname = jest.fn()
-jest.mock('next/navigation', () => ({
+const mockUsePathname = vi.fn()
+vi.mock('next/navigation', () => ({
   usePathname: () => mockUsePathname(),
 }))
 
 // Mock next/link
-jest.mock('next/link', () => {
-  return ({ children, href, className, ...props }: any) => (
+vi.mock('next/link', () => {
+  const MockLink = ({ children, href, className, ...props }: any) => (
     <a href={href} className={className} {...props}>
       {children}
     </a>
   )
+  return {
+    default: MockLink,
+    __esModule: true,
+  }
 })
 
 // Mock UI components
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, className, ...props }: any) => (
     <button onClick={onClick} className={className} {...props}>
       {children}
@@ -47,7 +52,7 @@ describe('TabNav Component', () => {
 
   beforeEach(() => {
     mockUsePathname.mockReturnValue('/dashboard')
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('Basic Rendering', () => {
@@ -289,7 +294,7 @@ describe('MobileTabNav Component', () => {
 
   beforeEach(() => {
     mockUsePathname.mockReturnValue('/item-0')
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('renders all items on desktop', () => {
@@ -351,7 +356,7 @@ describe('ScrollableTabNav Component', () => {
 
   beforeEach(() => {
     mockUsePathname.mockReturnValue('/scroll-item-0')
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Mock scrollWidth to simulate overflow
     Object.defineProperty(HTMLElement.prototype, 'scrollWidth', {
@@ -407,7 +412,7 @@ describe('ScrollableTabNav Component', () => {
     const user = userEvent.setup()
 
     // Mock scrollBy method
-    const mockScrollBy = jest.fn()
+    const mockScrollBy = vi.fn()
     Object.defineProperty(HTMLElement.prototype, 'scrollBy', {
       configurable: true,
       value: mockScrollBy,

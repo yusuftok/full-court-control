@@ -1,11 +1,12 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { vi } from 'vitest'
 import { Sidebar, MobileMenuButton } from './sidebar'
 
 // Mock usePathname to control active states
-const mockUsePathname = jest.fn()
-jest.mock('next/navigation', () => ({
-  ...jest.requireActual('next/navigation'),
+const mockUsePathname = vi.fn()
+vi.mock('next/navigation', () => ({
+  ...vi.importActual('next/navigation'),
   usePathname: () => mockUsePathname(),
 }))
 
@@ -88,7 +89,7 @@ describe('Sidebar Component', () => {
   })
 
   describe('Mobile Sidebar', () => {
-    const mockOnClose = jest.fn()
+    const mockOnClose = vi.fn()
 
     beforeEach(() => {
       mockOnClose.mockClear()
@@ -160,7 +161,7 @@ describe('Sidebar Component', () => {
     })
 
     it('does not call onClose for navigation links in desktop mode', () => {
-      const mockOnClose = jest.fn()
+      const mockOnClose = vi.fn()
       render(<Sidebar isMobile={false} onClose={mockOnClose} />)
 
       const dashboardLink = screen.getByRole('link', { name: /dashboard/i })
@@ -244,7 +245,7 @@ describe('Sidebar Component', () => {
     })
 
     it('applies correct mobile classes when open', () => {
-      render(<Sidebar isMobile={true} isOpen={true} onClose={jest.fn()} />)
+      render(<Sidebar isMobile={true} isOpen={true} onClose={vi.fn()} />)
 
       const sidebar = screen
         .getByText('Full Court Control')
@@ -259,7 +260,7 @@ describe('Sidebar Component', () => {
     })
 
     it('applies transition classes for mobile', () => {
-      render(<Sidebar isMobile={true} isOpen={false} onClose={jest.fn()} />)
+      render(<Sidebar isMobile={true} isOpen={false} onClose={vi.fn()} />)
 
       const sidebar = screen
         .getByText('Full Court Control')
@@ -287,7 +288,7 @@ describe('Sidebar Component', () => {
         <Sidebar
           isMobile={true}
           isOpen={true}
-          onClose={jest.fn()}
+    onClose={vi.fn()}
           className="custom-mobile"
         />
       )
@@ -331,7 +332,7 @@ describe('Sidebar Component', () => {
 })
 
 describe('MobileMenuButton Component', () => {
-  const mockOnClick = jest.fn()
+  const mockOnClick = vi.fn()
 
   beforeEach(() => {
     mockOnClick.mockClear()
@@ -340,14 +341,14 @@ describe('MobileMenuButton Component', () => {
   it('renders mobile menu button', () => {
     render(<MobileMenuButton onClick={mockOnClick} />)
 
-    const button = screen.getByRole('button', { name: /toggle menu/i })
+    const button = screen.getByRole('button', { name: /menüyü aç\/kapat/i })
     expect(button).toBeInTheDocument()
   })
 
   it('calls onClick when clicked', () => {
     render(<MobileMenuButton onClick={mockOnClick} />)
 
-    const button = screen.getByRole('button', { name: /toggle menu/i })
+    const button = screen.getByRole('button', { name: /menüyü aç\/kapat/i })
     fireEvent.click(button)
 
     expect(mockOnClick).toHaveBeenCalledTimes(1)
@@ -356,7 +357,7 @@ describe('MobileMenuButton Component', () => {
   it('applies mobile-only classes', () => {
     render(<MobileMenuButton onClick={mockOnClick} />)
 
-    const button = screen.getByRole('button', { name: /toggle menu/i })
+    const button = screen.getByRole('button', { name: /menüyü aç\/kapat/i })
     expect(button).toHaveClass('lg:hidden')
   })
 
@@ -365,7 +366,7 @@ describe('MobileMenuButton Component', () => {
       <MobileMenuButton onClick={mockOnClick} className="custom-mobile-btn" />
     )
 
-    const button = screen.getByRole('button', { name: /toggle menu/i })
+    const button = screen.getByRole('button', { name: /menüyü aç\/kapat/i })
     expect(button).toHaveClass('custom-mobile-btn')
   })
 
@@ -378,7 +379,7 @@ describe('MobileMenuButton Component', () => {
   it('has proper accessibility attributes', () => {
     render(<MobileMenuButton onClick={mockOnClick} />)
 
-    const button = screen.getByRole('button', { name: /toggle menu/i })
+    const button = screen.getByRole('button', { name: /menüyü aç\/kapat/i })
     expect(button).toHaveAttribute('type', 'button')
   })
 })

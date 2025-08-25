@@ -232,7 +232,7 @@ export function TemplateSelector({
             {/* No results */}
             {searchTerm && filteredTemplates.length === 0 && (
               <div className="p-4 text-center text-sm text-muted-foreground">
-                "{searchTerm}" için şablon bulunamadı
+                &quot;{searchTerm}&quot; için şablon bulunamadı
               </div>
             )}
           </div>

@@ -885,7 +885,7 @@ export default function ProjectDivisionsPage() {
                   Aktif İnşaat Bölümleri
                 </CardTitle>
                 <div className="text-sm text-muted-foreground">
-                  Toplam {currentStructure.instances.length} bölüm instance'ı
+                  Toplam {currentStructure.instances.length} bölüm instance&apos;ı
                 </div>
               </CardHeader>
               <CardContent>
