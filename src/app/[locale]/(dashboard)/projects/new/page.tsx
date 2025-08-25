@@ -258,13 +258,14 @@ export default function CreateProjectPage() {
           steps={stepConfig}
           currentStep={currentStep}
           onStepClick={handleStepClick}
+          className="mb-2"
         />
 
         {/* Ana İçerik - Current Step */}
-        <div className="mb-16">
+        <div className="mb-20">
           <div className="glass rounded-xl border border-white/10 overflow-visible">
             {/* Step Content */}
-            <div className="p-4">
+            <div className="p-0">
               <CurrentStepComponent
                 formData={formData}
                 updateFormData={updateFormData}
@@ -296,64 +297,62 @@ export default function CreateProjectPage() {
       </PageContent>
 
       {/* Fixed Navigation Footer - Always at bottom of viewport */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t border-white/10 z-40">
-        <div className="px-6 py-3">
+      <div className="fixed bottom-0 left-0 lg:left-72 right-0 bg-background/95 backdrop-blur border-t border-white/10 z-40">
+        <div className="px-4 py-3">
           {/* Navigation buttons - full width */}
-          <div className="max-w-6xl mx-auto">
-            <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between">
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              disabled={!canGoBack()}
+              className="gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Geri
+            </Button>
+
+            {/* Template Modification Choice - Inline */}
+            {currentStep === CreateProjectStep.TEMPLATE_SELECTION &&
+              templateHasModifications &&
+              formData.templateId && (
+                <div className="flex-1 max-w-sm mx-4">
+                  <ModificationChoiceDropdown
+                    value={templateModificationChoice}
+                    onChange={choice => {
+                      console.log('Modification choice selected:', choice)
+                      setTemplateModificationChoice(choice)
+                    }}
+                    className="w-full"
+                  />
+                </div>
+              )}
+
+            <div className="flex gap-3">
               <Button
                 variant="outline"
-                onClick={handleBack}
-                disabled={!canGoBack()}
-                className="gap-2"
+                onClick={() => router.push('/projects')}
               >
-                <ArrowLeft className="w-4 h-4" />
-                Geri
+                İptal
               </Button>
 
-              {/* Template Modification Choice - Inline */}
-              {currentStep === CreateProjectStep.TEMPLATE_SELECTION &&
-                templateHasModifications &&
-                formData.templateId && (
-                  <div className="flex-1 max-w-sm mx-4">
-                    <ModificationChoiceDropdown
-                      value={templateModificationChoice}
-                      onChange={choice => {
-                        console.log('Modification choice selected:', choice)
-                        setTemplateModificationChoice(choice)
-                      }}
-                      className="w-full"
-                    />
-                  </div>
-                )}
-
-              <div className="flex gap-3">
+              {currentStep === CreateProjectStep.PREVIEW ? (
                 <Button
-                  variant="outline"
-                  onClick={() => router.push('/projects')}
+                  onClick={handleCreateProject}
+                  className="bg-green-600 hover:bg-green-700 gap-2"
                 >
-                  İptal
+                  <Check className="w-4 h-4" />
+                  Projeyi Oluştur
                 </Button>
-
-                {currentStep === CreateProjectStep.PREVIEW ? (
-                  <Button
-                    onClick={handleCreateProject}
-                    className="bg-green-600 hover:bg-green-700 gap-2"
-                  >
-                    <Check className="w-4 h-4" />
-                    Projeyi Oluştur
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={handleNext}
-                    disabled={!canGoNext()}
-                    className="gap-2"
-                  >
-                    İleri
-                    <ArrowLeft className="w-4 h-4 rotate-180" />
-                  </Button>
-                )}
-              </div>
+              ) : (
+                <Button
+                  onClick={handleNext}
+                  disabled={!canGoNext()}
+                  className="gap-2"
+                >
+                  İleri
+                  <ArrowLeft className="w-4 h-4 rotate-180" />
+                </Button>
+              )}
             </div>
           </div>
         </div>

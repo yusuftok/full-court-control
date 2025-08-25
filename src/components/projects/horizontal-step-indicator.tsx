@@ -74,9 +74,9 @@ export function HorizontalStepIndicator({
   }
 
   return (
-    <div className={cn('w-full mb-2', className)}>
+    <div className={cn('w-full', className)}>
       {/* Progress Overview - Mobile/Tablet */}
-      <div className="glass rounded-xl p-2 border border-white/10 mb-1 lg:hidden">
+      <div className="glass rounded-xl p-2 border border-white/10 lg:hidden">
         <div className="flex items-center justify-center mb-2">
           <span className="text-xs font-medium">
             Adım {currentStep + 1} / {steps.length}

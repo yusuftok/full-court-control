@@ -296,8 +296,8 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
   return (
     <div className="space-y-4">
       <Card className="overflow-visible">
-        <CardContent className="pt-4 pb-4">
-          <div className="flex items-center gap-4">
+        <CardContent className="p-0">
+          <div className="flex items-center gap-4 px-4 py-1">
             <Label className="text-base font-medium whitespace-nowrap">
               Proje Şablonu *
             </Label>
