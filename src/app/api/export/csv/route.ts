@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Export error:', error)
-    return NextResponse.json({ error: 'Export failed' }, { status: 500 })
+    return NextResponse.json({ error: 'errors.exportFailed' }, { status: 500 })
   }
 }
 
@@ -365,6 +365,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Export queue error:', error)
-    return NextResponse.json({ error: 'Failed to queue export job' }, { status: 500 })
+    return NextResponse.json({ error: 'errors.exportQueueFailed' }, { status: 500 })
   }
 }

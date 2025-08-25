@@ -94,10 +94,10 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
 
 
   // Add node handler
-  const handleNodeAdd = (parentId: string | null, newName: string) => {
+  const handleNodeAdd = (parentId: string) => {
     const newNode: DivisionNode = {
       id: `division-${Date.now()}`,
-      name: newName
+      name: 'Yeni Bölüm'
     }
 
     const addToNodes = (nodes: any[]): any[] => {
@@ -299,8 +299,8 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
                 onNodeAdd={handleNodeAdd}
                 onNodeDelete={handleNodeDelete}
                 onNodeMove={handleNodeMove}
-                selectedNodeId={selectedNodeId}
-                editingNodeId={editingNodeId}
+                selectedNodeId={selectedNodeId ?? undefined}
+                editingNodeId={editingNodeId ?? undefined}
                 draggedNode={globalDraggedNode}
                 dragOverNode={globalDragOverNode}
                 dropPosition={globalDropPosition}

@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { 
   Building2, 
   Command, 
@@ -17,21 +18,21 @@ import {
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
-const navigationItems = [
+const getNavigationItems = (t: any) => [
   {
-    title: "Operasyon Merkezi",
+    title: t('navigation.dashboard'),
     href: "/dashboard",
     icon: Command,
     emoji: "🏗️"
   },
   {
-    title: "Projeler",
+    title: t('navigation.projects'),
     href: "/projects",
     icon: Building2,
     emoji: "🏢"
   },
   {
-    title: "İşler",
+    title: t('navigation.tasks'),
     href: "/tasks",
     icon: Wrench,
     emoji: "🔨"
@@ -43,13 +44,13 @@ const navigationItems = [
     emoji: "👷"
   },
   {
-    title: "Şablonlar",
+    title: t('navigation.templates'),
     href: "/settings/templates",
     icon: FolderTree,
     emoji: "📋"
   },
   {
-    title: "Ayarlar",
+    title: t('navigation.settings'),
     href: "/settings",
     icon: Settings,
     emoji: "⚙️"
@@ -65,8 +66,10 @@ interface SidebarProps {
 
 export function Sidebar({ className, isMobile = false, isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname()
+  const t = useTranslations()
   const [logoClickCount, setLogoClickCount] = React.useState(0)
   const [showEasterEgg, setShowEasterEgg] = React.useState(false)
+  const navigationItems = getNavigationItems(t)
   
   const handleLogoClick = () => {
     setLogoClickCount(prev => prev + 1)

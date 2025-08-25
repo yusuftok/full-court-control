@@ -4,6 +4,7 @@ import * as React from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { useTranslations } from "next-intl"
 import { Building2, Mail } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -13,23 +14,27 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { OTPInput } from "@/components/form/otp-input"
 
-const emailSchema = z.object({
-  email: z.string().email("Lütfen geçerli bir e-posta adresi girin"),
+const createEmailSchema = (t: any) => z.object({
+  email: z.string().email(t('validation.invalidEmail')),
 })
 
-const otpSchema = z.object({
-  otp: z.string().min(6, "Lütfen tam doğrulama kodunu girin"),
+const createOtpSchema = (t: any) => z.object({
+  otp: z.string().min(6, t('validation.invalidOtp')),
 })
-
-type EmailFormData = z.infer<typeof emailSchema>
-type OTPFormData = z.infer<typeof otpSchema>
 
 export default function SignInPage() {
+  const t = useTranslations()
   const [step, setStep] = React.useState<"email" | "otp">("email")
   const [email, setEmail] = React.useState("")
   const [isLoading, setIsLoading] = React.useState(false)
   const [canResend, setCanResend] = React.useState(false)
   const [countdown, setCountdown] = React.useState(0)
+
+  const emailSchema = createEmailSchema(t)
+  const otpSchema = createOtpSchema(t)
+
+  type EmailFormData = z.infer<typeof emailSchema>
+  type OTPFormData = z.infer<typeof otpSchema>
 
   const emailForm = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
@@ -91,7 +96,7 @@ export default function SignInPage() {
     } catch (error) {
       console.error("Error verifying OTP:", error)
       // TODO: Show error message
-      otpForm.setError("otp", { message: "Geçersiz doğrulama kodu" })
+      otpForm.setError("otp", { message: t('auth.invalidOtp') })
     } finally {
       setIsLoading(false)
     }

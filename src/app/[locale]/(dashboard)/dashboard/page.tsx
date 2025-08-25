@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslations } from "next-intl"
 import { Plus, Building2, Calendar, Users, TrendingUp, Clock, CheckCircle, AlertTriangle, BarChart3, DollarSign, Star, Wrench, Target, Activity, Timer } from "lucide-react"
 import { cn } from "@/lib/utils"
 

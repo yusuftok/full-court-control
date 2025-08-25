@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import { Toaster } from "@/components/ui/sonner";
-import QueryProvider from "@/components/providers/query-provider";
 import "./globals.css";
 
 const inter = Inter({
@@ -23,18 +21,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="tr" className="h-full">
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased font-sans h-full`}
       >
-        <QueryProvider>
-          {children}
-          <Toaster position="bottom-right" richColors />
-        </QueryProvider>
+        {children}
       </body>
     </html>
   );
