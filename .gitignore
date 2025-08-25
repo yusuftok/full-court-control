@@ -39,6 +39,33 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# project specific ignores
 src/components/examples/
 src/components/templates/project-tree-editor.tsx*
 src/components/ui/tree-hierarchy-advanced.tsx*
+
+# testing and development tools
+.playwright-mcp/
+.vitest/
+.lighthouseci/
+coverage/
+storybook-static/
+
+# IDE and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# temporary files
+*.tmp
+*.temp
+.npm/
+.pnpm/
+
+# database and ORM
+drizzle/
+
+# monitoring
+.sentryclirc
