@@ -22,7 +22,8 @@
     "success": "Success",
     "error": "Error",
     "warning": "Warning",
-    "info": "Info"
+    "info": "Info",
+    "tryDemo": "Try Demo"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -107,6 +108,12 @@
       "title": "Project Information",
       "description": "Enter the basic information of the project. This information will form the project's identity.",
       "nameHelper": "Give your project a clear and descriptive name"
+    },
+    "create": {
+      "preview": {
+        "allCompleted": "All information completed. Review the summary below and click the \"Create Project\" button.",
+        "createButton": "Click the \"Create Project\" button to save the project."
+      }
     }
   },
   "divisions": {
@@ -188,6 +195,9 @@
     "exportQueueFailed": "Failed to queue export job",
     "whatsappWebhookError": "WhatsApp webhook error",
     "processMessageError": "Error processing message",
-    "sendWhatsappError": "Failed to send WhatsApp message"
+    "sendWhatsappError": "Failed to send WhatsApp message",
+    "foreman": {
+      "reassurance": "Don't worry, boss! We'll complete this section very quickly. How about returning to base camp in the meantime?"
+    }
   }
 }

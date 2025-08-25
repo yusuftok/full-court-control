@@ -24,7 +24,15 @@ vi.mock('next/navigation', () => ({
 
 // Mock Next.js Link
 vi.mock('next/link', () => {
-  const MockLink = ({ children, href, ...rest }: { children: React.ReactNode; href: string; [key: string]: any }) => {
+  const MockLink = ({
+    children,
+    href,
+    ...rest
+  }: {
+    children: React.ReactNode
+    href: string
+    [key: string]: unknown
+  }) => {
     return React.createElement('a', { href, ...rest }, children)
   }
   MockLink.displayName = 'MockLink'
@@ -96,7 +104,10 @@ vi.mock('lucide-react', () => {
     'Zap',
   ]
 
-  const mockIcons: Record<string, React.ComponentType<any>> = {}
+  const mockIcons: Record<
+    string,
+    React.ComponentType<React.SVGProps<SVGSVGElement>>
+  > = {}
   icons.forEach(icon => {
     mockIcons[icon] = ({ className, ...props }: React.ComponentProps<'svg'>) =>
       React.createElement('svg', {
@@ -149,7 +160,8 @@ vi.mock('@tanstack/react-query', () => ({
     error: null,
   })),
   QueryClient: vi.fn(),
-  QueryClientProvider: ({ children }: { children: React.ReactNode }) => children,
+  QueryClientProvider: ({ children }: { children: React.ReactNode }) =>
+    children,
 }))
 
 // Mock @dnd-kit
@@ -218,7 +230,7 @@ vi.mock('next-intl', () => ({
     // Return Turkish translations for common keys
     const translations: Record<string, string> = {
       'sidebar.dashboard': 'Dashboard',
-      'sidebar.projects': 'Projects', 
+      'sidebar.projects': 'Projects',
       'sidebar.templates': 'Division Templates',
       'sidebar.tasks': 'Tasks',
       'sidebar.subcontractors': 'Subcontractors',

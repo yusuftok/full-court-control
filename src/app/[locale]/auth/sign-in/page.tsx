@@ -7,7 +7,6 @@ import { z } from 'zod'
 import { useTranslations } from 'next-intl'
 import { Building2, Mail } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -27,12 +26,12 @@ import {
 } from '@/components/ui/card'
 import { OTPInput } from '@/components/form/otp-input'
 
-const createEmailSchema = (t: any) =>
+const createEmailSchema = (t: (key: string) => string) =>
   z.object({
     email: z.string().email(t('validation.invalidEmail')),
   })
 
-const createOtpSchema = (t: any) =>
+const createOtpSchema = (t: (key: string) => string) =>
   z.object({
     otp: z.string().min(6, t('validation.invalidOtp')),
   })

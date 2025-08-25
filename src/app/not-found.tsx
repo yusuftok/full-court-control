@@ -1,16 +1,12 @@
-'use client'
-
 import Link from 'next/link'
+import { getLocale, getTranslations } from 'next-intl/server'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Home, ArrowLeft, Wrench } from 'lucide-react'
+import { Home, Wrench } from 'lucide-react'
 
-export default function NotFound() {
-  const handleGoBack = () => {
-    if (typeof window !== 'undefined') {
-      window.history.back()
-    }
-  }
+export default async function GlobalNotFound() {
+  const locale = await getLocale()
+  const t = await getTranslations('errors')
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -39,25 +35,16 @@ export default function NotFound() {
                 <span className="font-medium">Şantiye Şefi Diyor Ki:</span>
               </div>
               <p className="text-yellow-700 dark:text-yellow-300">
-                "Merak etmeyin şefim! Bu bölümü çok kısa sürede tamamlarız. Bu
-                arada üs kampına geri dönmeye ne dersiniz?"
+                {t('foreman.reassurance')}
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
-              <Button asChild className="flex-1 group">
-                <Link href="/dashboard">
+            <div className="pt-4">
+              <Button asChild className="group">
+                <Link href={`/${locale}/dashboard`}>
                   <Home className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
                   Operasyon Merkezine Dön
                 </Link>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleGoBack}
-                className="flex-1 group"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                Önceki Sayfa
               </Button>
             </div>
           </div>

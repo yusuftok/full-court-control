@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import {
   Calendar,
   Banknote,
@@ -37,6 +38,7 @@ const CATEGORY_LABELS = {
 }
 
 export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
+  const t = useTranslations('projects.create')
   const selectedTemplate = formData.templateId
     ? mockTemplates.find(t => t.id === formData.templateId)
     : null
@@ -78,8 +80,7 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
                 Proje Hazır!
               </h3>
               <p className="text-sm text-green-700 dark:text-green-300">
-                Tüm bilgiler tamamlandı. Aşağıdaki özeti kontrol edin ve
-                "Projeyi Oluştur" butonuna tıklayın.
+                {t('preview.allCompleted')}
               </p>
             </div>
           </div>
@@ -331,10 +332,7 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
                 <p>✅ Ana yüklenici ekibi atandı</p>
                 <p>✅ Taşeronlar seçildi</p>
                 <p>✅ Proje yapısı oluşturuldu</p>
-                <p className="mt-3 font-medium">
-                  "Projeyi Oluştur" butonuna tıklayarak projeyi
-                  kaydetebilirsiniz.
-                </p>
+                <p className="mt-3 font-medium">{t('preview.createButton')}</p>
               </div>
             </div>
           </div>
