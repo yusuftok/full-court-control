@@ -77,17 +77,14 @@ export function HorizontalStepIndicator({
     <div className={cn('w-full mb-4', className)}>
       {/* Progress Overview - Mobile/Tablet */}
       <div className="glass rounded-xl p-3 border border-white/10 mb-4 lg:hidden">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-medium">
+        <div className="flex items-center justify-center mb-2">
+          <span className="text-xs font-medium">
             Adım {currentStep + 1} / {steps.length}
           </span>
-          <span className="text-sm font-medium text-primary">
-            {getProgressPercentage()}% Tamamlandı
-          </span>
         </div>
-        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mb-2 overflow-hidden">
+        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mb-2 overflow-hidden">
           <div
-            className="bg-gradient-to-r from-primary to-primary/80 h-2 rounded-full transition-all duration-700 ease-out relative"
+            className="bg-gradient-to-r from-primary to-primary/80 h-1.5 rounded-full transition-all duration-700 ease-out relative"
             style={{ width: `${getProgressPercentage()}%` }}
           >
             {/* Animated shimmer effect */}
@@ -101,16 +98,16 @@ export function HorizontalStepIndicator({
           </div>
         </div>
         <div className="text-center">
-          <div className="font-medium text-sm">{steps[currentStep]?.title}</div>
-          <div className="text-xs opacity-75">
+          <div className="font-medium text-xs">{steps[currentStep]?.title}</div>
+          <div className="text-xs opacity-75 hidden sm:block">
             {steps[currentStep]?.description}
           </div>
         </div>
       </div>
 
       {/* Horizontal Step Navigation - Desktop */}
-      <div className="hidden lg:block glass rounded-xl border border-white/10 overflow-hidden">
-        <div className="p-4">
+      <div className="hidden lg:block glass rounded-lg border border-white/10 overflow-hidden">
+        <div className="px-4 py-3">
           <div className="flex items-center justify-between relative">
             {steps.map((step, index) => (
               <React.Fragment key={step.id}>
@@ -133,7 +130,7 @@ export function HorizontalStepIndicator({
                   {/* Step Circle */}
                   <div
                     className={cn(
-                      'relative w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300',
+                      'relative w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300',
                       'border-2 backdrop-blur-sm overflow-hidden',
                       currentStep === step.id
                         ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/30 ring-4 ring-primary/20'
@@ -165,7 +162,7 @@ export function HorizontalStepIndicator({
                     ) : (
                       <span
                         className={cn(
-                          'text-lg transition-all duration-300',
+                          'text-base transition-all duration-300',
                           hoveredStep === step.id &&
                             canClickStep(step.id) &&
                             'transform scale-110',
@@ -209,10 +206,10 @@ export function HorizontalStepIndicator({
                   </div>
 
                   {/* Step Content */}
-                  <div className="text-center mt-3 max-w-32">
+                  <div className="text-center mt-2 max-w-28">
                     <div
                       className={cn(
-                        'font-medium text-sm leading-tight mb-1 transition-all duration-300',
+                        'font-medium text-xs leading-tight mb-1 transition-all duration-300',
                         currentStep === step.id
                           ? 'text-primary font-semibold'
                           : currentStep > step.id
@@ -229,7 +226,7 @@ export function HorizontalStepIndicator({
                     </div>
                     <div
                       className={cn(
-                        'text-xs leading-tight transition-all duration-300',
+                        'text-xs leading-tight transition-all duration-300 hidden sm:block',
                         currentStep === step.id
                           ? 'text-foreground opacity-90'
                           : 'text-muted-foreground opacity-75',
@@ -246,9 +243,8 @@ export function HorizontalStepIndicator({
 
                   {/* Enhanced Active Step Indicator */}
                   {currentStep === step.id && (
-                    <div className="absolute -bottom-4 flex items-center justify-center">
-                      <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                      <div className="absolute w-4 h-4 border border-primary/30 rounded-full animate-ping" />
+                    <div className="absolute -bottom-3 flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
                     </div>
                   )}
 
@@ -264,7 +260,7 @@ export function HorizontalStepIndicator({
 
                 {/* Enhanced Connection Line */}
                 {index < steps.length - 1 && (
-                  <div className="flex-1 h-px mx-6 relative group">
+                  <div className="flex-1 h-px mx-4 relative group">
                     {/* Background line */}
                     <div className="absolute inset-0 bg-muted-foreground/20 rounded-full" />
 
@@ -324,9 +320,9 @@ export function HorizontalStepIndicator({
 
           {/* Final Step Completion Message Only */}
           {currentStep === steps.length - 1 && (
-            <div className="text-center mt-3">
+            <div className="text-center mt-2">
               <div className="text-sm font-semibold text-green-600">
-                <span className="flex items-center justify-center gap-2">
+                <span className="flex items-center justify-center gap-1">
                   <span>🎉 Proje Hazır!</span>
                 </span>
               </div>
@@ -338,7 +334,7 @@ export function HorizontalStepIndicator({
       {/* Tablet View - Simplified Horizontal */}
       <div className="hidden md:block lg:hidden glass rounded-xl border border-white/10 overflow-hidden">
         <div className="p-3">
-          <div className="flex items-center justify-center space-x-8">
+          <div className="flex items-center justify-center space-x-4">
             {steps.map((step, index) => (
               <div
                 key={step.id}
@@ -351,7 +347,7 @@ export function HorizontalStepIndicator({
                 {/* Step Circle - Smaller */}
                 <div
                   className={cn(
-                    'w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300',
+                    'w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300',
                     'border backdrop-blur-sm relative overflow-hidden',
                     currentStep === step.id
                       ? 'bg-primary border-primary text-primary-foreground shadow-lg ring-2 ring-primary/20'

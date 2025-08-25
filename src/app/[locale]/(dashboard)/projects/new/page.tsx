@@ -242,14 +242,14 @@ export default function CreateProjectPage() {
 
   return (
     <PageContainer>
-      <PageContent className="p-4">
+      <PageContent className="px-4 py-3">
         <Breadcrumbs items={breadcrumbItems} className="mb-4" />
 
-        <div className="mb-3">
+        <div className="mb-2">
           <PageHeader
             title="Yeni Proje Oluştur 🏗️"
             description="Adım adım proje bilgilerini girin ve ekip atamasını tamamlayın."
-            className="pb-1 mb-1"
+            className="pb-0 mb-0"
           />
         </div>
 
@@ -264,7 +264,7 @@ export default function CreateProjectPage() {
         <div className="mb-16">
           <div className="glass rounded-xl border border-white/10 overflow-visible">
             {/* Step Content */}
-            <div className="p-5">
+            <div className="p-4">
               <CurrentStepComponent
                 formData={formData}
                 updateFormData={updateFormData}
