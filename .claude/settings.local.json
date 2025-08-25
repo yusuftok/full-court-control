@@ -48,10 +48,14 @@
       "Bash(npm install:*)",
       "Bash(npm run typecheck:*)",
       "mcp__chrome-devtools__clear_console",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(tail:*)",
+      "Bash(sed:*)"
     ],
     "deny": [],
     "ask": [],
-    "additionalDirectories": ["/Users/yusuf.tok/.claude"]
+    "additionalDirectories": [
+      "/Users/yusuf.tok/.claude"
+    ]
   }
 }

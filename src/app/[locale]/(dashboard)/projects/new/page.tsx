@@ -262,7 +262,7 @@ export default function CreateProjectPage() {
         />
 
         {/* Ana İçerik - Current Step */}
-        <div className="mb-20">
+        <div>
           <div className="glass rounded-xl border border-white/10 overflow-visible">
             {/* Step Content */}
             <div className="p-0">
@@ -292,71 +292,68 @@ export default function CreateProjectPage() {
                 })}
               />
             </div>
-          </div>
-        </div>
-      </PageContent>
 
-      {/* Fixed Navigation Footer - Always at bottom of viewport */}
-      <div className="fixed bottom-0 left-0 lg:left-72 right-0 bg-background/95 backdrop-blur border-t border-white/10 z-40">
-        <div className="px-4 py-3">
-          {/* Navigation buttons - full width */}
-          <div className="flex items-center justify-between">
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              disabled={!canGoBack()}
-              className="gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Geri
-            </Button>
-
-            {/* Template Modification Choice - Inline */}
-            {currentStep === CreateProjectStep.TEMPLATE_SELECTION &&
-              templateHasModifications &&
-              formData.templateId && (
-                <div className="flex-1 max-w-sm mx-4">
-                  <ModificationChoiceDropdown
-                    value={templateModificationChoice}
-                    onChange={choice => {
-                      console.log('Modification choice selected:', choice)
-                      setTemplateModificationChoice(choice)
-                    }}
-                    className="w-full"
-                  />
-                </div>
-              )}
-
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => router.push('/projects')}
-              >
-                İptal
-              </Button>
-
-              {currentStep === CreateProjectStep.PREVIEW ? (
+            {/* Navigation Buttons - Inside the card */}
+            <div className="border-t border-white/10 px-4 py-2">
+              <div className="flex items-center justify-between">
                 <Button
-                  onClick={handleCreateProject}
-                  className="bg-green-600 hover:bg-green-700 gap-2"
-                >
-                  <Check className="w-4 h-4" />
-                  Projeyi Oluştur
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleNext}
-                  disabled={!canGoNext()}
+                  variant="outline"
+                  onClick={handleBack}
+                  disabled={!canGoBack()}
                   className="gap-2"
                 >
-                  İleri
-                  <ArrowLeft className="w-4 h-4 rotate-180" />
+                  <ArrowLeft className="w-4 h-4" />
+                  Geri
                 </Button>
-              )}
+
+                {/* Template Modification Choice - Inline */}
+                {currentStep === CreateProjectStep.TEMPLATE_SELECTION &&
+                  templateHasModifications &&
+                  formData.templateId && (
+                    <div className="flex-1 max-w-sm mx-4">
+                      <ModificationChoiceDropdown
+                        value={templateModificationChoice}
+                        onChange={choice => {
+                          console.log('Modification choice selected:', choice)
+                          setTemplateModificationChoice(choice)
+                        }}
+                        className="w-full"
+                      />
+                    </div>
+                  )}
+
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push('/projects')}
+                  >
+                    İptal
+                  </Button>
+
+                  {currentStep === CreateProjectStep.PREVIEW ? (
+                    <Button
+                      onClick={handleCreateProject}
+                      className="bg-green-600 hover:bg-green-700 gap-2"
+                    >
+                      <Check className="w-4 h-4" />
+                      Projeyi Oluştur
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleNext}
+                      disabled={!canGoNext()}
+                      className="gap-2"
+                    >
+                      İleri
+                      <ArrowLeft className="w-4 h-4 rotate-180" />
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </PageContent>
     </PageContainer>
   )
 }
