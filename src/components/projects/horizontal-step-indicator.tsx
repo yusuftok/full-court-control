@@ -74,9 +74,9 @@ export function HorizontalStepIndicator({
   }
 
   return (
-    <div className={cn('w-full mb-4', className)}>
+    <div className={cn('w-full mb-2', className)}>
       {/* Progress Overview - Mobile/Tablet */}
-      <div className="glass rounded-xl p-3 border border-white/10 mb-4 lg:hidden">
+      <div className="glass rounded-xl p-2 border border-white/10 mb-1 lg:hidden">
         <div className="flex items-center justify-center mb-2">
           <span className="text-xs font-medium">
             Adım {currentStep + 1} / {steps.length}
@@ -107,7 +107,7 @@ export function HorizontalStepIndicator({
 
       {/* Horizontal Step Navigation - Desktop */}
       <div className="hidden lg:block glass rounded-lg border border-white/10 overflow-hidden">
-        <div className="px-4 py-3">
+        <div className="px-4 py-1.5">
           <div className="flex items-center justify-between relative">
             {steps.map((step, index) => (
               <React.Fragment key={step.id}>
@@ -333,7 +333,7 @@ export function HorizontalStepIndicator({
 
       {/* Tablet View - Simplified Horizontal */}
       <div className="hidden md:block lg:hidden glass rounded-xl border border-white/10 overflow-hidden">
-        <div className="p-3">
+        <div className="px-3 py-1">
           <div className="flex items-center justify-center space-x-4">
             {steps.map((step, index) => (
               <div
