@@ -990,16 +990,6 @@
   }
 }
 
-/* Construction-themed whimsy animations */
-@keyframes hammer-swing {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-  50% {
-    transform: rotate(-15deg);
-  }
-}
 
 @keyframes build-up {
   0% {
@@ -1021,28 +1011,6 @@
   }
 }
 
-@keyframes construction-bounce {
-  0%,
-  20%,
-  53%,
-  80%,
-  100% {
-    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
-    transform: translate3d(0, 0, 0);
-  }
-  40%,
-  43% {
-    animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
-    transform: translate3d(0, -8px, 0);
-  }
-  70% {
-    animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
-    transform: translate3d(0, -4px, 0);
-  }
-  90% {
-    transform: translate3d(0, -1px, 0);
-  }
-}
 
 @keyframes progress-crane {
   0% {
@@ -1189,10 +1157,6 @@
   }
 }
 
-/* Construction-themed utility classes */
-.animate-hammer-swing {
-  animation: hammer-swing 0.6s ease-in-out;
-}
 
 /* Confetti celebration animations */
 @keyframes confetti-fall {
@@ -1230,18 +1194,6 @@
   }
 }
 
-@keyframes construction-cheer {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(-10deg);
-  }
-  75% {
-    transform: rotate(10deg);
-  }
-}
 
 @keyframes project-complete {
   0% {
@@ -1264,9 +1216,6 @@
   animation: confetti-fall 3s ease-out;
 }
 
-.animate-construction-cheer {
-  animation: construction-cheer 0.5s ease-in-out 3;
-}
 
 .animate-project-complete {
   animation: project-complete 0.8s ease-in-out;
@@ -1276,9 +1225,6 @@
   animation: build-up 0.4s ease-out;
 }
 
-.animate-construction-bounce {
-  animation: construction-bounce 1s both;
-}
 
 .animate-progress-crane {
   animation: progress-crane 3s ease-in-out infinite;
@@ -1445,7 +1391,7 @@
   left: 50%;
   transform: translateX(-50%);
   font-size: 2rem;
-  animation: construction-cheer 0.5s ease-in-out 3;
+  animation: none;
   z-index: 1000;
 }
 
@@ -1566,7 +1512,6 @@
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .animate-hammer-swing,
   .animate-build-up,
   .animate-construction-bounce,
   .animate-progress-crane,
@@ -1580,7 +1525,6 @@
   .animate-progress-celebration,
   .animate-tada,
   .animate-confetti-fall,
-  .animate-construction-cheer,
   .animate-project-complete,
   .blueprint-scan {
     animation: none;

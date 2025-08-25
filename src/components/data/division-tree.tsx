@@ -21,7 +21,6 @@ import {
 } from '@dnd-kit/sortable'
 import {
   useSortable,
-  SortableContext as SortableProvider,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
@@ -29,7 +28,6 @@ import {
   ChevronRight,
   Plus,
   Trash2,
-  MoreHorizontal,
   Edit,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -49,7 +47,7 @@ export interface DivisionNode {
   children: DivisionNode[]
   isExpanded?: boolean
   type: 'division' | 'subdiv' | 'task'
-  properties?: Record<string, any>
+  properties?: Record<string, unknown>
 }
 
 interface SortableTreeNodeProps {
@@ -128,8 +126,8 @@ function SortableTreeNode({
             'group flex items-center gap-2 p-2 rounded-lg border transition-all duration-200',
             'construction-hover hover:bg-muted/50 hover:border-primary/20',
             isDragging
-              ? 'opacity-50 animate-construction-bounce'
-              : 'animate-build-up',
+              ? 'opacity-50'
+              : '',
             'hover:shadow-sm'
           )}
           {...attributes}

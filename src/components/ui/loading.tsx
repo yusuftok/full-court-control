@@ -21,7 +21,7 @@ export function LoadingSpinner({
   if (theme === 'construction') {
     return (
       <div className={cn('flex items-center gap-2', className)}>
-        <div className={cn('animate-hammer-swing', sizeClasses[size])}>🔨</div>
+        <div className={cn(sizeClasses[size])}>🔨</div>
         <span className="text-sm text-muted-foreground animate-pulse">
           Harika bir şey inşa ediliyor...
         </span>
@@ -116,7 +116,7 @@ export function LoadingState({
         )}
       >
         <div className="relative">
-          <div className="text-4xl animate-construction-bounce">
+          <div className="text-4xl">
             {currentMessage.emoji}
           </div>
           {showTools && (
@@ -161,7 +161,7 @@ export function ConstructionCrew({
 
   return (
     <div className="flex items-center gap-3 animate-spring-in">
-      <div className="text-2xl animate-construction-cheer">
+      <div className="text-2xl">
         {workers[currentWorker]}
       </div>
       <div className="flex flex-col gap-1">
@@ -172,7 +172,7 @@ export function ConstructionCrew({
               key={i}
               className={cn(
                 'text-xs transition-all duration-300',
-                i === currentWorker % 3 ? 'animate-happy-bounce' : 'opacity-50'
+                i === currentWorker % 3 ? '' : 'opacity-50'
               )}
             >
               {worker}
@@ -215,7 +215,7 @@ export function EmptyStateConstruction({
     >
       <div className="relative">
         <div className="text-6xl animate-float opacity-20">🏗️</div>
-        <div className="absolute -top-4 -right-4 text-2xl animate-tools-party">
+        <div className="absolute -top-4 -right-4 text-2xl">
           {tools[currentTool]}
         </div>
       </div>

@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Bell, Search, User } from 'lucide-react'
 
@@ -153,7 +152,7 @@ export function Header({ className, onMobileMenuToggle }: HeaderProps) {
             <Bell
               className={cn(
                 'size-4 transition-transform',
-                bellShakeCount > 0 && 'animate-construction-cheer'
+                bellShakeCount > 0 && 'animate-pulse'
               )}
               style={{
                 animation:
@@ -180,7 +179,7 @@ export function Header({ className, onMobileMenuToggle }: HeaderProps) {
             className="relative modern-hover group rounded-xl"
             title="Selam şef! İyi çalışmalar 👷"
           >
-            <User className="size-4 group-hover:scale-110 group-hover:animate-construction-cheer transition-transform" />
+            <User className="size-4 group-hover:scale-110 transition-transform" />
             <span className="sr-only">Şantiye Şefi Menüsü</span>
             {/* Funny status indicator */}
             <span className="absolute -bottom-1 -right-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
