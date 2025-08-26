@@ -1,7 +1,7 @@
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
-import { locales } from '@/i18n/config'
+import { locales, Locale } from '@/i18n/config'
 
 interface LocaleLayoutProps {
   children: React.ReactNode
@@ -19,7 +19,7 @@ export default async function LocaleLayout({
   const { locale } = await params
 
   // Validate that the incoming `locale` parameter is valid
-  if (!locales.includes(locale as string)) {
+  if (!locales.includes(locale as Locale)) {
     notFound()
   }
 

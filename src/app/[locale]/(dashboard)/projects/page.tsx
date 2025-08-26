@@ -1,10 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import {
-  Plus,
-  Search,
-} from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -66,6 +63,7 @@ const mockProjects: Project[] = [
     category: ProjectCategory.COMMERCIAL,
     templateId: 'template-commercial-1',
     divisions: [],
+    divisionInstances: [],
   },
   {
     id: 'project-2',
@@ -102,6 +100,7 @@ const mockProjects: Project[] = [
     category: ProjectCategory.RESIDENTIAL,
     templateId: 'template-residential-1',
     divisions: [],
+    divisionInstances: [],
   },
   {
     id: 'project-3',
@@ -138,6 +137,7 @@ const mockProjects: Project[] = [
     category: ProjectCategory.INFRASTRUCTURE,
     templateId: 'template-infrastructure-1',
     divisions: [],
+    divisionInstances: [],
   },
   {
     id: 'project-4',
@@ -174,6 +174,7 @@ const mockProjects: Project[] = [
     category: ProjectCategory.RESIDENTIAL,
     templateId: 'template-residential-2',
     divisions: [],
+    divisionInstances: [],
   },
   {
     id: 'project-5',
@@ -210,6 +211,7 @@ const mockProjects: Project[] = [
     category: ProjectCategory.RENOVATION,
     templateId: 'template-renovation-1',
     divisions: [],
+    divisionInstances: [],
   },
   {
     id: 'project-6',
@@ -246,6 +248,7 @@ const mockProjects: Project[] = [
     category: ProjectCategory.COMMERCIAL,
     templateId: 'template-commercial-2',
     divisions: [],
+    divisionInstances: [],
   },
   {
     id: 'project-7',
@@ -282,6 +285,7 @@ const mockProjects: Project[] = [
     category: ProjectCategory.INFRASTRUCTURE,
     templateId: 'template-infrastructure-2',
     divisions: [],
+    divisionInstances: [],
   },
 ]
 
@@ -289,7 +293,7 @@ const mockProjects: Project[] = [
 const convertToCardProject = (project: Project): ProjectCardProject => ({
   id: project.id,
   name: project.name,
-  status: project.status, // Both types should be compatible
+  status: project.status.toLowerCase() as ProjectCardProject['status'], // Convert enum to string
   startDate: project.startDate,
   endDate: project.endDate,
   progress: project.progress,
@@ -315,7 +319,7 @@ export default function ProjectsPage() {
     { key: string; direction: 'asc' | 'desc' } | undefined
   >(undefined)
   const [searchFocused, setSearchFocused] = React.useState(false)
-  const [projects, _setProjects] = React.useState<Project[]>(mockProjects)
+  const [projects] = React.useState<Project[]>(mockProjects)
 
   const breadcrumbItems = [{ label: 'Projeler', href: '/projects' }]
 
@@ -348,12 +352,12 @@ export default function ProjectsPage() {
           const result = aValue.localeCompare(bValue)
           return sortConfig.direction === 'asc' ? result : -result
         }
-        
+
         if (typeof aValue === 'number' && typeof bValue === 'number') {
           const result = aValue - bValue
           return sortConfig.direction === 'asc' ? result : -result
         }
-        
+
         // Fallback for other types
         const aStr = String(aValue)
         const bStr = String(bValue)
@@ -363,8 +367,9 @@ export default function ProjectsPage() {
     }
 
     return filtered
-  }, [searchTerm, statusFilter, sortConfig])
+  }, [searchTerm, statusFilter, sortConfig, projects])
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleSort = (key: string) => {
     setSortConfig(current => ({
       key,

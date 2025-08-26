@@ -107,15 +107,25 @@ const generateTasks = (count: number): Task[] => {
   }))
 }
 
-const generateVirtualTableData = (count: number) => {
+const generateVirtualTableData = (count: number): VirtualTableItem[] => {
+  const categories: Array<'Alpha' | 'Beta' | 'Gamma' | 'Delta'> = [
+    'Alpha',
+    'Beta',
+    'Gamma',
+    'Delta',
+  ]
+  const statuses: Array<'active' | 'inactive' | 'pending'> = [
+    'active',
+    'inactive',
+    'pending',
+  ]
+
   return Array.from({ length: count }, (_, i) => ({
     id: `item-${i + 1}`,
     name: `Item ${i + 1}`,
-    category: ['Alpha', 'Beta', 'Gamma', 'Delta'][
-      Math.floor(Math.random() * 4)
-    ],
+    category: categories[Math.floor(Math.random() * 4)],
     value: Math.floor(Math.random() * 10000),
-    status: ['active', 'inactive', 'pending'][Math.floor(Math.random() * 3)],
+    status: statuses[Math.floor(Math.random() * 3)],
     date: new Date(
       Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000
     ).toLocaleDateString(),
@@ -182,7 +192,9 @@ export default function AdvancedDemoPage() {
       id: 'name',
       header: 'Name',
       width: '200px',
-      render: (item: VirtualTableItem) => <span className="font-medium">{item.name}</span>,
+      render: (item: VirtualTableItem) => (
+        <span className="font-medium">{item.name}</span>
+      ),
     },
     {
       id: 'category',
@@ -233,7 +245,9 @@ export default function AdvancedDemoPage() {
       id: 'date',
       header: 'Date',
       width: '120px',
-      render: (item: VirtualTableItem) => <span className="text-sm">{item.date}</span>,
+      render: (item: VirtualTableItem) => (
+        <span className="text-sm">{item.date}</span>
+      ),
     },
   ]
 

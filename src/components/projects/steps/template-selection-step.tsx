@@ -9,18 +9,15 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
-import { ProjectFormData, ProjectCategory } from '../types/project-types'
+import { ProjectFormData, DivisionNode } from '../types/project-types'
 import {
   mockTemplates,
   getDefaultDivisions,
 } from '@/components/templates/template-data'
-import {
-  DivisionTemplate,
-  DivisionNode,
-} from '@/components/templates/template-types'
+import { DivisionNode as TemplateDivisionNode } from '@/components/templates/template-types'
 import { TemplateSelector } from '../template-selector'
 import { InteractiveDivisionTree } from '@/components/templates/tree-components'
-import { ModificationChoiceDropdown } from '../modification-choice-dropdown'
+// import { ModificationChoiceDropdown } from '../modification-choice-dropdown'
 
 interface TemplateSelectionStepProps {
   formData: ProjectFormData
@@ -31,6 +28,22 @@ interface TemplateSelectionStepProps {
     modificationChoice: string | null
   ) => void
 }
+
+// Helper function to convert template DivisionNode to project DivisionNode
+const convertTemplateDivisionToProject = (
+  templateDivision: TemplateDivisionNode
+): DivisionNode => ({
+  ...templateDivision,
+  status:
+    templateDivision.status === 'completed'
+      ? 'completed'
+      : templateDivision.status === 'in-progress'
+        ? 'in-progress'
+        : templateDivision.status === 'on-hold'
+          ? 'on-hold'
+          : 'planned',
+  children: templateDivision.children?.map(convertTemplateDivisionToProject),
+})
 
 export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
   formData,
@@ -62,14 +75,7 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
       if (template) {
         updateFormData({
           templateId,
-          divisions: template.divisions.map(division => ({
-            id: division.id,
-            name: division.name,
-            children: division.children?.map(child => ({
-              id: child.id,
-              name: child.name,
-            })),
-          })),
+          divisions: template.divisions.map(convertTemplateDivisionToProject),
         })
       }
     } else {
@@ -77,14 +83,7 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
       const defaultDivisions = getDefaultDivisions(formData.category)
       updateFormData({
         templateId: null,
-        divisions: defaultDivisions.map(division => ({
-          id: division.id,
-          name: division.name,
-          children: division.children?.map(child => ({
-            id: child.id,
-            name: child.name,
-          })),
-        })),
+        divisions: defaultDivisions.map(convertTemplateDivisionToProject),
       })
     }
   }
@@ -195,7 +194,7 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
         }
         acc.push(updatedNode)
         return acc
-      }, [] as any[])
+      }, [] as DivisionNode[])
     }
 
     // 2. Insert node at target position
@@ -215,7 +214,7 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
 
         if (updatedNode.children && updatedNode.children.length > 0) {
           const targetChildIndex = updatedNode.children.findIndex(
-            (child: any) => child.id === targetNodeId
+            (child: DivisionNode) => child.id === targetNodeId
           )
 
           if (targetChildIndex !== -1) {
@@ -241,7 +240,7 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
     // 3. Handle root level
     const insertAtRootLevel = (nodes: DivisionNode[]): DivisionNode[] => {
       const targetIndex = nodes.findIndex(
-        (node: any) => node.id === targetNodeId
+        (node: DivisionNode) => node.id === targetNodeId
       )
 
       if (targetIndex !== -1) {
@@ -359,4 +358,3 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
     </div>
   )
 }
-
