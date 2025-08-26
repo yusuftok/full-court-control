@@ -70,6 +70,7 @@ export interface DivisionNode {
   priority?: 'low' | 'medium' | 'high' | 'critical'
   status?: 'planned' | 'in-progress' | 'completed' | 'on-hold'
   isInstance?: boolean // For marking user-created nodes vs template nodes
+  instanceCount?: number // For showing instance counts in templates
 }
 
 export interface DivisionInstance {

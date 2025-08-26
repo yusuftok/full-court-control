@@ -19,12 +19,18 @@ import {
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { ProjectFormData, ProjectCategory } from '../types/project-types'
+import {
+  ProjectFormData,
+  ProjectCategory,
+  DivisionNode,
+  DivisionInstance,
+} from '../types/project-types'
 import {
   findSubcontractorById,
   getSubcontractorTypeLabel,
 } from '../data/mock-subcontractors'
 import { mockTemplates } from '@/components/templates/template-data'
+import { InteractiveDivisionTree } from '@/components/templates/tree-components'
 
 interface PreviewStepProps {
   formData: ProjectFormData
@@ -35,6 +41,8 @@ const CATEGORY_LABELS = {
   [ProjectCategory.COMMERCIAL]: 'Ticari',
   [ProjectCategory.INFRASTRUCTURE]: 'Altyapı',
   [ProjectCategory.RENOVATION]: 'Renovasyon',
+  [ProjectCategory.HEALTHCARE]: 'Sağlık',
+  [ProjectCategory.SPORTS]: 'Spor',
 }
 
 export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
@@ -42,6 +50,64 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
   const selectedTemplate = formData.templateId
     ? mockTemplates.find(t => t.id === formData.templateId)
     : null
+
+  // Build the same instance tree as in Step 5 (for read-only display)
+  const buildInstanceChildren = (
+    parentInstanceId: string,
+    instances: DivisionInstance[]
+  ): DivisionNode[] => {
+    const childInstances = instances.filter(
+      inst => inst.parentInstanceId === parentInstanceId
+    )
+    return childInstances.map(childInstance => ({
+      id: childInstance.id,
+      name: childInstance.name,
+      children: buildInstanceChildren(childInstance.id, instances),
+      description: childInstance.description,
+      status: childInstance.status,
+      isInstance: true,
+    }))
+  }
+
+  const convertTemplateToHybridNode = (
+    templateNode: DivisionNode,
+    instances: DivisionInstance[]
+  ): DivisionNode => {
+    const nodeInstances = instances.filter(
+      inst => inst.nodeId === templateNode.id && !inst.parentInstanceId
+    )
+
+    const templateChildren =
+      templateNode.children?.map(child =>
+        convertTemplateToHybridNode(child, instances)
+      ) || []
+
+    const instanceChildren = nodeInstances.map(instance => ({
+      id: instance.id,
+      name: instance.name,
+      children: buildInstanceChildren(instance.id, instances),
+      description: instance.description,
+      status: instance.status,
+      isInstance: true,
+    }))
+
+    return {
+      id: templateNode.id,
+      name: templateNode.name,
+      children: [...templateChildren, ...instanceChildren],
+      description: templateNode.description,
+      status: templateNode.status,
+      instanceCount: nodeInstances.length,
+    }
+  }
+
+  const buildInstanceTree = (instances: DivisionInstance[]): DivisionNode[] => {
+    return formData.divisions.map(templateNode =>
+      convertTemplateToHybridNode(templateNode, instances)
+    )
+  }
+
+  const instanceTree = buildInstanceTree(formData.divisionInstances)
 
   const constructionSubcontractor = formData.subcontractors.constructionId
     ? findSubcontractorById(formData.subcontractors.constructionId)
@@ -280,37 +346,34 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
         </CardHeader>
 
         <CardContent>
-          <div className="flex items-center gap-4 mb-4">
-            <Badge variant="secondary">{totalDivisions} toplam bölüm</Badge>
-            <Badge variant="secondary">
-              {formData.divisions.length} ana bölüm
-            </Badge>
-          </div>
-
-          <div className="space-y-3">
-            {formData.divisions.map(division => (
-              <div
-                key={division.id}
-                className="border-l-2 border-green-300 pl-4"
-              >
-                <p className="font-medium">{division.name}</p>
-                {division.children && division.children.length > 0 && (
-                  <div className="ml-4 mt-2 space-y-1">
-                    {division.children.map(child => (
-                      <p
-                        key={child.id}
-                        className="text-sm text-slate-600 dark:text-slate-400"
-                      >
-                        • {child.name}
-                      </p>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {formData.divisions.length === 0 && (
+          {instanceTree.length > 0 ? (
+            <div className="border rounded-lg p-3 bg-slate-50 dark:bg-slate-900/20">
+              <InteractiveDivisionTree
+                divisions={instanceTree}
+                // Read-only tree - no interaction handlers
+                onNodeSelect={undefined}
+                onNodeEdit={undefined}
+                onNodeAdd={undefined}
+                onNodeDelete={undefined}
+                onNodeMove={undefined}
+                // No selection or editing state
+                selectedNodeId={undefined}
+                editingNodeId={undefined}
+                // Enable expand/collapse functionality
+                globalExpandedNodes={undefined}
+                onNodeExpandToggle={undefined}
+                // Disable drag & drop
+                isDragEnabled={() => false}
+                isDropEnabled={() => false}
+                // No drag state
+                draggedNode={null}
+                dragOverNode={null}
+                dropPosition={null}
+                onDragStateChange={undefined}
+                onEditingStateChange={undefined}
+              />
+            </div>
+          ) : (
             <p className="text-sm text-slate-500 italic">
               Henüz bölüm tanımlanmamış
             </p>
