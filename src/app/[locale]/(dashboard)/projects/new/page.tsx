@@ -269,28 +269,30 @@ export default function CreateProjectPage() {
               </div>
               Proje Başarıyla Oluşturuldu!
             </DialogTitle>
-            <DialogDescription className="space-y-4 pt-4">
-              <p className="text-base font-medium">
-                &quot;{formData.name}&quot; projesi başarıyla oluşturuldu!
-              </p>
+            <DialogDescription asChild>
+              <div className="space-y-4 pt-4">
+                <p className="text-base font-medium">
+                  &quot;{formData.name}&quot; projesi başarıyla oluşturuldu!
+                </p>
 
-              <div className="space-y-2 text-sm bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <span>🎯</span>
-                  <span>
-                    <strong>{formData.divisionInstances.length}</strong> bölüm
-                    instance
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span>👥</span>
-                  <span>Tam ekip atandı</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span>📅</span>
-                  <span>
-                    <strong>{daysEstimated}</strong> günlük süre
-                  </span>
+                <div className="space-y-2 text-sm bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <span>🎯</span>
+                    <span>
+                      <strong>{formData.divisionInstances.length}</strong> bölüm
+                      instance
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span>👥</span>
+                    <span>Tam ekip atandı</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span>📅</span>
+                    <span>
+                      <strong>{daysEstimated}</strong> günlük süre
+                    </span>
+                  </div>
                 </div>
               </div>
             </DialogDescription>
