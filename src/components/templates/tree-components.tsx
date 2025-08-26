@@ -519,51 +519,54 @@ export function InteractiveDivisionTree({
                           </div>
                         )}
 
-                      {/* Action Buttons - show based on node type and rules */}
-                      <div className="flex items-center gap-2 min-w-[70px] flex-shrink-0 transition-opacity duration-200 opacity-0 group-hover:opacity-100 ml-3">
-                        {/* Plus button: Show on template leaf nodes OR user-created nodes */}
-                        {((!hasChildren && !division.isInstance) ||
-                          division.isInstance) && (
-                          <button
-                            onClick={e => {
-                              e.stopPropagation()
-                              onNodeAdd?.(division.id)
-                            }}
-                            className="size-4 flex items-center justify-center rounded hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all duration-200 hover:scale-110"
-                            title="Alt bölüm ekle"
-                          >
-                            <Plus className="size-2.5" />
-                          </button>
-                        )}
+                      {/* Action Buttons - show only if callbacks are provided (not read-only) */}
+                      {(onNodeAdd || onNodeEdit || onNodeDelete) && (
+                        <div className="flex items-center gap-2 min-w-[70px] flex-shrink-0 transition-opacity duration-200 opacity-0 group-hover:opacity-100 ml-3">
+                          {/* Plus button: Show on template leaf nodes OR user-created nodes */}
+                          {onNodeAdd &&
+                            ((!hasChildren && !division.isInstance) ||
+                              division.isInstance) && (
+                              <button
+                                onClick={e => {
+                                  e.stopPropagation()
+                                  onNodeAdd(division.id)
+                                }}
+                                className="size-4 flex items-center justify-center rounded hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all duration-200 hover:scale-110"
+                                title="Alt bölüm ekle"
+                              >
+                                <Plus className="size-2.5" />
+                              </button>
+                            )}
 
-                        {/* Edit button: Show only on user-created nodes (isInstance=true) */}
-                        {division.isInstance && (
-                          <button
-                            onClick={e => {
-                              e.stopPropagation()
-                              handleEditStart(division.id, division.name)
-                            }}
-                            className="size-4 flex items-center justify-center rounded hover:bg-blue-500/10 text-muted-foreground hover:text-blue-600 transition-all duration-200 hover:scale-110"
-                            title="Düzenle"
-                          >
-                            <Edit className="size-2.5" />
-                          </button>
-                        )}
+                          {/* Edit button: Show only on user-created nodes (isInstance=true) */}
+                          {onNodeEdit && division.isInstance && (
+                            <button
+                              onClick={e => {
+                                e.stopPropagation()
+                                handleEditStart(division.id, division.name)
+                              }}
+                              className="size-4 flex items-center justify-center rounded hover:bg-blue-500/10 text-muted-foreground hover:text-blue-600 transition-all duration-200 hover:scale-110"
+                              title="Düzenle"
+                            >
+                              <Edit className="size-2.5" />
+                            </button>
+                          )}
 
-                        {/* Delete button: Show only on user-created nodes (isInstance=true) */}
-                        {division.isInstance && (
-                          <button
-                            onClick={e => {
-                              e.stopPropagation()
-                              onNodeDelete?.(division.id)
-                            }}
-                            className="size-4 flex items-center justify-center rounded bg-red-100/20 hover:bg-red-500/10 text-red-600 hover:text-red-600 transition-all duration-200 hover:scale-110 border border-red-200/30"
-                            title="Sil"
-                          >
-                            <Trash2 className="size-2.5" />
-                          </button>
-                        )}
-                      </div>
+                          {/* Delete button: Show only on user-created nodes (isInstance=true) */}
+                          {onNodeDelete && division.isInstance && (
+                            <button
+                              onClick={e => {
+                                e.stopPropagation()
+                                onNodeDelete(division.id)
+                              }}
+                              className="size-4 flex items-center justify-center rounded bg-red-100/20 hover:bg-red-500/10 text-red-600 hover:text-red-600 transition-all duration-200 hover:scale-110 border border-red-200/30"
+                              title="Sil"
+                            >
+                              <Trash2 className="size-2.5" />
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

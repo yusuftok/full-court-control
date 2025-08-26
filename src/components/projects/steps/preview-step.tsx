@@ -109,6 +109,9 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
 
   const instanceTree = buildInstanceTree(formData.divisionInstances)
 
+  // Start with all nodes collapsed in preview
+  const initialExpandedState: Record<string, boolean> = {}
+
   const constructionSubcontractor = formData.subcontractors.constructionId
     ? findSubcontractorById(formData.subcontractors.constructionId)
     : null
@@ -359,8 +362,8 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ formData }) => {
                 // No selection or editing state
                 selectedNodeId={undefined}
                 editingNodeId={undefined}
-                // Enable expand/collapse functionality
-                globalExpandedNodes={undefined}
+                // Enable expand/collapse functionality (start collapsed)
+                globalExpandedNodes={initialExpandedState}
                 onNodeExpandToggle={undefined}
                 // Disable drag & drop
                 isDragEnabled={() => false}
