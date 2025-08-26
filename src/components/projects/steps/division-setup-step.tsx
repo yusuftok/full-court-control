@@ -857,6 +857,9 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
                           templateNode.children.length === 0)
                       )
                     }}
+                    onEditingStateChange={(nodeId, isEditing) => {
+                      setEditingInstanceId(isEditing ? nodeId : null)
+                    }}
                   />
                 </div>
               ) : (
@@ -919,6 +922,9 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
                         (!templateNode.children ||
                           templateNode.children.length === 0)
                       )
+                    }}
+                    onEditingStateChange={(nodeId, isEditing) => {
+                      setEditingInstanceId(isEditing ? nodeId : null)
                     }}
                   />
                 </div>
