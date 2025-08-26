@@ -261,35 +261,35 @@ export default function CreateProjectPage() {
     <>
       {/* Success Dialog */}
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3 text-green-700">
-              <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                <Check className="w-5 h-5 text-green-600" />
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader className="space-y-4">
+            <DialogTitle className="flex items-center gap-3 text-green-700 text-lg">
+              <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                <Check className="w-6 h-6 text-green-600" />
               </div>
               Proje Başarıyla Oluşturuldu!
             </DialogTitle>
             <DialogDescription asChild>
-              <div className="space-y-4 pt-4">
-                <p className="text-base font-medium">
+              <div className="space-y-4">
+                <p className="text-base font-medium text-gray-700 dark:text-gray-300">
                   &quot;{formData.name}&quot; projesi başarıyla oluşturuldu!
                 </p>
 
-                <div className="space-y-2 text-sm bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <span>🎯</span>
-                    <span>
+                <div className="space-y-3 bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">🎯</span>
+                    <span className="text-sm">
                       <strong>{formData.divisionInstances.length}</strong> bölüm
                       instance
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span>👥</span>
-                    <span>Tam ekip atandı</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">👥</span>
+                    <span className="text-sm">Tam ekip atandı</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span>📅</span>
-                    <span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">📅</span>
+                    <span className="text-sm">
                       <strong>{daysEstimated}</strong> günlük süre
                     </span>
                   </div>
@@ -297,7 +297,7 @@ export default function CreateProjectPage() {
               </div>
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-end pt-4">
+          <div className="flex justify-end pt-6">
             <Button onClick={handleDialogClose} className="gap-2">
               <Check className="w-4 h-4" />
               Tamam
