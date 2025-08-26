@@ -7,6 +7,13 @@ import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
   PageContainer,
   PageHeader,
   PageContent,
@@ -80,6 +87,7 @@ export default function CreateProjectPage() {
   const [templateModificationChoice, setTemplateModificationChoice] = useState<
     'update' | 'save-new' | 'project-only' | null
   >(null)
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false)
 
   // Default dates
   const getDefaultDates = () => {
@@ -187,6 +195,11 @@ export default function CreateProjectPage() {
     }
   }
 
+  const handleDialogClose = () => {
+    setShowSuccessDialog(false)
+    router.push('/projects')
+  }
+
   const handleCreateProject = () => {
     // Generate new project from form data
     const newProject: Project = {
@@ -218,11 +231,8 @@ export default function CreateProjectPage() {
     // In real app, would save to database here
     console.log('Creating project:', newProject)
 
-    // Show success message and redirect
-    alert(
-      `✅ "${formData.name}" projesi başarıyla oluşturuldu!\n\n🎯 ${formData.divisionInstances.length} bölüm instance\n👥 Tam ekip atandı\n📅 ${Math.ceil((new Date(formData.endDate).getTime() - new Date(formData.startDate).getTime()) / (1000 * 3600 * 24))} günlük süre`
-    )
-    router.push('/projects')
+    // Show success dialog
+    setShowSuccessDialog(true)
   }
 
   const getProgressPercentage = (): number => {
@@ -241,120 +251,173 @@ export default function CreateProjectPage() {
     { label: 'Yeni Proje Oluştur', href: '/projects/new' },
   ]
 
+  const daysEstimated = Math.ceil(
+    (new Date(formData.endDate).getTime() -
+      new Date(formData.startDate).getTime()) /
+      (1000 * 3600 * 24)
+  )
+
   return (
-    <PageContainer>
-      <PageContent className="px-4 py-3">
-        <Breadcrumbs items={breadcrumbItems} className="mb-4" />
+    <>
+      {/* Success Dialog */}
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3 text-green-700">
+              <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                <Check className="w-5 h-5 text-green-600" />
+              </div>
+              Proje Başarıyla Oluşturuldu!
+            </DialogTitle>
+            <DialogDescription className="space-y-4 pt-4">
+              <p className="text-base font-medium">
+                &quot;{formData.name}&quot; projesi başarıyla oluşturuldu!
+              </p>
 
-        <div className="mb-2">
-          <PageHeader
-            title="Yeni Proje Oluştur 🏗️"
-            description="Adım adım proje bilgilerini girin ve ekip atamasını tamamlayın."
-            className="pb-0 mb-0"
+              <div className="space-y-2 text-sm bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <span>🎯</span>
+                  <span>
+                    <strong>{formData.divisionInstances.length}</strong> bölüm
+                    instance
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>👥</span>
+                  <span>Tam ekip atandı</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>📅</span>
+                  <span>
+                    <strong>{daysEstimated}</strong> günlük süre
+                  </span>
+                </div>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end pt-4">
+            <Button onClick={handleDialogClose} className="gap-2">
+              <Check className="w-4 h-4" />
+              Tamam
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <PageContainer>
+        <PageContent className="px-4 py-3">
+          <Breadcrumbs items={breadcrumbItems} className="mb-4" />
+
+          <div className="mb-2">
+            <PageHeader
+              title="Yeni Proje Oluştur 🏗️"
+              description="Adım adım proje bilgilerini girin ve ekip atamasını tamamlayın."
+              className="pb-0 mb-0"
+            />
+          </div>
+
+          {/* Horizontal Step Navigation */}
+          <HorizontalStepIndicator
+            steps={stepConfig}
+            currentStep={currentStep}
+            onStepClick={handleStepClick}
+            className="mb-2"
           />
-        </div>
 
-        {/* Horizontal Step Navigation */}
-        <HorizontalStepIndicator
-          steps={stepConfig}
-          currentStep={currentStep}
-          onStepClick={handleStepClick}
-          className="mb-2"
-        />
+          {/* Ana İçerik - Current Step */}
+          <div>
+            <div className="glass rounded-xl border border-white/10 overflow-visible">
+              {/* Step Content */}
+              <div className="p-0">
+                <CurrentStepComponent
+                  formData={formData}
+                  updateFormData={updateFormData}
+                  {...(currentStep === CreateProjectStep.TEMPLATE_SELECTION && {
+                    onStepValidityChange: setTemplateStepValid,
+                    onModificationStateChange: (
+                      hasModifications: boolean,
+                      modificationChoice: string | null
+                    ) => {
+                      console.log('Template modification state changed:', {
+                        hasModifications,
+                        modificationChoice,
+                      })
+                      setTemplateHasModifications(hasModifications)
+                      // Only update modificationChoice if it's a valid choice, ignore null from template step
+                      if (
+                        modificationChoice === 'update' ||
+                        modificationChoice === 'save-new' ||
+                        modificationChoice === 'project-only'
+                      ) {
+                        setTemplateModificationChoice(modificationChoice)
+                      }
+                    },
+                  })}
+                />
+              </div>
 
-        {/* Ana İçerik - Current Step */}
-        <div>
-          <div className="glass rounded-xl border border-white/10 overflow-visible">
-            {/* Step Content */}
-            <div className="p-0">
-              <CurrentStepComponent
-                formData={formData}
-                updateFormData={updateFormData}
-                {...(currentStep === CreateProjectStep.TEMPLATE_SELECTION && {
-                  onStepValidityChange: setTemplateStepValid,
-                  onModificationStateChange: (
-                    hasModifications: boolean,
-                    modificationChoice: string | null
-                  ) => {
-                    console.log('Template modification state changed:', {
-                      hasModifications,
-                      modificationChoice,
-                    })
-                    setTemplateHasModifications(hasModifications)
-                    // Only update modificationChoice if it's a valid choice, ignore null from template step
-                    if (
-                      modificationChoice === 'update' ||
-                      modificationChoice === 'save-new' ||
-                      modificationChoice === 'project-only'
-                    ) {
-                      setTemplateModificationChoice(modificationChoice)
-                    }
-                  },
-                })}
-              />
-            </div>
-
-            {/* Navigation Buttons - Inside the card */}
-            <div className="border-t border-white/10 px-4 py-2">
-              <div className="flex items-center justify-between">
-                <Button
-                  variant="outline"
-                  onClick={handleBack}
-                  disabled={!canGoBack()}
-                  className="gap-2"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Geri
-                </Button>
-
-                {/* Template Modification Choice - Inline */}
-                {currentStep === CreateProjectStep.TEMPLATE_SELECTION &&
-                  templateHasModifications &&
-                  formData.templateId && (
-                    <div className="flex-1 max-w-sm mx-4">
-                      <ModificationChoiceDropdown
-                        value={templateModificationChoice}
-                        onChange={choice => {
-                          console.log('Modification choice selected:', choice)
-                          setTemplateModificationChoice(choice)
-                        }}
-                        className="w-full"
-                      />
-                    </div>
-                  )}
-
-                <div className="flex gap-3">
+              {/* Navigation Buttons - Inside the card */}
+              <div className="border-t border-white/10 px-4 py-2">
+                <div className="flex items-center justify-between">
                   <Button
                     variant="outline"
-                    onClick={() => router.push('/projects')}
+                    onClick={handleBack}
+                    disabled={!canGoBack()}
+                    className="gap-2"
                   >
-                    İptal
+                    <ArrowLeft className="w-4 h-4" />
+                    Geri
                   </Button>
 
-                  {currentStep === CreateProjectStep.PREVIEW ? (
+                  {/* Template Modification Choice - Inline */}
+                  {currentStep === CreateProjectStep.TEMPLATE_SELECTION &&
+                    templateHasModifications &&
+                    formData.templateId && (
+                      <div className="flex-1 max-w-sm mx-4">
+                        <ModificationChoiceDropdown
+                          value={templateModificationChoice}
+                          onChange={choice => {
+                            console.log('Modification choice selected:', choice)
+                            setTemplateModificationChoice(choice)
+                          }}
+                          className="w-full"
+                        />
+                      </div>
+                    )}
+
+                  <div className="flex gap-3">
                     <Button
-                      onClick={handleCreateProject}
-                      className="bg-green-600 hover:bg-green-700 gap-2"
+                      variant="outline"
+                      onClick={() => router.push('/projects')}
                     >
-                      <Check className="w-4 h-4" />
-                      Projeyi Oluştur
+                      İptal
                     </Button>
-                  ) : (
-                    <Button
-                      onClick={handleNext}
-                      disabled={!canGoNext()}
-                      className="gap-2"
-                    >
-                      İleri
-                      <ArrowLeft className="w-4 h-4 rotate-180" />
-                    </Button>
-                  )}
+
+                    {currentStep === CreateProjectStep.PREVIEW ? (
+                      <Button
+                        onClick={handleCreateProject}
+                        className="bg-green-600 hover:bg-green-700 gap-2"
+                      >
+                        <Check className="w-4 h-4" />
+                        Projeyi Oluştur
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={handleNext}
+                        disabled={!canGoNext()}
+                        className="gap-2"
+                      >
+                        İleri
+                        <ArrowLeft className="w-4 h-4 rotate-180" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </PageContent>
-    </PageContainer>
+        </PageContent>
+      </PageContainer>
+    </>
   )
 }
