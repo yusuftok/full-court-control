@@ -32,6 +32,12 @@ export function InteractiveDivisionTree({
   dragOverNode: globalDragOverNode,
   dropPosition: globalDropPosition,
   onDragStateChange,
+  // Synchronized expand/collapse state
+  globalExpandedNodes,
+  onNodeExpandToggle,
+  // Drag & drop control
+  isDragEnabled,
+  isDropEnabled,
 }: InteractiveDivisionTreeProps) {
   const [nodeStates, setNodeStates] = React.useState<
     Record<string, TreeNodeState>
@@ -44,12 +50,12 @@ export function InteractiveDivisionTree({
   const dropPosition = globalDropPosition
 
   React.useEffect(() => {
-    // Initialize all nodes as expanded for better UX
+    // Initialize node states with global expand state or default to true
     const initialStates: Record<string, TreeNodeState> = {}
     const initializeNode = (nodes: DivisionNode[]) => {
       nodes.forEach(node => {
         initialStates[node.id] = {
-          expanded: true,
+          expanded: globalExpandedNodes?.[node.id] ?? true,
           selected: false,
           editing: false,
         }
@@ -60,16 +66,21 @@ export function InteractiveDivisionTree({
     }
     initializeNode(divisions)
     setNodeStates(initialStates)
-  }, [divisions])
+  }, [divisions, globalExpandedNodes])
 
   const toggleExpanded = (nodeId: string) => {
-    setNodeStates(prev => ({
-      ...prev,
-      [nodeId]: {
-        ...prev[nodeId],
-        expanded: !prev[nodeId]?.expanded,
-      },
-    }))
+    // Use global expand toggle if available, otherwise use local state
+    if (onNodeExpandToggle) {
+      onNodeExpandToggle(nodeId)
+    } else {
+      setNodeStates(prev => ({
+        ...prev,
+        [nodeId]: {
+          ...prev[nodeId],
+          expanded: !prev[nodeId]?.expanded,
+        },
+      }))
+    }
   }
 
   const handleNodeClick = (nodeId: string) => {
@@ -212,7 +223,7 @@ export function InteractiveDivisionTree({
     <div className={`${level > 0 ? 'ml-4' : ''} space-y-0 min-h-full relative`}>
       {divisions.map((division, index) => {
         const nodeState = nodeStates[division.id] || {
-          expanded: true,
+          expanded: globalExpandedNodes?.[division.id] ?? true,
           selected: false,
           editing: false,
         }
@@ -221,31 +232,59 @@ export function InteractiveDivisionTree({
         const hasChildren = division.children && division.children.length > 0
         const isDragged = draggedNode === division.id
         const isDragOver = dragOverNode === division.id
+        const isLast = index === divisions.length - 1
+        const isExpanded =
+          globalExpandedNodes?.[division.id] ?? nodeState.expanded ?? true
 
         return (
           <div key={division.id} className="relative w-full">
+            {/* Tree lines - hierarchy indicators */}
+            {level > 0 && (
+              <>
+                {/* Horizontal line to node */}
+                <div className="absolute left-[-16px] top-[12px] w-3 h-px bg-gray-300 dark:bg-gray-600" />
+                {/* Vertical line from parent */}
+                {!isLast && (
+                  <div className="absolute left-[-16px] top-[12px] bottom-0 w-px bg-gray-300 dark:bg-gray-600" />
+                )}
+                {/* Continue vertical line for siblings above */}
+                <div className="absolute left-[-16px] top-0 h-3 w-px bg-gray-300 dark:bg-gray-600" />
+              </>
+            )}
+
             {/* Drop zone indicators - clean and minimal */}
-            {isDragOver && dropPosition === 'before' && (
-              <div className="absolute -top-1 left-0 right-0 z-50 pointer-events-none">
-                <div className="h-2 bg-blue-500 rounded-full animate-pulse shadow-lg opacity-90" />
-              </div>
-            )}
-            {isDragOver && dropPosition === 'after' && (
-              <div className="absolute -bottom-1 left-0 right-0 z-50 pointer-events-none">
-                <div className="h-2 bg-blue-500 rounded-full animate-pulse shadow-lg opacity-90" />
-              </div>
-            )}
+            {isDragOver &&
+              dropPosition === 'before' &&
+              (isDropEnabled ? isDropEnabled(division.id) : true) && (
+                <div className="absolute -top-1 left-0 right-0 z-50 pointer-events-none">
+                  <div className="h-2 bg-blue-500 rounded-full animate-pulse shadow-lg opacity-90" />
+                </div>
+              )}
+            {isDragOver &&
+              dropPosition === 'after' &&
+              (isDropEnabled ? isDropEnabled(division.id) : true) && (
+                <div className="absolute -bottom-1 left-0 right-0 z-50 pointer-events-none">
+                  <div className="h-2 bg-blue-500 rounded-full animate-pulse shadow-lg opacity-90" />
+                </div>
+              )}
 
             {/* Simplified node container */}
             <div
               className={`group relative p-1.5 mx-0.5 rounded border transition-all ${
                 isSelected
                   ? 'bg-primary/10 border-primary'
-                  : isDragOver && dropPosition === 'inside'
+                  : isDragOver &&
+                      dropPosition === 'inside' &&
+                      (isDropEnabled ? isDropEnabled(division.id) : true)
                     ? 'bg-green-100 border-green-400 border-2 shadow-lg'
-                    : 'border-gray-200 hover:border-gray-300'
+                    : division.isInstance
+                      ? 'bg-emerald-50 border-emerald-200 hover:border-emerald-300 hover:bg-emerald-100'
+                      : 'bg-slate-50 border-gray-200 hover:border-gray-300 hover:bg-slate-100'
               } ${isDragged ? 'opacity-30' : ''}`}
-              draggable={!isEditing}
+              draggable={
+                !isEditing &&
+                (isDragEnabled ? isDragEnabled(division.id) : true)
+              }
               onClick={() => handleNodeClick(division.id)}
               onDoubleClick={() => handleEditStart(division.id, division.name)}
               onDragStart={e => {
@@ -266,6 +305,15 @@ export function InteractiveDivisionTree({
                 e.preventDefault()
                 if (!draggedNode || draggedNode === division.id) return
 
+                // Check if this node can accept drops
+                const canDrop = isDropEnabled
+                  ? isDropEnabled(division.id)
+                  : true
+                if (!canDrop) {
+                  e.dataTransfer.dropEffect = 'none'
+                  return
+                }
+
                 const rect = e.currentTarget.getBoundingClientRect()
                 const y = e.clientY - rect.top
                 const position =
@@ -280,6 +328,15 @@ export function InteractiveDivisionTree({
               }}
               onDrop={e => {
                 e.preventDefault()
+
+                // Check if this node can accept drops
+                const canDrop = isDropEnabled
+                  ? isDropEnabled(division.id)
+                  : true
+                if (!canDrop) {
+                  onDragStateChange?.(null, null, null)
+                  return
+                }
 
                 if (
                   draggedNode &&
@@ -301,9 +358,9 @@ export function InteractiveDivisionTree({
                       toggleExpanded(division.id)
                     }}
                     className="size-4 flex items-center justify-center rounded hover:bg-primary/10 transition-all duration-200 group/expand"
-                    aria-label={nodeState.expanded ? 'Daralt' : 'Genişlet'}
+                    aria-label={isExpanded ? 'Daralt' : 'Genişlet'}
                   >
-                    {nodeState.expanded ? (
+                    {isExpanded ? (
                       <ChevronDown className="size-3 text-muted-foreground group-hover/expand:text-primary transition-colors" />
                     ) : (
                       <ChevronRight className="size-3 text-muted-foreground group-hover/expand:text-primary transition-colors" />
@@ -351,16 +408,19 @@ export function InteractiveDivisionTree({
                         >
                           <X className="size-2.5" />
                         </button>
-                        <button
-                          onClick={e => {
-                            e.stopPropagation()
-                            onNodeDelete?.(division.id)
-                          }}
-                          className="size-4 flex items-center justify-center rounded bg-red-100/20 hover:bg-red-500/10 text-red-600 hover:text-red-600 transition-all duration-200 hover:scale-110 border border-red-200/30"
-                          title="Sil"
-                        >
-                          <Trash2 className="size-2.5" />
-                        </button>
+                        {/* Delete button only for leaf nodes */}
+                        {!hasChildren && (
+                          <button
+                            onClick={e => {
+                              e.stopPropagation()
+                              onNodeDelete?.(division.id)
+                            }}
+                            className="size-4 flex items-center justify-center rounded bg-red-100/20 hover:bg-red-500/10 text-red-600 hover:text-red-600 transition-all duration-200 hover:scale-110 border border-red-200/30"
+                            title="Sil"
+                          >
+                            <Trash2 className="size-2.5" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   ) : (
@@ -374,47 +434,60 @@ export function InteractiveDivisionTree({
                         {division.name}
                       </span>
 
-                      {/* Action Buttons - compact gap from text */}
-                      <div className="flex items-center gap-0.5 min-w-[60px] flex-shrink-0 transition-opacity duration-200 opacity-0 group-hover:opacity-100 ml-1.5">
-                        <button
-                          onClick={e => {
-                            e.stopPropagation()
-                            onNodeAdd?.(division.id)
-                          }}
-                          className="size-4 flex items-center justify-center rounded hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all duration-200 hover:scale-110"
-                          title="Alt bölüm ekle"
-                        >
-                          <Plus className="size-2.5" />
-                        </button>
-                        <button
-                          onClick={e => {
-                            e.stopPropagation()
-                            handleEditStart(division.id, division.name)
-                          }}
-                          className="size-4 flex items-center justify-center rounded hover:bg-blue-500/10 text-muted-foreground hover:text-blue-600 transition-all duration-200 hover:scale-110"
-                          title="Düzenle"
-                        >
-                          <Edit className="size-2.5" />
-                        </button>
-                        <button
-                          onClick={e => {
-                            e.stopPropagation()
-                            onNodeDelete?.(division.id)
-                          }}
-                          className="size-4 flex items-center justify-center rounded bg-red-100/20 hover:bg-red-500/10 text-red-600 hover:text-red-600 transition-all duration-200 hover:scale-110 border border-red-200/30"
-                          title="Sil"
-                        >
-                          <Trash2 className="size-2.5" />
-                        </button>
-                      </div>
+                      {/* Instance Count Badge - Superscript Style (for template nodes) */}
+                      {!division.isInstance &&
+                        division.instanceCount !== undefined &&
+                        division.instanceCount > 0 && (
+                          <div className="ml-1 w-4 h-4 bg-orange-600 rounded-full flex items-center justify-center flex-shrink-0 -translate-y-1">
+                            <span className="text-white text-[10px] font-bold leading-none">
+                              {division.instanceCount}
+                            </span>
+                          </div>
+                        )}
+
+                      {/* Action Buttons - only show on leaf nodes */}
+                      {!hasChildren && (
+                        <div className="flex items-center gap-2 min-w-[70px] flex-shrink-0 transition-opacity duration-200 opacity-0 group-hover:opacity-100 ml-3">
+                          <button
+                            onClick={e => {
+                              e.stopPropagation()
+                              onNodeAdd?.(division.id)
+                            }}
+                            className="size-4 flex items-center justify-center rounded hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all duration-200 hover:scale-110"
+                            title="Alt bölüm ekle"
+                          >
+                            <Plus className="size-2.5" />
+                          </button>
+                          <button
+                            onClick={e => {
+                              e.stopPropagation()
+                              handleEditStart(division.id, division.name)
+                            }}
+                            className="size-4 flex items-center justify-center rounded hover:bg-blue-500/10 text-muted-foreground hover:text-blue-600 transition-all duration-200 hover:scale-110"
+                            title="Düzenle"
+                          >
+                            <Edit className="size-2.5" />
+                          </button>
+                          <button
+                            onClick={e => {
+                              e.stopPropagation()
+                              onNodeDelete?.(division.id)
+                            }}
+                            className="size-4 flex items-center justify-center rounded bg-red-100/20 hover:bg-red-500/10 text-red-600 hover:text-red-600 transition-all duration-200 hover:scale-110 border border-red-200/30"
+                            title="Sil"
+                          >
+                            <Trash2 className="size-2.5" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Children - simplified */}
-            {hasChildren && nodeState.expanded && (
+            {/* Children - show only if expanded */}
+            {hasChildren && isExpanded && (
               <div className="mt-0.5">
                 <InteractiveDivisionTree
                   divisions={division.children!}
@@ -432,6 +505,9 @@ export function InteractiveDivisionTree({
                   dragOverNode={dragOverNode}
                   dropPosition={dropPosition}
                   onDragStateChange={onDragStateChange}
+                  // Pass global expand state down
+                  globalExpandedNodes={globalExpandedNodes}
+                  onNodeExpandToggle={onNodeExpandToggle}
                 />
               </div>
             )}

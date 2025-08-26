@@ -50,12 +50,22 @@
       "mcp__chrome-devtools__clear_console",
       "Bash(npm ls:*)",
       "Bash(tail:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "mcp__playwright__browser_fill_form",
+      "mcp__playwright__browser_press_key",
+      "mcp__playwright__browser_wait_for",
+      "Bash(/mcp)",
+      "Bash(python3:*)",
+      "Bash(uv sync:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": [],
     "additionalDirectories": [
-      "/Users/yusuf.tok/.claude"
+      "/Users/yusuf.tok/.claude",
+      "/Users/yusuf.tok/chrome-devtools-mcp"
     ]
   }
 }

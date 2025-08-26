@@ -40,7 +40,7 @@ export function HorizontalStepIndicator({
       setCelebratingStep(newlyCompleted)
 
       // Clear celebration after animation
-      setTimeout(() => setCelebratingStep(null), 2000)
+      setTimeout(() => setCelebratingStep(null), 800)
     }
     prevCurrentStep.current = currentStep
   }, [currentStep])
@@ -84,7 +84,7 @@ export function HorizontalStepIndicator({
         </div>
         <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mb-2 overflow-hidden">
           <div
-            className="bg-gradient-to-r from-primary to-primary/80 h-1.5 rounded-full transition-all duration-700 ease-out relative"
+            className="bg-gradient-to-r from-primary to-primary/80 h-1.5 rounded-full transition-all duration-300 ease-out relative"
             style={{ width: `${getProgressPercentage()}%` }}
           >
             {/* Animated shimmer effect */}
@@ -118,7 +118,7 @@ export function HorizontalStepIndicator({
                     canClickStep(step.id) && onStepClick
                       ? 'cursor-pointer'
                       : '',
-                    'transition-all duration-300',
+                    'transition-all duration-200',
                     hoveredStep === step.id && 'transform scale-110',
                     pressedStep === step.id && 'transform scale-95',
                     celebratingStep === step.id && 'animate-bounce'
@@ -130,7 +130,7 @@ export function HorizontalStepIndicator({
                   {/* Step Circle */}
                   <div
                     className={cn(
-                      'relative w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300',
+                      'relative w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-200',
                       'border-2 backdrop-blur-sm overflow-hidden',
                       currentStep === step.id
                         ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/30 ring-4 ring-primary/20'
@@ -149,7 +149,7 @@ export function HorizontalStepIndicator({
                       <div className="relative">
                         <Check
                           className={cn(
-                            'w-5 h-5 transition-all duration-300',
+                            'w-5 h-5 transition-all duration-200',
                             celebratingStep === step.id && 'animate-pulse'
                           )}
                         />
@@ -162,7 +162,7 @@ export function HorizontalStepIndicator({
                     ) : (
                       <span
                         className={cn(
-                          'text-base transition-all duration-300',
+                          'text-base transition-all duration-200',
                           hoveredStep === step.id &&
                             canClickStep(step.id) &&
                             'transform scale-110',
@@ -209,7 +209,7 @@ export function HorizontalStepIndicator({
                   <div className="text-center mt-2 max-w-28">
                     <div
                       className={cn(
-                        'font-medium text-xs leading-tight mb-1 transition-all duration-300',
+                        'font-medium text-xs leading-tight mb-1 transition-all duration-200',
                         currentStep === step.id
                           ? 'text-primary font-semibold'
                           : currentStep > step.id
@@ -226,7 +226,7 @@ export function HorizontalStepIndicator({
                     </div>
                     <div
                       className={cn(
-                        'text-xs leading-tight transition-all duration-300 hidden sm:block',
+                        'text-xs leading-tight transition-all duration-200 hidden sm:block',
                         currentStep === step.id
                           ? 'text-foreground opacity-90'
                           : 'text-muted-foreground opacity-75',
@@ -267,7 +267,7 @@ export function HorizontalStepIndicator({
                     {/* Animated progress line */}
                     <div
                       className={cn(
-                        'absolute inset-0 rounded-full transition-all duration-700 ease-out overflow-hidden',
+                        'absolute inset-0 rounded-full transition-all duration-300 ease-out overflow-hidden',
                         currentStep > step.id
                           ? 'bg-gradient-to-r from-primary to-green-500 w-full'
                           : currentStep === step.id
@@ -290,7 +290,7 @@ export function HorizontalStepIndicator({
                     {/* Construction blueprint pattern overlay */}
                     <div
                       className={cn(
-                        'absolute inset-0 opacity-20 transition-opacity duration-300',
+                        'absolute inset-0 opacity-20 transition-opacity duration-200',
                         hoveredStep === step.id || hoveredStep === step.id + 1
                           ? 'opacity-40'
                           : ''
@@ -347,7 +347,7 @@ export function HorizontalStepIndicator({
                 {/* Step Circle - Smaller */}
                 <div
                   className={cn(
-                    'w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300',
+                    'w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-200',
                     'border backdrop-blur-sm relative overflow-hidden',
                     currentStep === step.id
                       ? 'bg-primary border-primary text-primary-foreground shadow-lg ring-2 ring-primary/20'

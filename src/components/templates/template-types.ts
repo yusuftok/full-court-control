@@ -2,6 +2,10 @@ export interface DivisionNode {
   id: string
   name: string
   children?: DivisionNode[]
+  description?: string
+  status?: string
+  instanceCount?: number // For showing instance counts in templates
+  isInstance?: boolean // For marking actual instances vs template nodes
 }
 
 export interface DivisionTemplate {
@@ -48,6 +52,12 @@ export interface InteractiveDivisionTreeProps {
     dragOverNode: string | null,
     dropPosition: 'inside' | 'before' | 'after' | null
   ) => void
+  // Synchronized expand/collapse state
+  globalExpandedNodes?: Record<string, boolean>
+  onNodeExpandToggle?: (nodeId: string) => void
+  // Drag & drop control
+  isDragEnabled?: (nodeId: string) => boolean
+  isDropEnabled?: (nodeId: string) => boolean
 }
 
 export interface TemplateFormData {

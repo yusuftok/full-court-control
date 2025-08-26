@@ -53,7 +53,8 @@ export interface ProjectFormData {
   templateId: string | null
 
   // Step 5: Division Yapısı
-  divisions: DivisionNode[]
+  divisions: DivisionNode[] // Template structure (read-only reference)
+  divisionInstances: DivisionInstance[] // Actual project instances
 }
 
 export interface DivisionNode {
@@ -66,6 +67,24 @@ export interface DivisionNode {
   estimatedCost?: number // TL cinsinden
   priority?: 'low' | 'medium' | 'high' | 'critical'
   status?: 'planned' | 'in-progress' | 'completed' | 'on-hold'
+}
+
+export interface DivisionInstance {
+  id: string // Unique instance ID (inst-${timestamp})
+  nodeId: string // Reference to template node
+  name: string // Custom instance name (can differ from template)
+  parentInstanceId?: string // For hierarchical instances
+  children?: DivisionInstance[] // Child instances
+  taskCount: number // Default: 0
+  progress: number // Default: 0 (0-100)
+  assignedSubcontractorId?: string | null // Bu instance'dan sorumlu taşeron
+  description?: string
+  estimatedDuration?: number // gün cinsinden
+  estimatedCost?: number // TL cinsinden
+  priority?: 'low' | 'medium' | 'high' | 'critical'
+  status?: 'planned' | 'in-progress' | 'completed' | 'on-hold'
+  createdAt: string
+  updatedAt?: string
 }
 
 export interface CreateProjectRequest extends ProjectFormData {

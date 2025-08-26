@@ -113,6 +113,7 @@ export default function CreateProjectPage() {
       category: ProjectCategory.RESIDENTIAL,
       templateId: null,
       divisions: [],
+      divisionInstances: [],
     }
   })
 
@@ -154,7 +155,7 @@ export default function CreateProjectPage() {
         )
 
       case CreateProjectStep.DIVISION_SETUP:
-        return formData.divisions.length > 0
+        return formData.divisionInstances.length > 0
 
       case CreateProjectStep.PREVIEW:
         return true
@@ -193,8 +194,8 @@ export default function CreateProjectPage() {
       id: `project-${Date.now()}`,
       status: ProjectStatus.ACTIVE,
       progress: 0,
-      totalTasks: formData.divisions.reduce((total, div) => {
-        return total + 1 + (div.children ? div.children.length : 0)
+      totalTasks: formData.divisionInstances.reduce((total, instance) => {
+        return total + 1 + (instance.children ? instance.children.length : 0)
       }, 0),
       completedTasks: 0,
       healthStatus: 'healthy',
@@ -219,7 +220,7 @@ export default function CreateProjectPage() {
 
     // Show success message and redirect
     alert(
-      `✅ "${formData.name}" projesi başarıyla oluşturuldu!\n\n🎯 ${formData.divisions.length} ana bölüm\n👥 Tam ekip atandı\n📅 ${Math.ceil((new Date(formData.endDate).getTime() - new Date(formData.startDate).getTime()) / (1000 * 3600 * 24))} günlük süre`
+      `✅ "${formData.name}" projesi başarıyla oluşturuldu!\n\n🎯 ${formData.divisionInstances.length} bölüm instance\n👥 Tam ekip atandı\n📅 ${Math.ceil((new Date(formData.endDate).getTime() - new Date(formData.startDate).getTime()) / (1000 * 3600 * 24))} günlük süre`
     )
     router.push('/projects')
   }
