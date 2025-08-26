@@ -261,9 +261,9 @@ export default function CreateProjectPage() {
     <>
       {/* Success Dialog */}
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader className="space-y-4">
-            <DialogTitle className="flex items-center gap-3 text-green-700 text-lg">
+        <DialogContent className="sm:max-w-lg p-6">
+          <DialogHeader className="space-y-4 mb-6">
+            <DialogTitle className="flex items-center gap-3 text-green-700 text-lg pt-2">
               <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
                 <Check className="w-6 h-6 text-green-600" />
               </div>
@@ -280,7 +280,6 @@ export default function CreateProjectPage() {
                     <span className="text-lg">🎯</span>
                     <span className="text-sm">
                       <strong>{formData.divisionInstances.length}</strong> bölüm
-                      instance
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
@@ -297,7 +296,7 @@ export default function CreateProjectPage() {
               </div>
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-end pt-6">
+          <div className="flex justify-end pt-6 pr-0 pb-0">
             <Button onClick={handleDialogClose} className="gap-2">
               <Check className="w-4 h-4" />
               Tamam
