@@ -796,139 +796,71 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {instanceTree.length > 0 ? (
-                <div className="border rounded-lg p-3 bg-slate-50 dark:bg-slate-900/20 min-h-[300px]">
-                  <InteractiveDivisionTree
-                    divisions={instanceTree}
-                    onNodeSelect={setSelectedInstanceId}
-                    onNodeEdit={handleInstanceEdit}
-                    onNodeAdd={handleInstanceAdd}
-                    onNodeDelete={handleInstanceDelete}
-                    onNodeMove={handleInstanceMove}
-                    selectedNodeId={selectedInstanceId ?? undefined}
-                    editingNodeId={editingInstanceId ?? undefined}
-                    draggedNode={globalDraggedNode}
-                    dragOverNode={globalDragOverNode}
-                    dropPosition={globalDropPosition}
-                    onDragStateChange={(
-                      draggedNode,
-                      dragOverNode,
-                      dropPosition
-                    ) => {
-                      setGlobalDraggedNode(draggedNode)
-                      setGlobalDragOverNode(dragOverNode)
-                      setGlobalDropPosition(dropPosition)
-                    }}
-                    globalExpandedNodes={globalExpandedNodes}
-                    onNodeExpandToggle={handleNodeExpandToggle}
-                    isDragEnabled={nodeId => {
-                      // Only instances can be dragged (to preserve template structure)
-                      return formData.divisionInstances.some(
-                        inst => inst.id === nodeId
-                      )
-                    }}
-                    isDropEnabled={nodeId => {
-                      // Instances can be dropped on:
-                      // 1. Other instances (for sibling/child relationships)
-                      // 2. Leaf template nodes (to add instances under them)
-                      const isInstance = formData.divisionInstances.some(
-                        inst => inst.id === nodeId
-                      )
-                      if (isInstance) return true
+              <div className="border rounded-lg p-3 bg-slate-50 dark:bg-slate-900/20 min-h-[300px]">
+                <InteractiveDivisionTree
+                  divisions={instanceTree}
+                  onNodeSelect={setSelectedInstanceId}
+                  onNodeEdit={handleInstanceEdit}
+                  onNodeAdd={handleInstanceAdd}
+                  onNodeDelete={handleInstanceDelete}
+                  onNodeMove={handleInstanceMove}
+                  selectedNodeId={selectedInstanceId ?? undefined}
+                  editingNodeId={editingInstanceId ?? undefined}
+                  draggedNode={globalDraggedNode}
+                  dragOverNode={globalDragOverNode}
+                  dropPosition={globalDropPosition}
+                  onDragStateChange={(
+                    draggedNode,
+                    dragOverNode,
+                    dropPosition
+                  ) => {
+                    setGlobalDraggedNode(draggedNode)
+                    setGlobalDragOverNode(dragOverNode)
+                    setGlobalDropPosition(dropPosition)
+                  }}
+                  globalExpandedNodes={globalExpandedNodes}
+                  onNodeExpandToggle={handleNodeExpandToggle}
+                  isDragEnabled={nodeId => {
+                    // Only instances can be dragged (to preserve template structure)
+                    return formData.divisionInstances.some(
+                      inst => inst.id === nodeId
+                    )
+                  }}
+                  isDropEnabled={nodeId => {
+                    // Instances can be dropped on:
+                    // 1. Other instances (for sibling/child relationships)
+                    // 2. Leaf template nodes (to add instances under them)
+                    const isInstance = formData.divisionInstances.some(
+                      inst => inst.id === nodeId
+                    )
+                    if (isInstance) return true
 
-                      // Check if it's a leaf template node (no children)
-                      const findNode = (
-                        nodes: DivisionNode[]
-                      ): DivisionNode | null => {
-                        for (const node of nodes) {
-                          if (node.id === nodeId) return node
-                          if (node.children) {
-                            const found = findNode(node.children)
-                            if (found) return found
-                          }
+                    // Check if it's a leaf template node (no children)
+                    const findNode = (
+                      nodes: DivisionNode[]
+                    ): DivisionNode | null => {
+                      for (const node of nodes) {
+                        if (node.id === nodeId) return node
+                        if (node.children) {
+                          const found = findNode(node.children)
+                          if (found) return found
                         }
-                        return null
                       }
+                      return null
+                    }
 
-                      const templateNode = findNode(formData.divisions)
-                      return !!(
-                        templateNode &&
-                        (!templateNode.children ||
-                          templateNode.children.length === 0)
-                      )
-                    }}
-                    onEditingStateChange={(nodeId, isEditing) => {
-                      setEditingInstanceId(isEditing ? nodeId : null)
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="border rounded-lg p-3 bg-slate-50 dark:bg-slate-900/20 min-h-[300px]">
-                  <InteractiveDivisionTree
-                    divisions={instanceTree}
-                    onNodeSelect={setSelectedInstanceId}
-                    onNodeEdit={handleInstanceEdit}
-                    onNodeAdd={handleInstanceAdd}
-                    onNodeDelete={handleInstanceDelete}
-                    onNodeMove={handleInstanceMove}
-                    selectedNodeId={selectedInstanceId ?? undefined}
-                    editingNodeId={editingInstanceId ?? undefined}
-                    draggedNode={globalDraggedNode}
-                    dragOverNode={globalDragOverNode}
-                    dropPosition={globalDropPosition}
-                    onDragStateChange={(
-                      draggedNode,
-                      dragOverNode,
-                      dropPosition
-                    ) => {
-                      setGlobalDraggedNode(draggedNode)
-                      setGlobalDragOverNode(dragOverNode)
-                      setGlobalDropPosition(dropPosition)
-                    }}
-                    globalExpandedNodes={globalExpandedNodes}
-                    onNodeExpandToggle={handleNodeExpandToggle}
-                    isDragEnabled={nodeId => {
-                      // Only instances can be dragged (to preserve template structure)
-                      return formData.divisionInstances.some(
-                        inst => inst.id === nodeId
-                      )
-                    }}
-                    isDropEnabled={nodeId => {
-                      // Instances can be dropped on:
-                      // 1. Other instances (for sibling/child relationships)
-                      // 2. Leaf template nodes (to add instances under them)
-                      const isInstance = formData.divisionInstances.some(
-                        inst => inst.id === nodeId
-                      )
-                      if (isInstance) return true
-
-                      // Check if it's a leaf template node (no children)
-                      const findNode = (
-                        nodes: DivisionNode[]
-                      ): DivisionNode | null => {
-                        for (const node of nodes) {
-                          if (node.id === nodeId) return node
-                          if (node.children) {
-                            const found = findNode(node.children)
-                            if (found) return found
-                          }
-                        }
-                        return null
-                      }
-
-                      const templateNode = findNode(formData.divisions)
-                      return !!(
-                        templateNode &&
-                        (!templateNode.children ||
-                          templateNode.children.length === 0)
-                      )
-                    }}
-                    onEditingStateChange={(nodeId, isEditing) => {
-                      setEditingInstanceId(isEditing ? nodeId : null)
-                    }}
-                  />
-                </div>
-              )}
+                    const templateNode = findNode(formData.divisions)
+                    return !!(
+                      templateNode &&
+                      (!templateNode.children ||
+                        templateNode.children.length === 0)
+                    )
+                  }}
+                  onEditingStateChange={(nodeId, isEditing) => {
+                    setEditingInstanceId(isEditing ? nodeId : null)
+                  }}
+                />
+              </div>
             </CardContent>
           </Card>
         </div>
