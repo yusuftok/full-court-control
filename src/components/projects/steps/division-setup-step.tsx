@@ -414,6 +414,39 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
     updateFormData({ divisionInstances: updatedInstances })
   }
 
+  // Handle adding new instance as child of existing instance
+  const handleInstanceAdd = (parentInstanceId: string) => {
+    // Find the parent instance to get its template nodeId
+    const parentInstance = formData.divisionInstances.find(
+      inst => inst.id === parentInstanceId
+    )
+
+    if (!parentInstance) {
+      console.error('Parent instance not found:', parentInstanceId)
+      return
+    }
+
+    // Create new child instance
+    const newInstance: DivisionInstance = {
+      id: `inst-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      nodeId: parentInstance.nodeId, // Same template node as parent
+      name: 'Yeni Alt Bölüm',
+      parentInstanceId: parentInstanceId, // Child of the selected instance
+      taskCount: 0,
+      progress: 0,
+      status: 'planned',
+      createdAt: new Date().toISOString(),
+    }
+
+    updateFormData({
+      divisionInstances: [...formData.divisionInstances, newInstance],
+    })
+
+    // Auto-select the new instance for editing
+    setSelectedInstanceId(newInstance.id)
+    setEditingInstanceId(newInstance.id)
+  }
+
   // Handle instance move (drag & drop)
   const handleInstanceMove = (
     draggedNodeId: string,
@@ -769,6 +802,7 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
                     divisions={instanceTree}
                     onNodeSelect={setSelectedInstanceId}
                     onNodeEdit={handleInstanceEdit}
+                    onNodeAdd={handleInstanceAdd}
                     onNodeDelete={handleInstanceDelete}
                     onNodeMove={handleInstanceMove}
                     selectedNodeId={selectedInstanceId ?? undefined}
@@ -831,6 +865,7 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
                     divisions={instanceTree}
                     onNodeSelect={setSelectedInstanceId}
                     onNodeEdit={handleInstanceEdit}
+                    onNodeAdd={handleInstanceAdd}
                     onNodeDelete={handleInstanceDelete}
                     onNodeMove={handleInstanceMove}
                     selectedNodeId={selectedInstanceId ?? undefined}

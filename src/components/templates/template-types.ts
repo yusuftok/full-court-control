@@ -43,6 +43,7 @@ export interface InteractiveDivisionTreeProps {
     nodeId: string,
     direction: 'up' | 'down' | 'left' | 'right'
   ) => void
+  onEditingStateChange?: (nodeId: string, isEditing: boolean) => void
   // Global drag state
   draggedNode?: string | null
   dragOverNode?: string | null

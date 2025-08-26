@@ -27,6 +27,7 @@ export function InteractiveDivisionTree({
   selectedNodeId,
   editingNodeId,
   onKeyboardNavigation,
+  onEditingStateChange,
   // Global drag state props
   draggedNode: globalDraggedNode,
   dragOverNode: globalDragOverNode,
@@ -43,6 +44,7 @@ export function InteractiveDivisionTree({
     Record<string, TreeNodeState>
   >({})
   const [editingText, setEditingText] = React.useState('')
+  const lastEditingNodeRef = React.useRef<string | null>(null)
 
   // Use global drag state or local fallback
   const draggedNode = globalDraggedNode
@@ -67,6 +69,52 @@ export function InteractiveDivisionTree({
     initializeNode(divisions)
     setNodeStates(initialStates)
   }, [divisions, globalExpandedNodes])
+
+  // Handle external editingNodeId changes (from parent)
+  React.useEffect(() => {
+    if (editingNodeId && lastEditingNodeRef.current !== editingNodeId) {
+      lastEditingNodeRef.current = editingNodeId
+
+      // Find the node to start editing
+      const findNodeInDivisions = (
+        nodes: DivisionNode[]
+      ): DivisionNode | null => {
+        for (const node of nodes) {
+          if (node.id === editingNodeId) return node
+          if (node.children) {
+            const found = findNodeInDivisions(node.children)
+            if (found) return found
+          }
+        }
+        return null
+      }
+
+      const nodeToEdit = findNodeInDivisions(divisions)
+      if (nodeToEdit) {
+        // Set editing state directly without triggering callbacks
+        setEditingText(nodeToEdit.name)
+        onNodeSelect?.(editingNodeId)
+
+        setNodeStates(prev => {
+          const newStates = { ...prev }
+          // Disable editing for all nodes first
+          Object.keys(newStates).forEach(id => {
+            if (newStates[id]) {
+              newStates[id] = { ...newStates[id], editing: false }
+            }
+          })
+          // Enable editing for current node
+          newStates[editingNodeId] = {
+            ...newStates[editingNodeId],
+            editing: true,
+          }
+          return newStates
+        })
+      }
+    } else if (!editingNodeId) {
+      lastEditingNodeRef.current = null
+    }
+  }, [editingNodeId, divisions, onNodeSelect])
 
   const toggleExpanded = (nodeId: string) => {
     // Use global expand toggle if available, otherwise use local state
@@ -117,6 +165,11 @@ export function InteractiveDivisionTree({
       }
       return newStates
     })
+
+    // Only notify parent if this isn't triggered by external editingNodeId
+    if (lastEditingNodeRef.current !== nodeId) {
+      onEditingStateChange?.(nodeId, true)
+    }
   }
 
   const handleEditSave = (nodeId: string) => {
@@ -135,9 +188,17 @@ export function InteractiveDivisionTree({
       })
       return newStates
     })
+
+    // Notify parent about editing state change
+    onEditingStateChange?.(nodeId, false)
   }
 
   const handleEditCancel = (nodeId?: string) => {
+    // Find the currently editing node
+    const currentlyEditingId = Object.keys(nodeStates).find(
+      id => nodeStates[id]?.editing
+    )
+
     setEditingText('')
 
     // Always disable editing mode for ALL nodes to prevent conflicts
@@ -150,6 +211,11 @@ export function InteractiveDivisionTree({
       })
       return newStates
     })
+
+    // Notify parent about editing state change if there was an editing node
+    if (currentlyEditingId) {
+      onEditingStateChange?.(currentlyEditingId, false)
+    }
   }
 
   // Keyboard navigation handler
@@ -286,7 +352,12 @@ export function InteractiveDivisionTree({
                 (isDragEnabled ? isDragEnabled(division.id) : true)
               }
               onClick={() => handleNodeClick(division.id)}
-              onDoubleClick={() => handleEditStart(division.id, division.name)}
+              onDoubleClick={() => {
+                // Only allow edit on user-created nodes
+                if (division.isInstance) {
+                  handleEditStart(division.id, division.name)
+                }
+              }}
               onDragStart={e => {
                 onDragStateChange?.(division.id, null, null)
                 e.dataTransfer.effectAllowed = 'move'
@@ -427,9 +498,12 @@ export function InteractiveDivisionTree({
                     <div className="flex items-center min-h-[18px] w-full">
                       <span
                         className="font-semibold text-xs text-foreground"
-                        onDoubleClick={() =>
-                          handleEditStart(division.id, division.name)
-                        }
+                        onDoubleClick={() => {
+                          // Only allow edit on user-created nodes
+                          if (division.isInstance) {
+                            handleEditStart(division.id, division.name)
+                          }
+                        }}
                       >
                         {division.name}
                       </span>
@@ -445,9 +519,11 @@ export function InteractiveDivisionTree({
                           </div>
                         )}
 
-                      {/* Action Buttons - only show on leaf nodes */}
-                      {!hasChildren && (
-                        <div className="flex items-center gap-2 min-w-[70px] flex-shrink-0 transition-opacity duration-200 opacity-0 group-hover:opacity-100 ml-3">
+                      {/* Action Buttons - show based on node type and rules */}
+                      <div className="flex items-center gap-2 min-w-[70px] flex-shrink-0 transition-opacity duration-200 opacity-0 group-hover:opacity-100 ml-3">
+                        {/* Plus button: Show on template leaf nodes OR user-created nodes */}
+                        {((!hasChildren && !division.isInstance) ||
+                          division.isInstance) && (
                           <button
                             onClick={e => {
                               e.stopPropagation()
@@ -458,6 +534,10 @@ export function InteractiveDivisionTree({
                           >
                             <Plus className="size-2.5" />
                           </button>
+                        )}
+
+                        {/* Edit button: Show only on user-created nodes (isInstance=true) */}
+                        {division.isInstance && (
                           <button
                             onClick={e => {
                               e.stopPropagation()
@@ -468,6 +548,10 @@ export function InteractiveDivisionTree({
                           >
                             <Edit className="size-2.5" />
                           </button>
+                        )}
+
+                        {/* Delete button: Show only on user-created nodes (isInstance=true) */}
+                        {division.isInstance && (
                           <button
                             onClick={e => {
                               e.stopPropagation()
@@ -478,8 +562,8 @@ export function InteractiveDivisionTree({
                           >
                             <Trash2 className="size-2.5" />
                           </button>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -500,6 +584,7 @@ export function InteractiveDivisionTree({
                   selectedNodeId={selectedNodeId}
                   editingNodeId={editingNodeId}
                   onKeyboardNavigation={onKeyboardNavigation}
+                  onEditingStateChange={onEditingStateChange}
                   // Pass global drag state down
                   draggedNode={draggedNode}
                   dragOverNode={dragOverNode}

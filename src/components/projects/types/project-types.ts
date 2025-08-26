@@ -3,6 +3,8 @@ export enum ProjectCategory {
   COMMERCIAL = 'commercial', // Ticari
   INFRASTRUCTURE = 'infrastructure', // Altyapı
   RENOVATION = 'renovation', // Renovasyon
+  HEALTHCARE = 'healthcare', // Sağlık
+  SPORTS = 'sports', // Spor
 }
 
 export enum ProjectStatus {
@@ -67,6 +69,7 @@ export interface DivisionNode {
   estimatedCost?: number // TL cinsinden
   priority?: 'low' | 'medium' | 'high' | 'critical'
   status?: 'planned' | 'in-progress' | 'completed' | 'on-hold'
+  isInstance?: boolean // For marking user-created nodes vs template nodes
 }
 
 export interface DivisionInstance {

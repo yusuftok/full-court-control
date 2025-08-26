@@ -121,6 +121,7 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
     const newNode: DivisionNode = {
       id: `division-${Date.now()}`,
       name: 'Yeni Bölüm',
+      isInstance: true, // Mark user-created nodes as instances
     }
 
     const addToNodes = (nodes: DivisionNode[]): DivisionNode[] => {
@@ -144,6 +145,10 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
     updateFormData({
       divisions: addToNodes(formData.divisions),
     })
+
+    // Auto-select and start editing the new node
+    setSelectedNodeId(newNode.id)
+    setEditingNodeId(newNode.id)
 
     if (formData.templateId) {
       setHasModifications(true)
@@ -349,6 +354,9 @@ export const TemplateSelectionStep: React.FC<TemplateSelectionStepProps> = ({
                   setGlobalDraggedNode(draggedNode)
                   setGlobalDragOverNode(dragOverNode)
                   setGlobalDropPosition(dropPosition)
+                }}
+                onEditingStateChange={(nodeId, isEditing) => {
+                  setEditingNodeId(isEditing ? nodeId : null)
                 }}
               />
             </div>
