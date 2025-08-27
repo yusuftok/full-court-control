@@ -149,7 +149,13 @@ export const ensureNodeFlags = (
   node: DivisionNode,
   treeEditMode: 'template' | 'division' = 'template'
 ): DivisionNode => {
-  const flags = computeNodeFlags(node, treeEditMode)
+  // If node already has flags and it's a ghost node, preserve the existing flags
+  // (Ghost nodes have special template-referenced flags that shouldn't be overridden)
+  const shouldPreserveFlags = node._flags && node.nodeType === NodeType.GHOST
+  const flags = shouldPreserveFlags
+    ? node._flags
+    : computeNodeFlags(node, treeEditMode)
+
   return {
     ...node,
     _flags: flags,
