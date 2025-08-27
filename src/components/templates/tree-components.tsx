@@ -15,10 +15,12 @@ import {
   InteractiveDivisionTreeProps,
   TreeNodeState,
 } from './template-types'
+import { ensureNodeFlags } from '@/lib/utils/node-helpers'
 
 export function InteractiveDivisionTree({
   divisions,
   level = 0,
+  treeEditMode = 'template', // Default to template mode
   onNodeSelect,
   onNodeEdit,
   onNodeAdd,
@@ -46,6 +48,11 @@ export function InteractiveDivisionTree({
   const [editingText, setEditingText] = React.useState('')
   const lastEditingNodeRef = React.useRef<string | null>(null)
 
+  // Ensure all divisions have proper flags computed based on treeEditMode
+  const divisionsWithFlags = React.useMemo(() => {
+    return divisions.map(division => ensureNodeFlags(division, treeEditMode))
+  }, [divisions, treeEditMode])
+
   // Use global drag state or local fallback
   const draggedNode = globalDraggedNode
   const dragOverNode = globalDragOverNode
@@ -66,9 +73,9 @@ export function InteractiveDivisionTree({
         }
       })
     }
-    initializeNode(divisions)
+    initializeNode(divisionsWithFlags)
     setNodeStates(initialStates)
-  }, [divisions, globalExpandedNodes])
+  }, [divisionsWithFlags, globalExpandedNodes])
 
   // Handle external editingNodeId changes (from parent)
   React.useEffect(() => {
@@ -228,8 +235,8 @@ export function InteractiveDivisionTree({
       case 'F2':
         event.preventDefault()
         const node =
-          divisions.find(d => d.id === nodeId) ||
-          findNodeInTree(divisions, nodeId)
+          divisionsWithFlags.find(d => d.id === nodeId) ||
+          findNodeInTree(divisionsWithFlags, nodeId)
         if (node) {
           handleEditStart(nodeId, node.name)
         }
@@ -287,7 +294,7 @@ export function InteractiveDivisionTree({
 
   return (
     <div className={`${level > 0 ? 'ml-4' : ''} space-y-0 min-h-full relative`}>
-      {divisions.map((division, index) => {
+      {divisionsWithFlags.map((division, index) => {
         const nodeState = nodeStates[division.id] || {
           expanded: globalExpandedNodes?.[division.id] ?? true,
           selected: false,
@@ -298,7 +305,7 @@ export function InteractiveDivisionTree({
         const hasChildren = division.children && division.children.length > 0
         const isDragged = draggedNode === division.id
         const isDragOver = dragOverNode === division.id
-        const isLast = index === divisions.length - 1
+        const isLast = index === divisionsWithFlags.length - 1
         const isExpanded =
           globalExpandedNodes?.[division.id] ?? nodeState.expanded ?? true
 
@@ -519,27 +526,26 @@ export function InteractiveDivisionTree({
                           </div>
                         )}
 
-                      {/* Action Buttons - show only if callbacks are provided (not read-only) */}
-                      {(onNodeAdd || onNodeEdit || onNodeDelete) && (
+                      {/* Action Buttons - flag-based visibility */}
+                      {(division._flags?.canAddChild ||
+                        division._flags?.canEdit ||
+                        division._flags?.canDelete) && (
                         <div className="flex items-center gap-2 min-w-[70px] flex-shrink-0 transition-opacity duration-200 opacity-0 group-hover:opacity-100 ml-3">
-                          {/* Plus button: Show on template leaf nodes OR user-created nodes */}
-                          {onNodeAdd &&
-                            ((!hasChildren && !division.isInstance) ||
-                              division.isInstance) && (
-                              <button
-                                onClick={e => {
-                                  e.stopPropagation()
-                                  onNodeAdd(division.id)
-                                }}
-                                className="size-4 flex items-center justify-center rounded hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all duration-200 hover:scale-110"
-                                title="Alt bölüm ekle"
-                              >
-                                <Plus className="size-2.5" />
-                              </button>
-                            )}
-
-                          {/* Edit button: Show only on user-created nodes (isInstance=true) */}
-                          {onNodeEdit && division.isInstance && (
+                          {/* Plus button - only if canAddChild flag is true */}
+                          {division._flags?.canAddChild && (
+                            <button
+                              onClick={e => {
+                                e.stopPropagation()
+                                onNodeAdd?.(division.id)
+                              }}
+                              className="size-4 flex items-center justify-center rounded hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all duration-200 hover:scale-110"
+                              title="Alt bölüm ekle"
+                            >
+                              <Plus className="size-2.5" />
+                            </button>
+                          )}
+                          {/* Edit button - only if canEdit flag is true */}
+                          {division._flags?.canEdit && (
                             <button
                               onClick={e => {
                                 e.stopPropagation()
@@ -551,13 +557,12 @@ export function InteractiveDivisionTree({
                               <Edit className="size-2.5" />
                             </button>
                           )}
-
-                          {/* Delete button: Show only on user-created nodes (isInstance=true) */}
-                          {onNodeDelete && division.isInstance && (
+                          {/* Delete button - only if canDelete flag is true */}
+                          {division._flags?.canDelete && (
                             <button
                               onClick={e => {
                                 e.stopPropagation()
-                                onNodeDelete(division.id)
+                                onNodeDelete?.(division.id)
                               }}
                               className="size-4 flex items-center justify-center rounded bg-red-100/20 hover:bg-red-500/10 text-red-600 hover:text-red-600 transition-all duration-200 hover:scale-110 border border-red-200/30"
                               title="Sil"
@@ -579,6 +584,7 @@ export function InteractiveDivisionTree({
                 <InteractiveDivisionTree
                   divisions={division.children!}
                   level={level + 1}
+                  treeEditMode={treeEditMode} // Pass treeEditMode to children
                   onNodeSelect={onNodeSelect}
                   onNodeEdit={onNodeEdit}
                   onNodeAdd={onNodeAdd}

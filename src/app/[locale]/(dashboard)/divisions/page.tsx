@@ -121,48 +121,48 @@ const mockDivisionStructures: Record<string, ProjectDivisionStructure> = {
     ],
     instances: [
       {
-        id: 'inst-1',
+        id: 'instance-1',
         nodeId: 'node-1',
         name: 'Saha Hazırlığı',
         taskCount: 5,
         progress: 80,
       },
       {
-        id: 'inst-1-1',
+        id: 'instance-1-1',
         nodeId: 'node-1-1',
         name: 'Yıkım İşleri',
-        parentInstanceId: 'inst-1',
+        parentInstanceId: 'instance-1',
         taskCount: 2,
         progress: 100,
       },
       {
-        id: 'inst-1-2',
+        id: 'instance-1-2',
         nodeId: 'node-1-2',
         name: 'Saha Temizliği',
-        parentInstanceId: 'inst-1',
+        parentInstanceId: 'instance-1',
         taskCount: 3,
         progress: 60,
       },
       {
-        id: 'inst-2',
+        id: 'instance-2',
         nodeId: 'node-2',
         name: 'Çekirdek & Kabuk',
         taskCount: 15,
         progress: 45,
       },
       {
-        id: 'inst-2-1',
+        id: 'instance-2-1',
         nodeId: 'node-2-1',
         name: 'Temel Atma',
-        parentInstanceId: 'inst-2',
+        parentInstanceId: 'instance-2',
         taskCount: 8,
         progress: 90,
       },
       {
-        id: 'inst-2-2',
+        id: 'instance-2-2',
         nodeId: 'node-2-2',
         name: 'Yapısal İskelet',
-        parentInstanceId: 'inst-2',
+        parentInstanceId: 'instance-2',
         taskCount: 7,
         progress: 20,
       },
@@ -885,7 +885,8 @@ export default function ProjectDivisionsPage() {
                   Aktif İnşaat Bölümleri
                 </CardTitle>
                 <div className="text-sm text-muted-foreground">
-                  Toplam {currentStructure.instances.length} bölüm instance&apos;ı
+                  Toplam {currentStructure.instances.length} bölüm
+                  instance&apos;ı
                 </div>
               </CardHeader>
               <CardContent>

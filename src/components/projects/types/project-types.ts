@@ -74,7 +74,7 @@ export interface DivisionNode {
 }
 
 export interface DivisionInstance {
-  id: string // Unique instance ID (inst-${timestamp})
+  id: string // Unique instance ID (instance-${timestamp})
   nodeId: string // Reference to template node
   name: string // Custom instance name (can differ from template)
   parentInstanceId?: string // For hierarchical instances
