@@ -29,7 +29,7 @@ import { ProjectCategory } from '@/components/projects/types/project-types'
 // Mock projects for demo
 const mockProjects: Project[] = [
   {
-    id: 'project-1',
+    id: '1',
     name: 'Ataşehir Ofis Kompleksi',
     location: 'Ataşehir, İstanbul',
     startDate: '2024-01-15',
@@ -66,7 +66,7 @@ const mockProjects: Project[] = [
     divisionInstances: [],
   },
   {
-    id: 'project-2',
+    id: '2',
     name: 'Bahçeşehir Konut Projesi',
     location: 'Bahçeşehir, İstanbul',
     startDate: '2024-03-01',
@@ -103,7 +103,7 @@ const mockProjects: Project[] = [
     divisionInstances: [],
   },
   {
-    id: 'project-3',
+    id: '3',
     name: 'Ankara Metro B2 Hattı',
     location: 'Çankaya, Ankara',
     startDate: '2023-09-15',
@@ -140,7 +140,7 @@ const mockProjects: Project[] = [
     divisionInstances: [],
   },
   {
-    id: 'project-4',
+    id: '4',
     name: 'İzmir Ege Rezidans',
     location: 'Alsancak, İzmir',
     startDate: '2024-06-01',
@@ -177,7 +177,7 @@ const mockProjects: Project[] = [
     divisionInstances: [],
   },
   {
-    id: 'project-5',
+    id: '5',
     name: 'Beyoğlu Tarihi Bina Restorasyonu',
     location: 'Galata, İstanbul',
     startDate: '2023-12-01',
@@ -214,7 +214,7 @@ const mockProjects: Project[] = [
     divisionInstances: [],
   },
   {
-    id: 'project-6',
+    id: '6',
     name: 'Antalya Mega AVM Projesi',
     location: 'Lara, Antalya',
     startDate: '2024-02-15',
@@ -251,7 +251,7 @@ const mockProjects: Project[] = [
     divisionInstances: [],
   },
   {
-    id: 'project-7',
+    id: '7',
     name: 'Bursa Spor Kompleksi',
     location: 'Osmangazi, Bursa',
     startDate: '2024-01-10',

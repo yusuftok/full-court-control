@@ -2,7 +2,7 @@ import { DivisionTemplate, DivisionNode, ProjectData } from './template-types'
 
 export const mockTemplates: DivisionTemplate[] = [
   {
-    id: '1',
+    id: 'template-1',
     name: 'Yüksek Kat Konut Binası',
     description: '10 kattan yüksek konut kuleleri için standart bölüm şablonu',
     createdBy: 'Ahmet Yılmaz',
@@ -11,44 +11,44 @@ export const mockTemplates: DivisionTemplate[] = [
     usageCount: 8,
     divisions: [
       {
-        id: '1-1',
+        id: 'template-1-1',
         name: 'Temel & Bodrum',
         children: [
-          { id: '1-1-1', name: 'Kazı İşleri' },
-          { id: '1-1-2', name: 'Temel Betonu' },
-          { id: '1-1-3', name: 'Bodrum Duvarları' },
+          { id: 'template-1-1-1', name: 'Kazı İşleri' },
+          { id: 'template-1-1-2', name: 'Temel Betonu' },
+          { id: 'template-1-1-3', name: 'Bodrum Duvarları' },
         ],
       },
       {
-        id: '1-2',
+        id: 'template-1-2',
         name: 'Yapı Sistemi',
         children: [
-          { id: '1-2-1', name: 'Kolon & Kiriş' },
-          { id: '1-2-2', name: 'Döşeme Plakları' },
-          { id: '1-2-3', name: 'Dış Duvarlar' },
+          { id: 'template-1-2-1', name: 'Kolon & Kiriş' },
+          { id: 'template-1-2-2', name: 'Döşeme Plakları' },
+          { id: 'template-1-2-3', name: 'Dış Duvarlar' },
         ],
       },
       {
-        id: '1-3',
+        id: 'template-1-3',
         name: 'Mekanik Elektrik Tesisat',
         children: [
-          { id: '1-3-1', name: 'Elektrik' },
-          { id: '1-3-2', name: 'Tesisat' },
-          { id: '1-3-3', name: 'HVAC' },
+          { id: 'template-1-3-1', name: 'Elektrik' },
+          { id: 'template-1-3-2', name: 'Tesisat' },
+          { id: 'template-1-3-3', name: 'HVAC' },
         ],
       },
       {
-        id: '1-4',
+        id: 'template-1-4',
         name: 'Son Kat',
         children: [
-          { id: '1-4-1', name: 'İç Finisaj' },
-          { id: '1-4-2', name: 'Dış Cephe' },
+          { id: 'template-1-4-1', name: 'İç Finisaj' },
+          { id: 'template-1-4-2', name: 'Dış Cephe' },
         ],
       },
     ],
   },
   {
-    id: '2',
+    id: 'template-2',
     name: 'Ticari Ofis Kompleksi',
     description: 'Orta ve büyük ticari ofis binaları için bölüm şablonu',
     createdBy: 'Fatma Demir',
@@ -57,43 +57,43 @@ export const mockTemplates: DivisionTemplate[] = [
     usageCount: 5,
     divisions: [
       {
-        id: '2-1',
+        id: 'template-2-1',
         name: 'Saha Hazırlığı',
         children: [
-          { id: '2-1-1', name: 'Yıkım' },
-          { id: '2-1-2', name: 'Saha Temizliği' },
-          { id: '2-1-3', name: 'Altyapı Kurulumu' },
+          { id: 'template-2-1-1', name: 'Yıkım' },
+          { id: 'template-2-1-2', name: 'Saha Temizliği' },
+          { id: 'template-2-1-3', name: 'Altyapı Kurulumu' },
         ],
       },
       {
-        id: '2-2',
+        id: 'template-2-2',
         name: 'Çekirdek & Kabuk',
         children: [
-          { id: '2-2-1', name: 'Temel' },
-          { id: '2-2-2', name: 'Yapısal İskelet' },
-          { id: '2-2-3', name: 'Bina Kabuğu' },
+          { id: 'template-2-2-1', name: 'Temel' },
+          { id: 'template-2-2-2', name: 'Yapısal İskelet' },
+          { id: 'template-2-2-3', name: 'Bina Kabuğu' },
         ],
       },
       {
-        id: '2-3',
+        id: 'template-2-3',
         name: 'Kiracı İyileştirmeleri',
         children: [
-          { id: '2-3-1', name: 'İç Mekan Düzenleme' },
-          { id: '2-3-2', name: 'Teknoloji Altyapısı' },
+          { id: 'template-2-3-1', name: 'İç Mekan Düzenleme' },
+          { id: 'template-2-3-2', name: 'Teknoloji Altyapısı' },
         ],
       },
       {
-        id: '2-4',
+        id: 'template-2-4',
         name: 'Saha İşleri',
         children: [
-          { id: '2-4-1', name: 'Peyzaj' },
-          { id: '2-4-2', name: 'Otopark & Erişim' },
+          { id: 'template-2-4-1', name: 'Peyzaj' },
+          { id: 'template-2-4-2', name: 'Otopark & Erişim' },
         ],
       },
     ],
   },
   {
-    id: '3',
+    id: 'template-3',
     name: 'Altyapı Köprüsü',
     description: 'Karayolu ve demiryolu köprü inşaat projeleri için şablon',
     createdBy: 'Mehmet Kaya',
@@ -102,29 +102,29 @@ export const mockTemplates: DivisionTemplate[] = [
     usageCount: 3,
     divisions: [
       {
-        id: '3-1',
+        id: 'template-3-1',
         name: 'Temeller',
         children: [
-          { id: '3-1-1', name: 'Kazık Montajı' },
-          { id: '3-1-2', name: 'Kazık Başlıkları' },
-          { id: '3-1-3', name: 'Ayaklar' },
+          { id: 'template-3-1-1', name: 'Kazık Montajı' },
+          { id: 'template-3-1-2', name: 'Kazık Başlıkları' },
+          { id: 'template-3-1-3', name: 'Ayaklar' },
         ],
       },
       {
-        id: '3-2',
+        id: 'template-3-2',
         name: 'Üst Yapı',
         children: [
-          { id: '3-2-1', name: 'Kiriş Montajı' },
-          { id: '3-2-2', name: 'Tabla İnşaatı' },
+          { id: 'template-3-2-1', name: 'Kiriş Montajı' },
+          { id: 'template-3-2-2', name: 'Tabla İnşaatı' },
         ],
       },
       {
-        id: '3-3',
+        id: 'template-3-3',
         name: 'Finisaj & Güvenlik',
         children: [
-          { id: '3-3-1', name: 'Korkuluk & Bariyerler' },
-          { id: '3-3-2', name: 'Tabla Finisajı' },
-          { id: '3-3-3', name: 'Aydınlatma & Tabela' },
+          { id: 'template-3-3-1', name: 'Korkuluk & Bariyerler' },
+          { id: 'template-3-3-2', name: 'Tabla Finisajı' },
+          { id: 'template-3-3-3', name: 'Aydınlatma & Tabela' },
         ],
       },
     ],

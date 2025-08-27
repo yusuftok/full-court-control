@@ -34,7 +34,8 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
 import { InteractiveDivisionTree } from '@/components/templates/tree-components'
-import { DivisionNode } from '@/components/templates/template-types'
+import { DivisionNode, NodeType } from '@/components/templates/template-types'
+import { getNodeTypeFromId } from '@/lib/utils/node-helpers'
 import { ProjectFormData, DivisionInstance } from '../types/project-types'
 import { mockTemplates } from '@/components/templates/template-data'
 
@@ -157,6 +158,7 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
 
     return childInstances.map(childInstance => ({
       id: childInstance.id,
+      nodeType: NodeType.INSTANCE, // Child instance'lar da instance olarak işaretlenir
       name: childInstance.name,
       children: buildInstanceChildren(childInstance.id, instances), // Recursive for nested children
       description: childInstance.description,
@@ -184,6 +186,7 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
     // Add actual instances as children (marked with isInstance flag for visual distinction)
     const instanceChildren = nodeInstances.map(instance => ({
       id: instance.id,
+      nodeType: NodeType.INSTANCE, // Gerçek instance node'lar instance olarak işaretlenir
       name: instance.name,
       children: buildInstanceChildren(instance.id, instances), // Use recursive helper
       description: instance.description,
@@ -191,12 +194,17 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
       isInstance: true, // Mark as instance for visual distinction
     }))
 
+    // Create ghost ID from template ID
+    const ghostId = `ghost-${templateNode.id.replace('template-', '')}`
+
     return {
-      id: templateNode.id,
+      id: ghostId, // Use proper ghost- prefix ID
+      nodeType: NodeType.GHOST, // Template'ten gelen node'lar ghost olarak işaretlenir
       name: templateNode.name,
       children: [...templateChildren, ...instanceChildren],
       description: templateNode.description,
       status: templateNode.status,
+      originalTemplateId: templateNode.id, // Store reference to original template
       instanceCount: nodeInstances.length,
     }
   }
@@ -262,7 +270,7 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
 
     // Create instance for current node
     const newInstance: DivisionInstance = {
-      id: `inst-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `instance-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       nodeId: templateNode.id,
       name: instanceName,
       parentInstanceId,
@@ -302,7 +310,7 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
         : `${templateNode.name} - ${existingCount + 1}`
 
     const newInstance: DivisionInstance = {
-      id: `inst-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `instance-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       nodeId: templateNodeId,
       name: instanceName,
       parentInstanceId: undefined, // Root level instance
@@ -412,6 +420,54 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
     )
 
     updateFormData({ divisionInstances: updatedInstances })
+  }
+
+  // Handle adding new instance as child of existing instance
+  const handleInstanceAdd = (nodeId: string) => {
+    const nodeType = getNodeTypeFromId(nodeId)
+    
+    if (nodeType === NodeType.GHOST) {
+      // For ghost nodes, find the original template ID
+      const findGhostNodeInTree = (nodes: DivisionNode[]): DivisionNode | null => {
+        for (const node of nodes) {
+          if (node.id === nodeId) return node
+          if (node.children) {
+            const found = findGhostNodeInTree(node.children)
+            if (found) return found
+          }
+        }
+        return null
+      }
+      
+      const instanceTree = buildInstanceTree(formData.divisionInstances)
+      const ghostNode = findGhostNodeInTree(instanceTree)
+      
+      if (ghostNode && ghostNode.originalTemplateId) {
+        handleCreateInstance(ghostNode.originalTemplateId)
+      }
+    } else if (nodeType === NodeType.INSTANCE) {
+      // For instance nodes, create child instance
+      const parentInstance = formData.divisionInstances.find(
+        inst => inst.id === nodeId
+      )
+      if (!parentInstance) return
+
+      // Create child instance
+      const newChildInstance: DivisionInstance = {
+        id: `instance-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        nodeId: parentInstance.nodeId, // Same template node as parent
+        name: `${parentInstance.name} - Alt Bölüm`,
+        parentInstanceId: nodeId, // Parent is the clicked instance
+        taskCount: 0,
+        progress: 0,
+        status: 'planned',
+        createdAt: new Date().toISOString(),
+      }
+
+      updateFormData({
+        divisionInstances: [...formData.divisionInstances, newChildInstance],
+      })
+    }
   }
 
   // Handle instance move (drag & drop)
@@ -767,8 +823,10 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
                 <div className="border rounded-lg p-3 bg-slate-50 dark:bg-slate-900/20 min-h-[300px]">
                   <InteractiveDivisionTree
                     divisions={instanceTree}
+                    treeEditMode="division" // Enable division mode for ghost/instance node permissions
                     onNodeSelect={setSelectedInstanceId}
                     onNodeEdit={handleInstanceEdit}
+                    onNodeAdd={handleInstanceAdd} // Enable + button functionality
                     onNodeDelete={handleInstanceDelete}
                     onNodeMove={handleInstanceMove}
                     selectedNodeId={selectedInstanceId ?? undefined}
@@ -829,8 +887,10 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
                 <div className="border rounded-lg p-3 bg-slate-50 dark:bg-slate-900/20 min-h-[300px]">
                   <InteractiveDivisionTree
                     divisions={instanceTree}
+                    treeEditMode="division" // Enable division mode for ghost/instance node permissions
                     onNodeSelect={setSelectedInstanceId}
                     onNodeEdit={handleInstanceEdit}
+                    onNodeAdd={handleInstanceAdd} // Enable + button functionality
                     onNodeDelete={handleInstanceDelete}
                     onNodeMove={handleInstanceMove}
                     selectedNodeId={selectedInstanceId ?? undefined}

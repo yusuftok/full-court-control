@@ -11,7 +11,7 @@ export interface SearchItem {
 export const searchableItems: SearchItem[] = [
   // Projects
   {
-    id: 'project-1',
+    id: '1',
     type: 'project',
     name: 'Şehir Merkezi Ofis Kompleksi',
     description: 'İstanbul merkez lokasyonda 15 katlı ofis projesi',
@@ -20,7 +20,7 @@ export const searchableItems: SearchItem[] = [
     emoji: '🏢',
   },
   {
-    id: 'project-2',
+    id: '2',
     type: 'project',
     name: 'Konut Kulesi A',
     description: "Ankara'da 25 katlı lüks konut projesi",
@@ -29,7 +29,7 @@ export const searchableItems: SearchItem[] = [
     emoji: '🏠',
   },
   {
-    id: 'project-3',
+    id: '3',
     type: 'project',
     name: 'Alışveriş Merkezi Genişletme',
     description: 'İzmir AVM genişletme projesi',
@@ -38,7 +38,7 @@ export const searchableItems: SearchItem[] = [
     emoji: '🛒',
   },
   {
-    id: 'project-4',
+    id: '4',
     type: 'project',
     name: 'Otoyol Köprüsü Yenileme',
     description: 'Bursa otoyolu köprü yenileme işleri',
@@ -47,7 +47,7 @@ export const searchableItems: SearchItem[] = [
     emoji: '🌉',
   },
   {
-    id: 'project-5',
+    id: '5',
     type: 'project',
     name: 'Hastane Ek Binası İnşaatı',
     description: 'İstanbul devlet hastanesi ek bina inşaatı',
