@@ -39,8 +39,8 @@ export function HorizontalStepIndicator({
       const newlyCompleted = prevCurrentStep.current
       setCelebratingStep(newlyCompleted)
 
-      // Clear celebration after animation
-      setTimeout(() => setCelebratingStep(null), 800)
+      // Clear celebration after animation (shorter for less bounce)
+      setTimeout(() => setCelebratingStep(null), 200)
     }
     prevCurrentStep.current = currentStep
   }, [currentStep])
