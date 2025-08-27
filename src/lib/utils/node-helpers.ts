@@ -37,11 +37,19 @@ export const ghostToTemplateId = (ghostId: string): string => {
 // Flag computation for performance optimization
 export const computeNodeFlags = (
   node: DivisionNode,
-  treeEditMode: 'template' | 'division' = 'template'
+  treeEditMode: 'template' | 'division' = 'template',
+  templateNode?: DivisionNode // Original template node for ghost node leaf detection
 ): NodeFlags => {
   const isTemplateMode = treeEditMode === 'template'
   const nodeType = node.nodeType
-  const isLeaf = !node.children || node.children.length === 0
+
+  // For ghost nodes, check if ORIGINAL TEMPLATE NODE is leaf, not current ghost node
+  let isLeaf: boolean
+  if (nodeType === NodeType.GHOST && templateNode) {
+    isLeaf = !templateNode.children || templateNode.children.length === 0
+  } else {
+    isLeaf = !node.children || node.children.length === 0
+  }
 
   return {
     isTemplate: nodeType === NodeType.TEMPLATE,
@@ -56,7 +64,7 @@ export const computeNodeFlags = (
     // Template mode'da herkes, division mode'da sadece leaf ghost + instance
     canAddChild:
       isTemplateMode ||
-      (nodeType === NodeType.GHOST && isLeaf) || // Sadece leaf ghost'lara +
+      (nodeType === NodeType.GHOST && isLeaf) || // Sadece leaf ghost'lara + (original template'e göre)
       nodeType === NodeType.INSTANCE,
 
     // Template mode'da herkes, division mode'da sadece instance
