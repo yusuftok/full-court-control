@@ -153,25 +153,15 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
       inst => inst.parentInstanceId === parentInstanceId
     )
 
-    return childInstances.map(childInstance => {
-      const childInstanceNode = {
-        id: childInstance.id,
-        nodeType: NodeType.INSTANCE, // Child instance'lar da instance olarak işaretlenir
-        name: childInstance.name,
-        children: buildInstanceChildren(childInstance.id, instances), // Recursive for nested children
-        description: childInstance.description,
-        status: childInstance.status,
-        isInstance: true, // Mark as instance for visual distinction
-      }
-
-      // Compute flags for child instance node
-      ;(childInstanceNode as DivisionNode)._flags = computeNodeFlags(
-        childInstanceNode as DivisionNode,
-        'division'
-      )
-
-      return childInstanceNode
-    })
+    return childInstances.map(childInstance => ({
+      id: childInstance.id,
+      nodeType: NodeType.INSTANCE, // Child instance'lar da instance olarak işaretlenir
+      name: childInstance.name,
+      children: buildInstanceChildren(childInstance.id, instances), // Recursive for nested children
+      description: childInstance.description,
+      status: childInstance.status,
+      isInstance: true, // Mark as instance for visual distinction
+    }))
   }
 
   // Convert template node to hybrid display combining template structure with instances
@@ -191,25 +181,15 @@ export const DivisionSetupStep: React.FC<DivisionSetupStepProps> = ({
       ) || []
 
     // Add actual instances as children (marked with isInstance flag for visual distinction)
-    const instanceChildren = nodeInstances.map(instance => {
-      const instanceNode = {
-        id: instance.id,
-        nodeType: NodeType.INSTANCE, // Gerçek instance node'lar instance olarak işaretlenir
-        name: instance.name,
-        children: buildInstanceChildren(instance.id, instances), // Use recursive helper
-        description: instance.description,
-        status: instance.status,
-        isInstance: true, // Mark as instance for visual distinction
-      }
-
-      // Compute flags for instance node
-      ;(instanceNode as DivisionNode)._flags = computeNodeFlags(
-        instanceNode as DivisionNode,
-        'division'
-      )
-
-      return instanceNode
-    })
+    const instanceChildren = nodeInstances.map(instance => ({
+      id: instance.id,
+      nodeType: NodeType.INSTANCE, // Gerçek instance node'lar instance olarak işaretlenir
+      name: instance.name,
+      children: buildInstanceChildren(instance.id, instances), // Use recursive helper
+      description: instance.description,
+      status: instance.status,
+      isInstance: true, // Mark as instance for visual distinction
+    }))
 
     // Create ghost ID from template ID
     const ghostId = `ghost-${templateNode.id.replace('template-', '')}`
