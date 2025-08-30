@@ -220,7 +220,13 @@ export function ProjectCard({
                 <span className="text-caption">Bütçe Kullanımı</span>
                 <Banknote className="size-4 opacity-60" />
               </div>
-              <div className="text-heading-md">{project.budgetSpent}%</div>
+              <div className="text-heading-md">
+                {Math.round((project.budgetSpent / project.budget) * 100)}%
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                ₺{(project.budgetSpent / 1000000).toFixed(1)}M / ₺
+                {(project.budget / 1000000).toFixed(1)}M
+              </div>
             </div>
 
             <div
