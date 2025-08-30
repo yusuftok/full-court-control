@@ -59,7 +59,9 @@
       "Bash(uv sync:*)",
       "Bash(source:*)",
       "Bash(pip install:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(npm view:*)",
+      "Read(/Users/yusuf.tok/**)"
     ],
     "deny": [],
     "ask": [],
