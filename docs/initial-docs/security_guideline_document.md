@@ -127,7 +127,7 @@ This plan is organized into logical phases with clear deliverables, tasks, and e
 
 - Mobile-first design with Tailwind + ShadCN UI.
 - Fallback to MUI TreeGrid with lazy loading & virtualization (`@tanstack/virtual`).
-- Internationalization setup (next-i18next) with initial Turkish locale.
+ - Internationalization setup (next-intl) with Turkish (default) and English locales.
 
 ### 6.2. Auth Flows & Protected Routes
 

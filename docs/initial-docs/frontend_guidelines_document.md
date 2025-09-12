@@ -13,6 +13,7 @@ This document describes the frontend setup, design principles, and technologies 
 ### 1.2 Key Libraries
 
 - **React** for building user interfaces.
+- **next-intl** for App Router–native internationalization (TR default, EN also available).
 - **ShadCN UI** as our primary component library (built on Tailwind CSS).
 - **MUI TreeGrid** fallback for complex hierarchical tables.
 - **dnd-kit** for drag-and-drop interactions.
@@ -152,6 +153,30 @@ This document describes the frontend setup, design principles, and technologies 
 - **Top Bar**: tenant selector, notifications, user menu.
 
 Users click sidebar items to load new pages; route changes prefetch data and code.
+
+---
+
+### 6.3 i18n Usage (next-intl)
+
+- Store strings in `src/i18n/locales/{tr,en}.json` with dot-notation keys (e.g., `sidebar.dashboard`). Keep keys in both locales.
+- Client components:
+  ```tsx
+  'use client'
+  import { useTranslations } from 'next-intl'
+  export function Label() {
+    const t = useTranslations()
+    return <span>{t('sidebar.dashboard')}</span>
+  }
+  ```
+- Server components/handlers:
+  ```tsx
+  import { getTranslations } from 'next-intl/server'
+  export default async function Page() {
+    const t = await getTranslations()
+    return <h1>{t('common.home')}</h1>
+  }
+  ```
+- Default locale is Turkish (`tr`). Middleware in `src/middleware.ts` handles locale routing per `src/i18n/config.ts`.
 
 ---
 

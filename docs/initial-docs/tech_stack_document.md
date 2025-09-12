@@ -10,6 +10,8 @@ We build the user interface—what you see and click—using these tools:
   • Lets us render pages on the server for speed and SEO, while still having interactive bits on the client.
 - **React & TypeScript (strict)**
   • React is a popular library for building UI components. TypeScript adds safety by checking our code for mistakes as we type.
+- **next-intl**
+  • App Router–native internationalization with middleware-based locale routing (Turkish default, English available).
 - **ESLint & Prettier**
   • Automatically keeps our code style consistent and fixes small formatting issues.
 - **ShadCN UI & MUI (fallback)**
