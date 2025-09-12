@@ -29,6 +29,19 @@ import {
 } from '@/components/layout/page-container'
 import { StatCard, StatCardGrid } from '@/components/data/stat-card'
 import { DataTable, Column, StatusBadge } from '@/components/data/data-table'
+import { SubcontractorOverview } from '@/components/projects/SubcontractorOverview'
+import { WbsHealthTree } from '@/components/projects/WbsHealthTree'
+import { IssueList } from '@/components/projects/IssueList'
+import { BudgetSchedulePanel } from '@/components/projects/BudgetSchedulePanel'
+import {
+  buildAnalytics,
+  type WbsNode,
+  type Issue,
+  type NodeMetrics,
+  type OwnerAggregate,
+  type OwnerIssueSummary,
+} from '@/lib/project-analytics'
+import { mockSubcontractors } from '@/components/projects/data/mock-subcontractors'
 
 // Mock project data - in real app this would come from API
 interface ProjectDetails {
@@ -489,6 +502,106 @@ export default function ProjectDashboardPage() {
   const projectId = params.id as string
   const project = mockProjectData[projectId]
 
+  // --- WBS & Analytics (hooks must be before any early return) ---
+  const subsNameMap = React.useMemo(() => {
+    const m = new Map<string, string>()
+    mockSubcontractors.forEach(s => m.set(s.id, s.companyName))
+    return m
+  }, [])
+
+  const wbsRoot: WbsNode = React.useMemo(
+    () => ({
+      id: 'root',
+      name: (mockProjectData[projectId]?.name as string) || 'Proje',
+      children: [
+        {
+          id: 'structure',
+          name: 'Kaba İnşaat',
+          assignedSubcontractorId: 'sub-construction-1',
+          children: [
+            {
+              id: 'excavation',
+              name: 'Kazı',
+              assignedSubcontractorId: 'sub-construction-1',
+            },
+            {
+              id: 'foundation',
+              name: 'Temel',
+              assignedSubcontractorId: 'sub-construction-1',
+            },
+          ],
+        },
+        {
+          id: 'mechanical',
+          name: 'Mekanik',
+          assignedSubcontractorId: 'sub-mechanical-1',
+          children: [
+            { id: 'hvac', name: 'HVAC' },
+            { id: 'plumbing', name: 'Sıhhi Tesisat' },
+          ],
+        },
+        {
+          id: 'electrical',
+          name: 'Elektrik',
+          assignedSubcontractorId: 'sub-electrical-1',
+          children: [
+            { id: 'strong-power', name: 'Güçlü Akım' },
+            { id: 'weak-power', name: 'Zayıf Akım' },
+          ],
+        },
+      ],
+    }),
+    [projectId]
+  )
+
+  const metricsById = React.useMemo(() => {
+    return new Map<string, NodeMetrics>([
+      ['excavation', { ev: 120, ac: 140, pv: 130 }],
+      ['foundation', { ev: 180, ac: 220, pv: 200 }],
+      ['hvac', { ev: 90, ac: 100, pv: 110 }],
+      ['plumbing', { ev: 60, ac: 70, pv: 75 }],
+      ['strong-power', { ev: 80, ac: 85, pv: 90 }],
+      ['weak-power', { ev: 70, ac: 95, pv: 85 }],
+    ])
+  }, [])
+
+  const issues: Issue[] = React.useMemo(
+    () => [
+      { id: 'i1', nodeId: 'foundation', type: 'overrun', costOver: 40000 },
+      { id: 'i2', nodeId: 'weak-power', type: 'delay', daysLate: 8 },
+      { id: 'i3', nodeId: 'hvac', type: 'delay', daysLate: 4 },
+    ],
+    []
+  )
+
+  const analytics = React.useMemo(
+    () => buildAnalytics(wbsRoot, metricsById, issues),
+    [wbsRoot, metricsById, issues]
+  )
+
+  const subcontractorOverviewData = React.useMemo(() => {
+    const arr: Array<{
+      id: string
+      name: string
+      aggregate: OwnerAggregate
+      issues?: OwnerIssueSummary
+    }> = []
+    for (const [id, agg] of analytics.ownerAgg) {
+      arr.push({
+        id,
+        name: subsNameMap.get(id) || id,
+        aggregate: agg,
+        issues: analytics.ownerIssue.get(id),
+      })
+    }
+    return arr.sort((a, b) => a.aggregate.combined - b.aggregate.combined)
+  }, [analytics.ownerAgg, analytics.ownerIssue, subsNameMap])
+
+  const [activeTab, setActiveTab] = React.useState<
+    'overview' | 'subs' | 'wbs' | 'issues' | 'evm'
+  >('overview')
+  const [selectedOwner, setSelectedOwner] = React.useState<string | null>(null)
+
   if (!project) {
     return (
       <PageContainer>
@@ -515,9 +628,6 @@ export default function ProjectDashboardPage() {
 
   const budgetUsagePercentage = Math.round(
     (project.spent / project.budget) * 100
-  )
-  const taskCompletionPercentage = Math.round(
-    (project.completedTasks / project.totalTasks) * 100
   )
 
   return (
@@ -599,110 +709,185 @@ export default function ProjectDashboardPage() {
           />
         </StatCardGrid>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Milestones */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="size-5" />
-                Kilometre Taşları
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {project.upcomingMilestones.map(milestone => (
-                  <div
-                    key={milestone.id}
-                    className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg construction-hover"
-                  >
-                    <div
-                      className={cn(
-                        'size-8 rounded-full flex items-center justify-center',
-                        milestone.status === 'completed'
-                          ? 'bg-green-100 dark:bg-green-900/30'
-                          : milestone.status === 'in-progress'
-                            ? 'bg-blue-100 dark:bg-blue-900/30'
-                            : milestone.status === 'overdue'
-                              ? 'bg-red-100 dark:bg-red-900/30'
-                              : 'bg-gray-100 dark:bg-gray-900/30'
-                      )}
-                    >
-                      <Calendar
-                        className={cn(
-                          'size-4',
-                          milestone.status === 'completed'
-                            ? 'text-green-600 dark:text-green-400'
-                            : milestone.status === 'in-progress'
-                              ? 'text-blue-600 dark:text-blue-400'
-                              : milestone.status === 'overdue'
-                                ? 'text-red-600 dark:text-red-400'
-                                : 'text-gray-600 dark:text-gray-400'
-                        )}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-medium">{milestone.name}</h4>
-                        <span className="text-sm text-muted-foreground">
-                          {new Date(milestone.dueDate).toLocaleDateString(
-                            'tr-TR'
-                          )}
-                        </span>
-                      </div>
-                      <Progress value={milestone.progress} className="h-2" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+        {/* Tabs */}
+        <div className="mb-4 border-b">
+          <div className="flex gap-4">
+            {[
+              { id: 'overview', label: 'Genel Bakış' },
+              { id: 'subs', label: 'Taşeronlar' },
+              { id: 'wbs', label: 'İş Kırılımı' },
+              { id: 'issues', label: 'Sorunlar' },
+              { id: 'evm', label: 'Bütçe & Takvim' },
+            ].map(t => (
+              <button
+                key={t.id}
+                className={cn(
+                  'px-3 py-2 text-sm border-b-2',
+                  activeTab === (t.id as typeof activeTab)
+                    ? 'border-primary text-foreground'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                )}
+                onClick={() => setActiveTab(t.id as typeof activeTab)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
-          {/* Recent Activities */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Son Aktiviteler</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {project.recentActivities.map(activity => {
-                  const config = activityTypeConfig[activity.type]
-                  const Icon = config.icon
-
-                  return (
+        {activeTab === 'overview' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Milestones */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="size-5" />
+                  Kilometre Taşları
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {project.upcomingMilestones.map(milestone => (
                     <div
-                      key={activity.id}
-                      className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg construction-hover"
+                      key={milestone.id}
+                      className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg construction-hover"
                     >
                       <div
                         className={cn(
                           'size-8 rounded-full flex items-center justify-center',
-                          config.bg
+                          milestone.status === 'completed'
+                            ? 'bg-green-100 dark:bg-green-900/30'
+                            : milestone.status === 'in-progress'
+                              ? 'bg-blue-100 dark:bg-blue-900/30'
+                              : milestone.status === 'overdue'
+                                ? 'bg-red-100 dark:bg-red-900/30'
+                                : 'bg-gray-100 dark:bg-gray-900/30'
                         )}
                       >
-                        <Icon className={cn('size-4', config.color)} />
+                        <Calendar
+                          className={cn(
+                            'size-4',
+                            milestone.status === 'completed'
+                              ? 'text-green-600 dark:text-green-400'
+                              : milestone.status === 'in-progress'
+                                ? 'text-blue-600 dark:text-blue-400'
+                                : milestone.status === 'overdue'
+                                  ? 'text-red-600 dark:text-red-400'
+                                  : 'text-gray-600 dark:text-gray-400'
+                          )}
+                        />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm">{activity.title}</p>
-                        <p className="text-xs text-muted-foreground mb-1">
-                          {activity.description}
-                        </p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span>{activity.user}</span>
-                          <span>•</span>
-                          <span>
-                            {new Date(activity.timestamp).toLocaleString(
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className="font-medium">{milestone.name}</h4>
+                          <span className="text-sm text-muted-foreground">
+                            {new Date(milestone.dueDate).toLocaleDateString(
                               'tr-TR'
                             )}
                           </span>
                         </div>
+                        <Progress value={milestone.progress} className="h-2" />
                       </div>
                     </div>
-                  )
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Activities */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Son Aktiviteler</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {project.recentActivities.map(activity => {
+                    const config = activityTypeConfig[activity.type]
+                    const Icon = config.icon
+
+                    return (
+                      <div
+                        key={activity.id}
+                        className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg construction-hover"
+                      >
+                        <div
+                          className={cn(
+                            'size-8 rounded-full flex items-center justify-center',
+                            config.bg
+                          )}
+                        >
+                          <Icon className={cn('size-4', config.color)} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm">
+                            {activity.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground mb-1">
+                            {activity.description}
+                          </p>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>{activity.user}</span>
+                            <span>•</span>
+                            <span>
+                              {new Date(activity.timestamp).toLocaleString(
+                                'tr-TR'
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === 'subs' && (
+          <div className="mb-8">
+            <SubcontractorOverview
+              data={subcontractorOverviewData}
+              onSelect={id => {
+                setSelectedOwner(id)
+                setActiveTab('wbs')
+              }}
+            />
+          </div>
+        )}
+
+        {activeTab === 'wbs' && (
+          <div className="mb-8">
+            <WbsHealthTree
+              root={wbsRoot}
+              ownership={analytics.ownership}
+              nodeHealth={analytics.nodeHealth}
+              onSelectNode={() => {}}
+              filterOwnerId={selectedOwner}
+            />
+          </div>
+        )}
+
+        {activeTab === 'issues' && (
+          <div className="mb-8">
+            <IssueList
+              issues={issues}
+              ownership={analytics.ownership}
+              mode="owner"
+              filterOwnerId={selectedOwner}
+            />
+          </div>
+        )}
+
+        {activeTab === 'evm' && (
+          <div className="mb-8">
+            <BudgetSchedulePanel
+              rootNodeId={wbsRoot.id}
+              sums={analytics.sums}
+            />
+          </div>
+        )}
+        {/* --- end tabs content --- */}
 
         {/* Team Members */}
         <Card className="mb-8">
