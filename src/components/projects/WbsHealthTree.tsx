@@ -17,6 +17,7 @@ export interface WbsHealthTreeProps {
   nodeHealth: Map<string, Health>
   onSelectNode?: (id: string) => void
   filterOwnerId?: string | null
+  view?: 'contract' | 'leaf'
 }
 const levelClass = (lvl: Health['level']) =>
   (
@@ -33,6 +34,7 @@ export function WbsHealthTree({
   nodeHealth,
   onSelectNode,
   filterOwnerId,
+  view = 'contract',
 }: WbsHealthTreeProps) {
   const [expanded, setExpanded] = React.useState<Set<string>>(
     new Set([root.id])
@@ -48,8 +50,14 @@ export function WbsHealthTree({
   }, [])
 
   const rows = React.useMemo(() => {
-    return flattenVisible(root, expanded, ownership, filterOwnerId)
-  }, [root, expanded, ownership, filterOwnerId])
+    return flattenVisible(
+      root,
+      expanded,
+      ownership,
+      filterOwnerId ?? null,
+      view === 'contract'
+    )
+  }, [root, expanded, ownership, filterOwnerId, view])
 
   // Dynamically import Virtuoso on client; fallback to simple list if not installed.
   const [Virtuoso, setVirtuoso] = React.useState<VirtuosoCmp | null>(null)

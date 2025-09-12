@@ -22,20 +22,29 @@ export function flattenVisible(
   root: WbsNode,
   expanded: Set<string>,
   ownership: OwnershipMap,
-  filterOwnerId?: string | null
+  filterOwnerId?: string | null,
+  contractOnly?: boolean
 ): FlatRow[] {
   const out: FlatRow[] = []
 
-  const walk = (node: WbsNode, depth: number) => {
+  const walk = (node: WbsNode, depth: number, parentOwner: string | null) => {
     if (filterOwnerId) {
       if (!hasOwnerMatch(node, ownership, filterOwnerId)) return
     }
-    out.push({ id: node.id, depth, node })
-    if (node.children && expanded.has(node.id)) {
-      for (const c of node.children) walk(c, depth + 1)
+    const owner = ownership.get(node.id) ?? null
+    const isBoundary = owner !== parentOwner
+
+    // In contract view, sadece boundary düğümler gösterilir; fakat çocuklar her zaman gezilir
+    if (!contractOnly || isBoundary || depth === 0) {
+      out.push({ id: node.id, depth, node })
+    }
+
+    const shouldRecurse = contractOnly ? true : expanded.has(node.id)
+    if (node.children && shouldRecurse) {
+      for (const c of node.children) walk(c, depth + 1, owner)
     }
   }
 
-  walk(root, 0)
+  walk(root, 0, ownership.get(root.id) ?? null)
   return out
 }

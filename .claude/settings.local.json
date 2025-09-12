@@ -78,7 +78,8 @@
       "Bash(claude config get)",
       "Bash(claude config get allowedTools)",
       "Bash(claude config --help)",
-      "Bash(env)"
+      "Bash(env)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": [],

@@ -60,3 +60,21 @@ export const Default: Story = {
     nodeHealth: a.nodeHealth,
   },
 }
+
+export const ContractLevel: Story = {
+  args: {
+    root,
+    ownership: a.ownership,
+    nodeHealth: a.nodeHealth,
+    view: 'contract',
+  },
+}
+
+export const LeafView: Story = {
+  args: {
+    root,
+    ownership: a.ownership,
+    nodeHealth: a.nodeHealth,
+    view: 'leaf',
+  },
+}

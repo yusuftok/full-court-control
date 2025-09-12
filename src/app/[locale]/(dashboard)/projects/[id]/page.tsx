@@ -606,15 +606,19 @@ export default function ProjectDashboardPage() {
   const [selectedOwner, setSelectedOwner] = React.useState<string | null>(
     searchParams.get('subcontractorId')
   )
+  const [view, setView] = React.useState<'contract' | 'leaf'>(
+    (searchParams.get('view') as 'contract' | 'leaf') || 'contract'
+  )
 
   React.useEffect(() => {
     const sp = new URLSearchParams(searchParams.toString())
     sp.set('tab', activeTab)
     if (selectedOwner) sp.set('subcontractorId', selectedOwner)
     else sp.delete('subcontractorId')
+    sp.set('view', view)
     router.replace(`?${sp.toString()}`)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, selectedOwner])
+  }, [activeTab, selectedOwner, view])
 
   if (!project) {
     return (
@@ -872,12 +876,37 @@ export default function ProjectDashboardPage() {
 
         {activeTab === 'wbs' && (
           <div className="mb-8">
+            <div className="flex items-center justify-end gap-2 mb-2">
+              <button
+                className={cn(
+                  'px-2 py-1 text-xs rounded border',
+                  view === 'contract'
+                    ? 'bg-primary text-white border-primary'
+                    : 'text-muted-foreground'
+                )}
+                onClick={() => setView('contract')}
+              >
+                Kontrat Düzeyi
+              </button>
+              <button
+                className={cn(
+                  'px-2 py-1 text-xs rounded border',
+                  view === 'leaf'
+                    ? 'bg-primary text-white border-primary'
+                    : 'text-muted-foreground'
+                )}
+                onClick={() => setView('leaf')}
+              >
+                Tüm Yapraklar
+              </button>
+            </div>
             <WbsHealthTree
               root={wbsRoot}
               ownership={analytics.ownership}
               nodeHealth={analytics.nodeHealth}
               onSelectNode={() => {}}
               filterOwnerId={selectedOwner}
+              view={view}
             />
           </div>
         )}
