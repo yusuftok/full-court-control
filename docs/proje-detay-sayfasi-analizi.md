@@ -23,7 +23,7 @@
 ## Bilgi Mimarisi ve Sekmeler
 - Genel Bakış: Kilometre taşları, son aktiviteler, küçük KPI’lar.
 - Taşeronlar: Her taşeron için kapsam, sağlık (CPI/SPI), sorun sayıları, en riskli 3 iş kalemi. Tıklayınca ağaç ve sorunlar bu taşerona filtrelenir.
-- İş Kırılımı (WBS): Sorumluluk miraslı ağaç, birleşik sağlık ısı haritası, sorun rozetleri. Drill‑down ile kök nedene inme. Sanallaştırma için öncelik: `react-virtuoso` veya `@tanstack/virtual` (dokümantasyon uyumu). Gerekirse mevcut custom VirtualList/VirtualTable yedek olarak kullanılır.
+- İş Kırılımı (WBS): Sorumluluk miraslı ağaç, birleşik sağlık ısı haritası, sorun rozetleri. Drill‑down ile kök nedene inme. Sanallaştırma tercihi: `react-virtuoso` (öncelik); özel gereksinim çıkarsa `@tanstack/virtual`. Paket kısıtı varsa mevcut VirtualList/VirtualTable geçici yedek olarak kullanılır.
 - Sorunlar: Gecikme/bütçe aşımı listesi; taşerona veya WBS’ye göre gruplama, hızlı filtreler.
 - Bütçe & Takvim: CPI/SPI kartları, PV/EV/AC kıyaslaması ve zaman serisi.
 
