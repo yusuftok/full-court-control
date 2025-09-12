@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   ArrowLeft,
@@ -499,6 +499,8 @@ const teamColumns: Column<TeamMember>[] = [
 
 export default function ProjectDashboardPage() {
   const params = useParams()
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const projectId = params.id as string
   const project = mockProjectData[projectId]
 
@@ -597,10 +599,22 @@ export default function ProjectDashboardPage() {
     return arr.sort((a, b) => a.aggregate.combined - b.aggregate.combined)
   }, [analytics.ownerAgg, analytics.ownerIssue, subsNameMap])
 
-  const [activeTab, setActiveTab] = React.useState<
-    'overview' | 'subs' | 'wbs' | 'issues' | 'evm'
-  >('overview')
-  const [selectedOwner, setSelectedOwner] = React.useState<string | null>(null)
+  type TabKey = 'overview' | 'subs' | 'wbs' | 'issues' | 'evm'
+  const [activeTab, setActiveTab] = React.useState<TabKey>(
+    (searchParams.get('tab') as TabKey) || 'overview'
+  )
+  const [selectedOwner, setSelectedOwner] = React.useState<string | null>(
+    searchParams.get('subcontractorId')
+  )
+
+  React.useEffect(() => {
+    const sp = new URLSearchParams(searchParams.toString())
+    sp.set('tab', activeTab)
+    if (selectedOwner) sp.set('subcontractorId', selectedOwner)
+    else sp.delete('subcontractorId')
+    router.replace(`?${sp.toString()}`)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, selectedOwner])
 
   if (!project) {
     return (
