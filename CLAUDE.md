@@ -90,6 +90,13 @@ npm run start           # Start production server
 npm run preview         # Preview production build
 ```
 
+**⚠️ IMPORTANT - Development Server Port Management:**
+
+- Development server MUST always run on port 3000
+- If port 3000 is occupied, kill existing processes first: `kill -9 $(lsof -ti:3000)`
+- Then start dev server: `npm run dev`
+- Never accept alternative ports for development
+
 ### Database
 
 ```bash
@@ -485,3 +492,4 @@ await mcp__playwright__browser_navigate('http://localhost:3000')
 - `/projects` - Projeler
 - `/templates` - Şablonlar
 - `/auth/signin` - Giriş akışı
+- implementasyonda çoklu dil desteği her zaman dikkate alınmalı

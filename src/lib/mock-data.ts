@@ -741,6 +741,15 @@ export const getSimpleProjects = (): Project[] => {
     description: project.description,
     status: project.status,
     progress: project.progress,
+    plannedProgress: Math.min(project.progress + 5, 100), // Assume planned is slightly ahead
+    earnedValue: Math.round(project.budget * (project.progress / 100)),
+    actualCost: Math.round(project.budgetSpent),
+    plannedValue: Math.round(
+      project.budget * (Math.min(project.progress + 5, 100) / 100)
+    ),
+    plannedBudgetToDate: Math.round(
+      project.budget * (Math.min(project.progress + 5, 100) / 100)
+    ),
     totalTasks: project.totalTasks,
     completedTasks: project.completedTasks,
     healthStatus: project.healthStatus,

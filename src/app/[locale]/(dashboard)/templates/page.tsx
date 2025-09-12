@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -61,7 +62,7 @@ const templateCategoryConfig = {
   },
 }
 
-export default function TemplatesPage() {
+function TemplatesPageContent() {
   const searchParams = useSearchParams()
   const selectedTemplateId = searchParams.get('selected')
   const selectedTemplate = selectedTemplateId
@@ -320,5 +321,28 @@ export default function TemplatesPage() {
         )}
       </PageContent>
     </PageContainer>
+  )
+}
+
+export default function TemplatesPage() {
+  return (
+    <Suspense
+      fallback={
+        <PageContainer>
+          <PageContent>
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center space-y-2">
+                <div className="size-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <p className="text-sm text-muted-foreground">
+                  Şablonlar yükleniyor...
+                </p>
+              </div>
+            </div>
+          </PageContent>
+        </PageContainer>
+      }
+    >
+      <TemplatesPageContent />
+    </Suspense>
   )
 }

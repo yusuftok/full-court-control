@@ -100,6 +100,11 @@ export interface Project extends CreateProjectRequest {
   id: string
   status: ProjectStatus
   progress: number
+  plannedProgress: number
+  earnedValue: number
+  actualCost: number
+  plannedValue: number
+  plannedBudgetToDate: number
   totalTasks: number
   completedTasks: number
   healthStatus: 'healthy' | 'warning' | 'critical'
@@ -108,5 +113,6 @@ export interface Project extends CreateProjectRequest {
   manager: string // Ana sorumlu kişi (genelde Şef Mühendis)
   budgetSpent: number // Harcanan bütçe yüzdesi
   daysRemaining: number
+  totalPlannedDays?: number
   updatedAt: string
 }

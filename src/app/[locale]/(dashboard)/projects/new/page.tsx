@@ -207,6 +207,11 @@ export default function CreateProjectPage() {
       id: `project-${Date.now()}`,
       status: ProjectStatus.ACTIVE,
       progress: 0,
+      plannedProgress: 0,
+      earnedValue: 0,
+      actualCost: 0,
+      plannedValue: 0,
+      plannedBudgetToDate: 0,
       totalTasks: formData.divisionInstances.reduce((total, instance) => {
         return total + 1 + (instance.children ? instance.children.length : 0)
       }, 0),

@@ -1,10 +1,10 @@
 import * as React from 'react'
-import { Banknote, Star, Clock, CheckCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CircularProgress } from '@/components/ui/circular-progress'
 import { StatusBadge } from '@/components/data/data-table'
+import { Badge } from '@/components/ui/badge'
 
 // Project interface
 export interface Project {
@@ -14,6 +14,7 @@ export interface Project {
   startDate: string
   endDate?: string
   progress: number
+  plannedProgress: number
   subcontractors: number
   totalTasks: number
   completedTasks: number
@@ -21,77 +22,111 @@ export interface Project {
   budget: number
   manager: string
   budgetSpent: number
+  earnedValue: number
+  actualCost: number
+  plannedValue: number
+  plannedBudgetToDate: number
   daysRemaining?: number
+  totalPlannedDays?: number
   riskLevel: 'low' | 'medium' | 'high'
   qualityScore: number
   healthStatus: 'healthy' | 'warning' | 'critical'
 }
 
-// Health indicator component
-function HealthIndicator({ project }: { project: Project }) {
-  const getHealthColor = (status: Project['healthStatus']) => {
-    switch (status) {
-      case 'healthy':
-        return 'text-green-500'
-      case 'warning':
-        return 'text-yellow-500'
-      case 'critical':
-        return 'text-red-500'
-      default:
-        return 'text-gray-500'
+// Performance levels type
+type PerformanceLevel = 'İyi' | 'Riskli' | 'Kritik'
+
+// Status-only badge for title area
+function StatusOnlyBadge({ value }: { value: number }) {
+  const getPerformanceLevel = (val: number): PerformanceLevel => {
+    if (val >= 0.95) return 'İyi'
+    if (val >= 0.85) return 'Riskli'
+    return 'Kritik'
+  }
+
+  const getPerformanceColor = (level: PerformanceLevel) => {
+    switch (level) {
+      case 'İyi':
+        return 'bg-green-100 text-green-700 border-green-200'
+      case 'Riskli':
+        return 'bg-orange-100 text-orange-700 border-orange-200'
+      case 'Kritik':
+        return 'bg-red-100 text-red-700 border-red-200'
     }
   }
 
-  const getHealthIcon = (status: Project['healthStatus']) => {
-    switch (status) {
-      case 'healthy':
-        return '🟢'
-      case 'warning':
-        return '🟡'
-      case 'critical':
-        return '🔴'
-      default:
-        return '⚪'
-    }
-  }
+  const level = getPerformanceLevel(value)
 
   return (
-    <div className="flex items-center gap-1">
-      <span className="text-sm">{getHealthIcon(project.healthStatus)}</span>
-      <span
-        className={cn(
-          'text-xs font-medium',
-          getHealthColor(project.healthStatus)
-        )}
-      >
-        {project.healthStatus === 'healthy'
-          ? 'Sağlıklı'
-          : project.healthStatus === 'warning'
-            ? 'Dikkat'
-            : 'Kritik'}
-      </span>
+    <Badge
+      className={cn(
+        'text-xs px-1.5 py-0.5 font-medium',
+        getPerformanceColor(level)
+      )}
+    >
+      {level}
+    </Badge>
+  )
+}
+
+// Performance badge component for CPI/SPI indicators
+function PerformanceBadge({
+  value,
+  label,
+}: {
+  value: number
+  label: string
+  type?: 'budget' | 'schedule'
+}) {
+  const getPerformanceLevel = (val: number): PerformanceLevel => {
+    if (val >= 0.95) return 'İyi'
+    if (val >= 0.85) return 'Riskli'
+    return 'Kritik'
+  }
+
+  const getPerformanceColor = (level: PerformanceLevel) => {
+    switch (level) {
+      case 'İyi':
+        return 'bg-green-100 text-green-700 border-green-200'
+      case 'Riskli':
+        return 'bg-orange-100 text-orange-700 border-orange-200'
+      case 'Kritik':
+        return 'bg-red-100 text-red-700 border-red-200'
+    }
+  }
+
+  const level = getPerformanceLevel(value)
+  const formattedValue = value.toFixed(2)
+
+  return (
+    <div className="space-y-1">
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium">{formattedValue}</span>
+        <Badge
+          variant="outline"
+          className={cn(
+            'text-xs px-1.5 py-0.5 font-medium',
+            getPerformanceColor(level)
+          )}
+        >
+          {level}
+        </Badge>
+      </div>
     </div>
   )
 }
 
-// Quality stars component
-function QualityStars({ score }: { score: number }) {
-  return (
-    <div className="flex items-center gap-1">
-      {[1, 2, 3, 4, 5].map(star => (
-        <Star
-          key={star}
-          className={cn(
-            'size-3 transition-all duration-300 hover:scale-125',
-            star <= score ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'
-          )}
-        />
-      ))}
-      <span className="text-xs text-muted-foreground ml-1">
-        {score.toFixed(1)}/5
-      </span>
-    </div>
-  )
+// Health indicator component based on combined CPI/SPI performance
+function HealthIndicator({ project }: { project: Project }) {
+  // Calculate combined performance: 60% CPI + 40% SPI
+  const cpi =
+    project.earnedValue > 0 ? project.earnedValue / project.actualCost : 0
+  const spi =
+    project.earnedValue > 0 ? project.earnedValue / project.plannedValue : 0
+  const combinedPerformance = 0.6 * cpi + 0.4 * spi
+
+  return <StatusOnlyBadge value={combinedPerformance} />
 }
 
 // Main project card component
@@ -108,28 +143,94 @@ export function ProjectCard({
   index = 0,
   className,
 }: ProjectCardProps) {
+  // Calculate combined performance for border color: 60% CPI + 40% SPI
+  const cpi =
+    project.earnedValue > 0 ? project.earnedValue / project.actualCost : 0
+  const spi =
+    project.earnedValue > 0 ? project.earnedValue / project.plannedValue : 0
+  const combinedPerformance = 0.6 * cpi + 0.4 * spi
+
+  const getPerformanceTheme = (combined: number) => {
+    if (combined >= 0.95) {
+      return {
+        border: 'border-l-4 border-l-green-400',
+        background: 'bg-gradient-to-br from-green-50/30 to-emerald-50/20',
+        cardStyle: 'hover:shadow-green-200/50 hover:shadow-xl',
+        textAccent: 'text-green-700',
+        animation: 'hover:scale-[1.02] transition-all duration-300',
+        progressGradient: 'linear-gradient(90deg, #10b981, #34d399)',
+        buttonGradient: 'bg-gradient-to-r from-green-600 to-emerald-600',
+      }
+    }
+    if (combined >= 0.85) {
+      return {
+        border: 'border-l-4 border-l-orange-400',
+        background: 'bg-gradient-to-br from-orange-50/30 to-orange-100/20',
+        cardStyle: 'hover:shadow-orange-200/50 hover:shadow-xl',
+        textAccent: 'text-orange-700',
+        animation: 'hover:scale-[1.01] transition-all duration-300',
+        progressGradient: 'linear-gradient(90deg, #ea580c, #f97316)',
+        buttonGradient: 'bg-gradient-to-r from-orange-600 to-orange-500',
+      }
+    }
+    return {
+      border: 'border-l-4 border-l-red-400',
+      background: 'bg-gradient-to-br from-red-50/30 to-rose-50/20',
+      cardStyle: 'hover:shadow-red-200/50 hover:shadow-lg',
+      textAccent: 'text-red-700',
+      animation: 'hover:scale-[1.005] transition-all duration-200',
+      progressGradient: 'linear-gradient(90deg, #dc2626, #ef4444)',
+      buttonGradient: 'bg-gradient-to-r from-red-600 to-rose-600',
+    }
+  }
+
+  const theme = getPerformanceTheme(combinedPerformance)
+
+  // Helper function for individual metric boxes
+  const getMetricBoxTheme = (value: number) => {
+    if (value >= 0.95) {
+      return 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/60 text-green-800'
+    }
+    if (value >= 0.85) {
+      return 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200/60 text-orange-800'
+    }
+    return 'bg-gradient-to-br from-red-50 to-rose-50 border-red-200/60 text-red-800'
+  }
+
   return (
     <Card
       className={cn(
-        'cursor-pointer floating-card group scale-smooth container-responsive h-[520px] flex flex-col',
-        // Semantic border colors
-        project.healthStatus === 'healthy' && 'border-l-4 border-l-green-400',
-        project.healthStatus === 'warning' && 'border-l-4 border-l-yellow-400',
-        project.healthStatus === 'critical' && 'border-l-4 border-l-red-400',
+        'cursor-pointer floating-card !px-0 group container-responsive h-[520px] flex flex-col',
+        // Dynamic theming based on combined performance
+        theme.border,
+        theme.background,
+        theme.cardStyle,
+        theme.animation,
         className
       )}
       style={{ animationDelay: `${index * 50}ms` }}
       onClick={() => onClick(project)}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2 px-2">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            <CardTitle className="text-heading-md text-high-contrast group-hover:text-primary transition-colors line-clamp-2 mb-2">
-              {project.name}
-            </CardTitle>
+            <div className="flex items-start justify-between mb-2">
+              <CardTitle
+                className={cn(
+                  'text-heading-md text-high-contrast transition-colors line-clamp-2 flex-1',
+                  `group-hover:${theme.textAccent}`
+                )}
+              >
+                {project.name}
+              </CardTitle>
+              <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+                <StatusBadge status={project.status} />
+                <HealthIndicator project={project} />
+              </div>
+            </div>
             <div className="text-body-sm text-medium-contrast flex items-center gap-1 truncate mb-2">
-              📍 {project.location} • <StatusBadge status={project.status} /> •{' '}
-              <HealthIndicator project={project} />
+              📍 {project.location} • 📅{' '}
+              {new Date(project.startDate).toLocaleDateString('tr-TR')}
             </div>
             <div className="flex items-center gap-2">
               <span className="text-body-sm text-medium-contrast">
@@ -140,10 +241,10 @@ export function ProjectCard({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col h-full">
+      <CardContent className="flex flex-col h-full px-2">
         {/* Content area - grows to fill available space */}
         <div className="space-y-4 flex-1">
-          {/* Modern Single Progress Display */}
+          {/* Enhanced Progress Display */}
           <div className="flex items-center gap-4">
             <CircularProgress
               percentage={project.progress}
@@ -162,21 +263,14 @@ export function ProjectCard({
               animate={true}
             />
             <div className="flex-1">
-              <div className="text-body-sm text-medium-contrast mb-1">
-                Proje İlerlemesi
-              </div>
-              <div className="text-heading-sm text-high-contrast mb-2">
-                {project.progress >= 100
-                  ? 'Tamamlandı! 🎉'
-                  : project.progress >= 75
-                    ? 'Son sprint 🏃‍♂️'
-                    : project.progress >= 60
-                      ? 'İyi mesafe alındı 📈'
-                      : project.progress >= 40
-                        ? 'Yolu yarıladı 🚀'
-                        : project.progress >= 20
-                          ? 'İyi başlangıç 👍'
-                          : 'Henüz başlarda 🔥'}
+              <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                <span>
+                  Plan: {project.plannedProgress}% → Gerçek: {project.progress}%
+                </span>
+                <span>
+                  Kalan: {project.totalTasks - project.completedTasks}/
+                  {project.totalTasks}
+                </span>
               </div>
               <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                 <div
@@ -186,11 +280,7 @@ export function ProjectCard({
                     background:
                       project.progress >= 100
                         ? 'linear-gradient(90deg, #10b981, #34d399)'
-                        : project.progress >= 75
-                          ? 'linear-gradient(90deg, #3b82f6, #60a5fa)'
-                          : project.progress >= 50
-                            ? 'linear-gradient(90deg, #f59e0b, #fbbf24)'
-                            : 'linear-gradient(90deg, #6b7280, #9ca3af)',
+                        : theme.progressGradient,
                   }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
@@ -199,99 +289,181 @@ export function ProjectCard({
             </div>
           </div>
 
-          {/* Clean Metrics Grid */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* Enhanced Metrics Grid */}
+          <div className="grid grid-cols-2 gap-2">
             <div
               className={cn(
-                'rounded-xl p-3 border transition-all duration-300 hover:scale-[1.02] cursor-pointer',
-                project.budgetSpent > 90
-                  ? 'budget-over-limit'
-                  : project.budgetSpent > 75
-                    ? 'budget-approaching-limit'
-                    : 'budget-healthy'
-              )}
-              onClick={() =>
-                alert(
-                  `💰 Bütçe Detayları\n\nToplam: ₺${(project.budget / 1000).toFixed(0)}K\nKullanılan: ${project.budgetSpent}%\nKalan: ₺${((project.budget * (100 - project.budgetSpent)) / 100000).toFixed(0)}K`
+                'rounded-xl p-2 transition-all duration-300 hover:scale-[1.02] cursor-pointer space-y-1.5 flex flex-col',
+                getMetricBoxTheme(
+                  project.earnedValue > 0
+                    ? project.earnedValue / project.actualCost
+                    : 0
                 )
-              }
+              )}
+              onClick={() => {
+                const cpi =
+                  project.earnedValue > 0
+                    ? project.earnedValue / project.actualCost
+                    : 0
+                alert(
+                  `💰 Bütçe Durumu Detayı\n\n📊 CPI: ${cpi.toFixed(2)}\n💸 Harcanan (Bugüne): ₺${(project.actualCost / 1000000).toFixed(1)}M\n📅 Planlanan (Bugüne): ₺${(project.plannedBudgetToDate / 1000000).toFixed(1)}M\n🎯 Toplam Bütçe: ₺${(project.budget / 1000000).toFixed(1)}M\n📈 Kazanılan Değer: ₺${(project.earnedValue / 1000000).toFixed(1)}M`
+                )
+              }}
             >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-caption">Bütçe Kullanımı</span>
-                <Banknote className="size-4 opacity-60" />
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-caption">Bütçe Performansı</span>
+                <StatusOnlyBadge
+                  value={
+                    project.earnedValue > 0
+                      ? project.earnedValue / project.actualCost
+                      : 0
+                  }
+                />
               </div>
-              <div className="text-heading-md">
-                {Math.round((project.budgetSpent / project.budget) * 100)}%
+
+              <div className="mb-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-muted-foreground">CPI</div>
+                  <div className="text-lg font-bold">
+                    {project.earnedValue > 0
+                      ? (project.earnedValue / project.actualCost).toFixed(2)
+                      : '0.00'}
+                  </div>
+                </div>
               </div>
-              <div className="text-xs text-muted-foreground mt-1">
-                ₺{(project.budgetSpent / 1000000).toFixed(1)}M / ₺
-                {(project.budget / 1000000).toFixed(1)}M
+
+              <div className="flex-1 flex flex-col">
+                <div className="space-y-2 text-sm text-muted-foreground flex-1">
+                  <div className="flex justify-between">
+                    <span>Harcanan:</span>
+                    <span className="font-semibold">
+                      ₺{(project.actualCost / 1000000).toFixed(1)}M
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Elde Edilen:</span>
+                    <span className="font-semibold">
+                      ₺{(project.earnedValue / 1000000).toFixed(1)}M
+                    </span>
+                  </div>
+                  <div className="flex justify-between font-medium">
+                    <span>Toplam Bütçe:</span>
+                    <span className="font-bold text-base">
+                      ₺{(project.budget / 1000000).toFixed(1)}M
+                    </span>
+                  </div>
+                </div>
+                <div className="flex justify-between text-sm border-t border-dashed border-gray-300 dark:border-gray-600 pt-2 mt-2">
+                  <span className="text-amber-600 dark:text-amber-400">
+                    Böyle Giderse:
+                  </span>
+                  <span className="font-semibold text-amber-700 dark:text-amber-300">
+                    ₺
+                    {(() => {
+                      const cpi =
+                        project.earnedValue > 0
+                          ? project.earnedValue / project.actualCost
+                          : 1
+                      const spi =
+                        project.earnedValue > 0
+                          ? project.earnedValue / project.plannedValue
+                          : 1
+                      const eac =
+                        project.actualCost +
+                        (project.budget - project.earnedValue) / (cpi * spi)
+                      return (eac / 1000000).toFixed(1)
+                    })()}
+                    M
+                  </span>
+                </div>
               </div>
             </div>
 
             <div
               className={cn(
-                'rounded-xl p-3 border transition-all duration-300 hover:scale-[1.02] cursor-pointer',
-                project.daysRemaining && project.daysRemaining < 15
-                  ? 'schedule-delayed'
-                  : project.daysRemaining && project.daysRemaining < 30
-                    ? 'schedule-at-risk'
-                    : 'schedule-on-track'
+                'rounded-xl p-2 transition-all duration-300 hover:scale-[1.02] cursor-pointer space-y-1.5 flex flex-col',
+                getMetricBoxTheme(
+                  project.earnedValue > 0
+                    ? project.earnedValue / project.plannedValue
+                    : 0
+                )
               )}
-              onClick={() =>
+              onClick={() => {
+                const spi =
+                  project.earnedValue > 0
+                    ? project.earnedValue / project.plannedValue
+                    : 0
                 alert(
-                  `⏰ Zaman Çizelgesi\n\nKalan: ${project.daysRemaining ? `${project.daysRemaining} gün` : 'Tamamlandı'}\nBaşlangıç: ${new Date(project.startDate).toLocaleDateString('tr-TR')}`
+                  `⏰ Takvim Performansı\n\nSPI: ${spi.toFixed(2)}\nKalan: ${project.daysRemaining ? `${project.daysRemaining} gün` : 'Tamamlandı'}\nKazanılan Değer: ₺${(project.earnedValue / 1000000).toFixed(1)}M\nPlanlanan Değer: ₺${(project.plannedValue / 1000000).toFixed(1)}M\nBaşlangıç: ${new Date(project.startDate).toLocaleDateString('tr-TR')}`
                 )
-              }
+              }}
             >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-caption">Kalan Süre</span>
-                <Clock className="size-4 opacity-60" />
+              <div className="flex items-center justify-between">
+                <span className="text-caption">Takvim Performansı</span>
+                <StatusOnlyBadge
+                  value={
+                    project.earnedValue > 0
+                      ? project.earnedValue / project.plannedValue
+                      : 0
+                  }
+                />
               </div>
-              <div className="text-heading-md">
-                {project.daysRemaining ? `${project.daysRemaining}g` : 'Tamam'}
-              </div>
-            </div>
 
-            <div
-              className={cn(
-                'rounded-xl p-3 border transition-all duration-300 hover:scale-[1.02] cursor-pointer',
-                project.qualityScore >= 4.5
-                  ? 'quality-excellent'
-                  : project.qualityScore >= 3.5
-                    ? 'quality-good'
-                    : project.qualityScore >= 2.5
-                      ? 'quality-fair'
-                      : 'quality-poor'
-              )}
-              onClick={() =>
-                alert(
-                  `⭐ Kalite Raporu\n\nMevcut Skor: ${project.qualityScore}/5\n\nDeğerlendirme Kriterleri:\n• İş kalitesi\n• Zamanında teslimat\n• Güvenlik standartları\n• Müşteri memnuniyeti`
-                )
-              }
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-caption">Kalite Skoru</span>
-                <Star className="size-4 opacity-60" />
+              <div className="mb-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-muted-foreground">SPI</div>
+                  <div className="text-lg font-bold">
+                    {project.earnedValue > 0
+                      ? (project.earnedValue / project.plannedValue).toFixed(2)
+                      : '0.00'}
+                  </div>
+                </div>
               </div>
-              <QualityStars score={project.qualityScore} />
-            </div>
 
-            <div
-              className="rounded-xl p-3 border transition-all duration-300 hover:scale-[1.02] cursor-pointer bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-700 border-indigo-200/50 dark:from-indigo-950/30 dark:to-indigo-900/20 dark:text-indigo-400 dark:border-indigo-800/50"
-              onClick={() =>
-                alert(
-                  `🔨 İş Detayları\n\nTamamlanan: ${project.completedTasks}\nToplam: ${project.totalTasks}\nKalan: ${project.totalTasks - project.completedTasks}\n\nTamamlanma: %${Math.round((project.completedTasks / project.totalTasks) * 100)}`
-                )
-              }
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-caption">Kalan İşler</span>
-                <CheckCircle className="size-4 opacity-60" />
-              </div>
-              <div className="text-heading-md">
-                {project.totalTasks - project.completedTasks}/
-                {project.totalTasks}
+              <div className="flex-1 flex flex-col">
+                <div className="space-y-2 text-sm text-muted-foreground flex-1">
+                  <div className="flex justify-between">
+                    <span>Elde Edilen:</span>
+                    <span className="font-semibold text-sm">
+                      ₺{(project.earnedValue / 1000000).toFixed(2)}M
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Planlanan:</span>
+                    <span className="font-semibold text-sm">
+                      ₺{(project.plannedValue / 1000000).toFixed(2)}M
+                    </span>
+                  </div>
+                  {project.endDate && (
+                    <div className="flex justify-between">
+                      <span>Hedef Bitiş:</span>
+                      <span className="font-medium">
+                        {new Date(project.endDate).toLocaleDateString('tr-TR')}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex justify-between text-sm border-t border-dashed border-gray-300 dark:border-gray-600 pt-2 mt-2">
+                  <span className="text-amber-600 dark:text-amber-400">
+                    Böyle Giderse:
+                  </span>
+                  <span className="font-semibold text-amber-700 dark:text-amber-300">
+                    {(() => {
+                      const spi =
+                        project.earnedValue > 0
+                          ? project.earnedValue / project.plannedValue
+                          : 1
+                      const projectedTotalDays =
+                        (project.totalPlannedDays || 0) / spi
+                      const projectedEndDate = new Date(project.startDate)
+                      projectedEndDate.setDate(
+                        projectedEndDate.getDate() +
+                          Math.round(projectedTotalDays)
+                      )
+                      return projectedEndDate.toLocaleDateString('tr-TR')
+                    })()}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -299,7 +471,13 @@ export function ProjectCard({
 
         {/* Modern Action Button - Always at bottom */}
         <div className="relative mt-4">
-          <button className="w-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-medium py-2.5 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] group/btn relative overflow-hidden">
+          <button
+            className={cn(
+              'w-full text-white font-medium py-2.5 rounded-xl transition-all duration-300 hover:shadow-xl active:scale-[0.98] group/btn relative overflow-hidden',
+              theme.buttonGradient,
+              theme.animation
+            )}
+          >
             {/* Animated background */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700" />
 
