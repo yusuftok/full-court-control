@@ -199,5 +199,34 @@
     "foreman": {
       "reassurance": "Don't worry, boss! We'll complete this section very quickly. How about returning to base camp in the meantime?"
     }
+  },
+  "projectDetail": {
+    "metrics": {
+      "cpi": "CPI",
+      "spi": "SPI"
+    },
+    "issues": {
+      "delay": "Delay",
+      "overrun": "Budget"
+    },
+    "table": {
+      "type": "Type",
+      "node": "Node",
+      "owner": "Subcontractor",
+      "severity": "Severity",
+      "delayDays": "Delay (days)",
+      "costOver": "Overrun (₺)"
+    },
+    "empty": {
+      "issues": "No issues found",
+      "team": "No team members"
+    }
+  },
+  "milestone": {
+    "owner": {
+      "yapi-ekibi": "Construction Team",
+      "kalip-demir": "Formwork-Rebar",
+      "cephe-taseronu": "Facade Subcontractor"
+    }
   }
 }

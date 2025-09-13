@@ -303,8 +303,9 @@
 }
 
 .construction-hover:hover {
-  transform: translateY(-1px) rotate(1deg);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  /* Remove hammer-like nudge/tilt while keeping a subtle elevation */
+  transform: none;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
 /* Progress Enhancement */

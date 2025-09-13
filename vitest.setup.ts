@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
 import React from 'react'
@@ -128,7 +129,7 @@ vi.mock('react-hook-form', () => ({
   useForm: () => ({
     register: vi.fn(),
     handleSubmit: vi.fn(),
-    formState: { errors: {} },
+    formState: { errors: (globalThis as any).__TEST_RHF_ERRORS__ || {} },
     watch: vi.fn(),
     setValue: vi.fn(),
     getValues: vi.fn(),
@@ -136,7 +137,7 @@ vi.mock('react-hook-form', () => ({
   }),
   useFormContext: () => ({
     register: vi.fn(),
-    formState: { errors: {} },
+    formState: { errors: (globalThis as any).__TEST_RHF_ERRORS__ || {} },
     watch: vi.fn(),
     setValue: vi.fn(),
     getValues: vi.fn(),
@@ -167,6 +168,7 @@ vi.mock('@tanstack/react-query', () => ({
 // Mock @dnd-kit
 vi.mock('@dnd-kit/core', () => ({
   DndContext: ({ children }: { children: React.ReactNode }) => children,
+  DragOverlay: ({ children }: { children: React.ReactNode }) => children,
   useDraggable: () => ({
     attributes: {},
     listeners: {},
@@ -177,7 +179,12 @@ vi.mock('@dnd-kit/core', () => ({
     setNodeRef: vi.fn(),
     isOver: false,
   }),
-  DragOverlay: ({ children }: { children: React.ReactNode }) => children,
+  // Sensors API stubs
+  useSensors: (...sensors: any[]) => sensors,
+  useSensor: (sensor: any, options?: any) => ({ sensor, options }),
+  PointerSensor: function PointerSensor() {},
+  KeyboardSensor: function KeyboardSensor() {},
+  closestCenter: vi.fn(),
 }))
 
 vi.mock('@dnd-kit/sortable', () => ({
@@ -191,6 +198,13 @@ vi.mock('@dnd-kit/sortable', () => ({
     isDragging: false,
   }),
   verticalListSortingStrategy: 'vertical',
+  arrayMove: (arr: any[], from: number, to: number) => {
+    const copy = arr.slice()
+    const [item] = copy.splice(from, 1)
+    copy.splice(to, 0, item)
+    return copy
+  },
+  sortableKeyboardCoordinates: vi.fn(),
 }))
 
 // Mock window.matchMedia

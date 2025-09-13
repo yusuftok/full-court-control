@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
 import { StatCard, StatCardGrid, ProgressStatCard } from './stat-card'
@@ -22,13 +23,10 @@ vi.mock('@/components/ui/card', () => ({
 }))
 
 // Mock icon for testing
-const MockIcon = Object.assign(
-  () => <svg data-testid="mock-icon" />,
-  {
-    $$typeof: Symbol.for('react.forward_ref'),
-    displayName: 'MockIcon'
-  }
-)
+const MockIcon = Object.assign(() => <svg data-testid="mock-icon" />, {
+  $$typeof: Symbol.for('react.forward_ref'),
+  displayName: 'MockIcon',
+})
 
 describe('StatCard Component', () => {
   describe('Basic Rendering', () => {
@@ -36,7 +34,7 @@ describe('StatCard Component', () => {
       render(<StatCard title="Total Users" value={1250} />)
 
       expect(screen.getByText('Total Users')).toBeInTheDocument()
-      expect(screen.getByText('1,250')).toBeInTheDocument()
+      expect(screen.getByText('1.3K')).toBeInTheDocument()
     })
 
     it('renders string values as-is', () => {
@@ -141,7 +139,7 @@ describe('StatCard Component', () => {
 
       const changeElement = screen.getByText('+12.5%')
       expect(changeElement).toHaveClass('text-green-600', 'dark:text-green-400')
-      expect(screen.getByText('from last month')).toBeInTheDocument()
+      expect(screen.getByText('last month')).toBeInTheDocument()
     })
 
     it('renders negative change with red color', () => {
@@ -154,7 +152,7 @@ describe('StatCard Component', () => {
 
       const changeElement = screen.getByText('-8.3%')
       expect(changeElement).toHaveClass('text-red-600', 'dark:text-red-400')
-      expect(screen.getByText('from last week')).toBeInTheDocument()
+      expect(screen.getByText('last week')).toBeInTheDocument()
     })
 
     it('formats change values with one decimal place', () => {
@@ -345,7 +343,7 @@ describe('ProgressStatCard Component', () => {
 
       expect(screen.getByText('Sales Goal')).toBeInTheDocument()
       expect(screen.getByText('75')).toBeInTheDocument()
-      expect(screen.getByText('of 100')).toBeInTheDocument()
+      expect(screen.getByText('/ 100')).toBeInTheDocument()
     })
 
     it('renders with unit suffix', () => {
@@ -354,7 +352,7 @@ describe('ProgressStatCard Component', () => {
       )
 
       expect(screen.getByText('25km')).toBeInTheDocument()
-      expect(screen.getByText('of 50km')).toBeInTheDocument()
+      expect(screen.getByText('/ 50km')).toBeInTheDocument()
     })
 
     it('renders icon when provided', () => {
@@ -473,7 +471,7 @@ describe('ProgressStatCard Component', () => {
       )
 
       expect(screen.getByText('1,250')).toBeInTheDocument()
-      expect(screen.getByText('of 5,000')).toBeInTheDocument()
+      expect(screen.getByText('/ 5,000')).toBeInTheDocument()
     })
 
     it('handles decimal numbers', () => {

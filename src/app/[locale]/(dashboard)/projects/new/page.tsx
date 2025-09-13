@@ -4,6 +4,7 @@ import * as React from 'react'
 import { useState } from 'react'
 import { ArrowLeft, Check } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useLocale } from 'next-intl'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -78,6 +79,7 @@ const stepConfig = [
 
 export default function CreateProjectPage() {
   const router = useRouter()
+  const locale = useLocale()
   const [currentStep, setCurrentStep] = useState<CreateProjectStep>(
     CreateProjectStep.BASIC_INFO
   )
@@ -197,7 +199,7 @@ export default function CreateProjectPage() {
 
   const handleDialogClose = () => {
     setShowSuccessDialog(false)
-    router.push('/projects')
+    router.push(`/${locale}/projects`)
   }
 
   const handleCreateProject = () => {
@@ -394,7 +396,7 @@ export default function CreateProjectPage() {
                   <div className="flex gap-3">
                     <Button
                       variant="outline"
-                      onClick={() => router.push('/projects')}
+                      onClick={() => router.push(`/${locale}/projects`)}
                     >
                       İptal
                     </Button>

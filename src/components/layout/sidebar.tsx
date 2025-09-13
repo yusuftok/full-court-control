@@ -3,7 +3,7 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import {
   Building2,
   Command,
@@ -18,40 +18,40 @@ import {
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
-const getNavigationItems = (t: any) => [
+const getNavigationItems = (t: (key: string) => string, locale: string) => [
   {
     title: t('navigation.dashboard'),
-    href: '/dashboard',
+    href: `/${locale}/dashboard`,
     icon: Command,
     emoji: '🏗️',
   },
   {
     title: t('navigation.projects'),
-    href: '/projects',
+    href: `/${locale}/projects`,
     icon: Building2,
     emoji: '🏢',
   },
   {
     title: t('navigation.tasks'),
-    href: '/tasks',
+    href: `/${locale}/tasks`,
     icon: Wrench,
     emoji: '🔨',
   },
   {
     title: 'Ekip',
-    href: '/subcontractors',
+    href: `/${locale}/subcontractors`,
     icon: Users,
     emoji: '👷',
   },
   {
     title: t('navigation.templates'),
-    href: '/settings/templates',
+    href: `/${locale}/settings/templates`,
     icon: FolderTree,
     emoji: '📋',
   },
   {
     title: t('navigation.settings'),
-    href: '/settings',
+    href: `/${locale}/settings`,
     icon: Settings,
     emoji: '⚙️',
   },
@@ -72,9 +72,10 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname()
   const t = useTranslations()
+  const locale = useLocale()
   const [logoClickCount, setLogoClickCount] = React.useState(0)
   const [showEasterEgg, setShowEasterEgg] = React.useState(false)
-  const navigationItems = getNavigationItems(t)
+  const navigationItems = getNavigationItems(t, locale)
 
   const handleLogoClick = () => {
     setLogoClickCount(prev => prev + 1)

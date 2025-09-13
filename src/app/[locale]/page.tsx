@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import {
   Building2,
   BarChart3,
@@ -13,6 +13,7 @@ import {
 
 export default function Home() {
   const t = useTranslations('common')
+  const locale = useLocale()
   return (
     <div className="min-h-screen flex items-center justify-center glass-background overflow-hidden">
       {/* Background Elements */}
@@ -74,7 +75,7 @@ export default function Home() {
           style={{ animationDelay: '0.6s' }}
         >
           <Link
-            href="/dashboard"
+            href={`/${locale}/dashboard`}
             className="group glass rounded-2xl p-6 modern-hover border border-white/10 transition-all duration-300 hover:scale-105 flex flex-col items-center gap-3"
           >
             <div className="size-12 gradient-primary rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -94,7 +95,7 @@ export default function Home() {
           </Link>
 
           <Link
-            href="/projects"
+            href={`/${locale}/projects`}
             className="group glass rounded-2xl p-6 modern-hover border border-white/10 transition-all duration-300 hover:scale-105 flex flex-col items-center gap-3"
           >
             <div className="size-12 gradient-primary rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -114,7 +115,7 @@ export default function Home() {
           </Link>
 
           <Link
-            href="/advanced-demo"
+            href={`/${locale}/advanced-demo`}
             className="group glass rounded-2xl p-6 modern-hover border border-white/10 transition-all duration-300 hover:scale-105 flex flex-col items-center gap-3"
           >
             <div className="size-12 gradient-primary rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -134,7 +135,7 @@ export default function Home() {
           </Link>
 
           <Link
-            href="/templates"
+            href={`/${locale}/templates`}
             className="group glass rounded-2xl p-6 modern-hover border border-white/10 transition-all duration-300 hover:scale-105 flex flex-col items-center gap-3"
           >
             <div className="size-12 gradient-primary rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -154,7 +155,7 @@ export default function Home() {
           </Link>
 
           <Link
-            href="/divisions"
+            href={`/${locale}/divisions`}
             className="group glass rounded-2xl p-6 modern-hover border border-white/10 transition-all duration-300 hover:scale-105 flex flex-col items-center gap-3"
           >
             <div className="size-12 gradient-primary rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -174,7 +175,7 @@ export default function Home() {
           </Link>
 
           <Link
-            href="/auth/signin"
+            href={`/${locale}/auth/signin`}
             className="group glass rounded-2xl p-6 modern-hover border border-white/10 transition-all duration-300 hover:scale-105 flex flex-col items-center gap-3"
           >
             <div className="size-12 gradient-primary rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">

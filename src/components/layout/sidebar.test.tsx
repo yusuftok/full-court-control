@@ -12,7 +12,7 @@ vi.mock('next/navigation', () => ({
 
 describe('Sidebar Component', () => {
   beforeEach(() => {
-    mockUsePathname.mockReturnValue('/dashboard')
+    mockUsePathname.mockReturnValue('/tr/dashboard')
   })
 
   describe('Desktop Sidebar', () => {
@@ -46,7 +46,7 @@ describe('Sidebar Component', () => {
     })
 
     it('applies correct active state styling', () => {
-      mockUsePathname.mockReturnValue('/dashboard')
+      mockUsePathname.mockReturnValue('/tr/dashboard')
       render(<Sidebar />)
 
       const dashboardLink = screen.getByRole('link', { name: /dashboard/i })
@@ -54,7 +54,7 @@ describe('Sidebar Component', () => {
     })
 
     it('applies inactive state styling for non-active items', () => {
-      mockUsePathname.mockReturnValue('/dashboard')
+      mockUsePathname.mockReturnValue('/tr/dashboard')
       render(<Sidebar />)
 
       const projectsLink = screen.getByRole('link', { name: /projects/i })
@@ -63,7 +63,7 @@ describe('Sidebar Component', () => {
     })
 
     it('handles nested route active states', () => {
-      mockUsePathname.mockReturnValue('/projects/123')
+      mockUsePathname.mockReturnValue('/tr/projects/123')
       render(<Sidebar />)
 
       const projectsLink = screen.getByRole('link', { name: /projects/i })
@@ -75,15 +75,15 @@ describe('Sidebar Component', () => {
 
       expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute(
         'href',
-        '/dashboard'
+        '/tr/dashboard'
       )
       expect(screen.getByRole('link', { name: /projects/i })).toHaveAttribute(
         'href',
-        '/projects'
+        '/tr/projects'
       )
       expect(screen.getByRole('link', { name: /templates/i })).toHaveAttribute(
         'href',
-        '/templates'
+        '/tr/settings/templates'
       )
     })
   })
@@ -288,7 +288,7 @@ describe('Sidebar Component', () => {
         <Sidebar
           isMobile={true}
           isOpen={true}
-    onClose={vi.fn()}
+          onClose={vi.fn()}
           className="custom-mobile"
         />
       )
@@ -312,7 +312,7 @@ describe('Sidebar Component', () => {
       render(<Sidebar />)
 
       const dashboardLink = screen.getByRole('link', { name: /dashboard/i })
-      expect(dashboardLink).toHaveAttribute('href', '/dashboard')
+      expect(dashboardLink).toHaveAttribute('href', '/tr/dashboard')
     })
 
     it('supports keyboard navigation', async () => {

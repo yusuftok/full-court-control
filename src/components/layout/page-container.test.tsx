@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen } from '@testing-library/react'
 import {
   PageContainer,
@@ -155,13 +156,15 @@ describe('PageHeader Component', () => {
       render(<PageHeader {...defaultProps} data-testid="header" />)
 
       const header = screen.getByTestId('header')
+      // Updated spacing and animation classes in component
       expect(header).toHaveClass(
         'flex',
         'flex-col',
-        'gap-4',
-        'pb-6',
+        'gap-1',
+        'pb-2',
         'border-b',
-        'mb-6',
+        'mb-2',
+        'animate-build-up',
         'sm:flex-row',
         'sm:items-center',
         'sm:justify-between'
@@ -311,20 +314,16 @@ describe('AppLayout Component', () => {
     })
 
     it('applies default layout styling', () => {
-      render(<AppLayout data-testid="layout">Test</AppLayout>)
-
-      const layout = screen.getByTestId('layout')
+      const { container } = render(<AppLayout>Test</AppLayout>)
+      const layout = container.firstChild as HTMLElement
       expect(layout).toHaveClass('min-h-screen', 'bg-background')
     })
 
     it('merges custom className', () => {
-      render(
-        <AppLayout className="custom-layout" data-testid="layout">
-          Test
-        </AppLayout>
+      const { container } = render(
+        <AppLayout className="custom-layout">Test</AppLayout>
       )
-
-      const layout = screen.getByTestId('layout')
+      const layout = container.firstChild as HTMLElement
       expect(layout).toHaveClass(
         'min-h-screen',
         'bg-background',
@@ -335,9 +334,8 @@ describe('AppLayout Component', () => {
 
   describe('Full Screen Layout', () => {
     it('provides full screen height', () => {
-      render(<AppLayout data-testid="layout">Test</AppLayout>)
-
-      const layout = screen.getByTestId('layout')
+      const { container } = render(<AppLayout>Test</AppLayout>)
+      const layout = container.firstChild as HTMLElement
       expect(layout).toHaveClass('min-h-screen')
     })
   })

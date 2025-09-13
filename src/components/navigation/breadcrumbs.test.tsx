@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
 import {
@@ -185,7 +186,7 @@ describe('Breadcrumbs Component', () => {
       expect(screen.getByTestId('home-icon')).toBeInTheDocument()
 
       const dashboardLink = screen.getByRole('link', { name: /dashboard/i })
-      expect(dashboardLink).toHaveAttribute('href', '/dashboard')
+      expect(dashboardLink).toHaveAttribute('href', '/tr/dashboard')
     })
 
     it('does not add home item when homeIcon is false', () => {

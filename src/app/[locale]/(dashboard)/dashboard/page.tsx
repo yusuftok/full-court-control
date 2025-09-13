@@ -24,12 +24,20 @@ import {
   PageContent,
 } from '@/components/layout/page-container'
 import { Breadcrumbs } from '@/components/navigation/breadcrumbs'
-import { ProjectCard, type Project } from '@/components/projects/project-card'
+import {
+  ProjectCard,
+  type Project as CardProject,
+} from '@/components/projects/project-card'
+import { getSimpleProjects } from '@/lib/mock-data'
+import type { Project as SimpleProject } from '@/components/projects/types/project-types'
+import { useRouter } from 'next/navigation'
+import { useLocale } from 'next-intl'
 
 // Mock data uses Project type from component
 
 // Mock data - İlk 3 proje farklı performans durumlarını gösterecek şekilde
-const mockProjects: Project[] = [
+// Legacy mock kept below; runtime uses centralized mocks via getSimpleProjects()
+const mockProjects: CardProject[] = [
   {
     id: '1',
     name: 'Şehir Merkezi Ofis Kompleksi',
@@ -165,12 +173,14 @@ const mockProjects: Project[] = [
 export default function DashboardPage() {
   const [isCreatingProject, setIsCreatingProject] = React.useState(false)
   const [projectFilter, setProjectFilter] = React.useState('all')
+  const router = useRouter()
+  const locale = useLocale()
 
   const breadcrumbItems: Array<{ label: string; href: string }> = []
 
-  const handleProjectClick = (project: Project) => {
-    // Navigate to project details
-    window.location.href = `/projects/${project.id}`
+  const handleProjectClick = (project: CardProject) => {
+    // Navigate to localized project details page
+    router.push(`/${locale}/projects/${project.id}`)
   }
 
   const handleCreateProject = () => {
@@ -186,7 +196,46 @@ export default function DashboardPage() {
 
   // Filter projects based on selected filter
   const getFilteredProjects = () => {
-    const activeProjects = mockProjects.filter(p => p.status === 'active')
+    // Convert centralized simple projects into ProjectCard model
+    const statusMap = {
+      planned: 'pending',
+      active: 'active',
+      'on-hold': 'inactive',
+      completed: 'completed',
+      cancelled: 'cancelled',
+    } as const
+    const toCard = (p: SimpleProject): CardProject => ({
+      id: p.id,
+      name: p.name,
+      status: statusMap[(p.status || 'active') as keyof typeof statusMap],
+      startDate: p.startDate,
+      endDate: p.endDate,
+      progress: p.progress,
+      plannedProgress: p.plannedProgress,
+      earnedValue: p.earnedValue,
+      actualCost: p.actualCost,
+      plannedValue: p.plannedValue,
+      plannedBudgetToDate: p.plannedBudgetToDate,
+      subcontractors:
+        (p.subcontractorIds?.length ?? 0) ||
+        (p.subcontractors
+          ? Object.values(p.subcontractors).filter(Boolean).length
+          : 0),
+      totalTasks: p.totalTasks,
+      completedTasks: p.completedTasks,
+      location: p.location,
+      budget: p.budget,
+      manager: p.manager,
+      budgetSpent: p.budgetSpent,
+      daysRemaining: p.daysRemaining,
+      riskLevel: p.riskLevel,
+      qualityScore: p.qualityScore,
+      healthStatus: p.healthStatus,
+    })
+
+    const activeProjects = getSimpleProjects()
+      .map(toCard)
+      .filter(p => p.status === 'active')
 
     switch (projectFilter) {
       case 'critical':
@@ -239,7 +288,7 @@ export default function DashboardPage() {
   )
 
   // Her proje için performans sınıflandırması
-  const classifyProjectPerformance = (project: Project) => {
+  const classifyProjectPerformance = (project: CardProject) => {
     const cpi =
       project.earnedValue > 0 ? project.earnedValue / project.actualCost : 0
     const spi =
@@ -1040,7 +1089,7 @@ export default function DashboardPage() {
             <Button
               variant="outline"
               className="modern-button group"
-              onClick={() => (window.location.href = '/projects')}
+              onClick={() => router.push(`/${locale}/projects`)}
             >
               Tüm Projeleri Gör
             </Button>

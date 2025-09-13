@@ -1,6 +1,9 @@
+'use client'
+
 import * as React from 'react'
 import Link from 'next/link'
 import { ChevronRight, Home } from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
 
 import { cn } from '@/lib/utils'
 
@@ -23,16 +26,28 @@ export function Breadcrumbs({
   separator = <ChevronRight className="size-4 text-muted-foreground" />,
   homeIcon = true,
 }: BreadcrumbsProps) {
+  const t = useTranslations()
+  const locale = useLocale()
+  // Use existing navigation key to avoid missing message warnings
+  const homeLabel = t('navigation.dashboard')
   // Add home item if requested and not already present
   const allItems = React.useMemo(() => {
-    if (homeIcon && items[0]?.label !== 'Operasyon Merkezi') {
+    if (!homeIcon || !items) return items
+    const first = items[0]
+    const hasHomeAlready =
+      (first && first.href === '/dashboard') ||
+      (first &&
+        typeof first.label === 'string' &&
+        first.label.toLowerCase() === homeLabel.toLowerCase())
+
+    if (!hasHomeAlready) {
       return [
-        { label: 'Operasyon Merkezi', href: '/dashboard', icon: Home },
+        { label: homeLabel, href: `/${locale}/dashboard`, icon: Home },
         ...items,
       ]
     }
     return items
-  }, [items, homeIcon])
+  }, [items, homeIcon, homeLabel])
 
   return (
     <nav aria-label="Breadcrumb" className={cn('', className)}>

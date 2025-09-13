@@ -96,6 +96,8 @@ export interface CreateProjectRequest extends ProjectFormData {
   createdAt: string
 }
 
+export type TimePoint = { label: string; value: number }
+
 export interface Project extends CreateProjectRequest {
   id: string
   status: ProjectStatus
@@ -115,4 +117,18 @@ export interface Project extends CreateProjectRequest {
   daysRemaining: number
   totalPlannedDays?: number
   updatedAt: string
+  // Opsiyonel: proje genelinde atanan tüm taşeron kimlikleri
+  subcontractorIds?: string[]
+  // Opsiyonel: iş akış durumu
+  workflowStatus?: {
+    delayed: number
+    risk: number
+    blocked: number
+    normal: number
+  }
+  // Opsiyonel: CPI/SPI trend serileri
+  cpiSeriesMonthly?: TimePoint[]
+  spiSeriesMonthly?: TimePoint[]
+  cpiSeriesWeekly?: TimePoint[]
+  spiSeriesWeekly?: TimePoint[]
 }

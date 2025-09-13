@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
@@ -42,16 +42,19 @@ export function Tooltip({ children }: { children: React.ReactNode }) {
 
 export function TooltipTrigger({ asChild, children, ...rest }: TriggerProps) {
   const ctx = React.useContext(TooltipContext)
-  const triggerProps = {
+  const triggerProps: React.HTMLAttributes<HTMLElement> = {
     onMouseEnter: () => ctx?.setOpen(true),
     onMouseLeave: () => ctx?.setOpen(false),
     onFocus: () => ctx?.setOpen(true),
     onBlur: () => ctx?.setOpen(false),
-    ...rest,
-  } as any
+    ...(rest as React.HTMLAttributes<HTMLElement>),
+  }
 
   if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as any, triggerProps)
+    return React.cloneElement(
+      children as React.ReactElement,
+      triggerProps as unknown as never
+    )
   }
   return (
     <div className="block w-full" {...triggerProps}>

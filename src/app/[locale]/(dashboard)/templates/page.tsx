@@ -4,6 +4,7 @@ import * as React from 'react'
 import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { useLocale } from 'next-intl'
 import {
   ArrowLeft,
   Construction,
@@ -64,6 +65,7 @@ const templateCategoryConfig = {
 
 function TemplatesPageContent() {
   const searchParams = useSearchParams()
+  const locale = useLocale()
   const selectedTemplateId = searchParams.get('selected')
   const selectedTemplate = selectedTemplateId
     ? mockTemplates.find(t => t.id === selectedTemplateId)
@@ -112,7 +114,7 @@ function TemplatesPageContent() {
               asChild
               className="construction-hover"
             >
-              <Link href="/templates">
+              <Link href={`/${locale}/templates`}>
                 <ArrowLeft className="size-4" />
               </Link>
             </Button>
@@ -149,7 +151,7 @@ function TemplatesPageContent() {
                     Önizle
                   </Button>
                   <Button asChild>
-                    <Link href="/settings/templates">
+                    <Link href={`/${locale}/settings/templates`}>
                       <Edit className="size-4 mr-2" />
                       Düzenle
                     </Link>
@@ -196,7 +198,7 @@ function TemplatesPageContent() {
           description="Projeleriniz için hazır şablon yapıları inceleyin ve kullanın"
           action={
             <Button asChild className="gradient-primary text-white">
-              <Link href="/settings/templates">
+              <Link href={`/${locale}/settings/templates`}>
                 <Sparkles className="size-4 mr-2" />
                 Şablon Yönetimi
               </Link>
@@ -273,7 +275,9 @@ function TemplatesPageContent() {
                             asChild
                             className="w-full modern-button group bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:scale-105 hover:shadow-lg"
                           >
-                            <Link href={`/templates?selected=${template.id}`}>
+                            <Link
+                              href={`/${locale}/templates?selected=${template.id}`}
+                            >
                               <Eye className="size-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
                               <span className="group-hover:tracking-wide transition-all duration-200">
                                 Şablonu İncele
@@ -308,7 +312,7 @@ function TemplatesPageContent() {
                 asChild
                 className="modern-button gradient-primary border-0 text-white hover:scale-105 group hover:shadow-xl"
               >
-                <Link href="/settings/templates">
+                <Link href={`/${locale}/settings/templates`}>
                   <Construction className="size-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
                   <span className="group-hover:tracking-wide transition-all duration-200">
                     İlk Şablonunu Oluştur

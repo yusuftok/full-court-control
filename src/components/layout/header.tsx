@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
+import { useLocale } from 'next-intl'
 import { Bell, Search, User } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -17,6 +18,7 @@ interface HeaderProps {
 
 export function Header({ className, onMobileMenuToggle }: HeaderProps) {
   const router = useRouter()
+  const locale = useLocale()
   const [notificationCount] = React.useState(3) // Mock notification count
   const [searchFocused, setSearchFocused] = React.useState(false)
   const [bellShakeCount, setBellShakeCount] = React.useState(0)
@@ -57,7 +59,10 @@ export function Header({ className, onMobileMenuToggle }: HeaderProps) {
       case 'Enter':
         e.preventDefault()
         if (searchResults[selectedIndex]) {
-          router.push(searchResults[selectedIndex].url)
+          const url = searchResults[selectedIndex].url
+          // Prefix locale for internal routes (starting with '/')
+          const target = url.startsWith('/') ? `/${locale}${url}` : url
+          router.push(target)
           handleCloseSearch()
         }
         break
@@ -75,7 +80,9 @@ export function Header({ className, onMobileMenuToggle }: HeaderProps) {
   }
 
   const handleSearchSelect = (item: SearchItem) => {
-    router.push(item.url)
+    const url = item.url
+    const target = url.startsWith('/') ? `/${locale}${url}` : url
+    router.push(target)
     handleCloseSearch()
   }
 

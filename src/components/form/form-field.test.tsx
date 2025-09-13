@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-require-imports */
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -33,6 +35,7 @@ function TestFormWrapper({
   defaultValues = {},
   errors = {},
 }: TestFormWrapperProps) {
+  ;(globalThis as any).__TEST_RHF_ERRORS__ = errors
   const mockForm = {
     register: vi.fn((name: string) => ({
       name,
@@ -48,9 +51,9 @@ function TestFormWrapper({
   }
 
   // Mock useFormContext to return our mock form
-  vi
-    .spyOn(require('react-hook-form'), 'useFormContext')
-    .mockReturnValue(mockForm)
+  vi.spyOn(require('react-hook-form'), 'useFormContext').mockReturnValue(
+    mockForm
+  )
 
   return <div>{children}</div>
 }

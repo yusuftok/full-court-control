@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { DataTable, Column } from '@/components/data/data-table'
 import type { Issue, OwnershipMap } from '@/lib/project-analytics'
+import { useTranslations } from 'next-intl'
 
 export interface IssueListProps {
   issues: Issue[]
@@ -17,6 +18,7 @@ export function IssueList({
   mode = 'owner',
   filterOwnerId,
 }: IssueListProps) {
+  const t = useTranslations('projectDetail')
   const rows = React.useMemo(() => {
     return issues
       .map(i => ({
@@ -31,23 +33,31 @@ export function IssueList({
   }, [issues, ownership, mode, filterOwnerId])
 
   const cols: Column<(typeof rows)[number]>[] = [
-    { id: 'type', header: 'Tür', accessor: 'type' },
-    { id: 'node', header: 'Düğüm', accessor: 'nodeId' },
+    { id: 'type', header: t('table.type'), accessor: 'type' },
+    { id: 'node', header: t('table.node'), accessor: 'nodeId' },
     {
       id: 'owner',
-      header: 'Taşeron',
+      header: t('table.owner'),
       accessor: row => row.ownerResolved ?? '-',
     },
-    { id: 'sev', header: 'Öncelik', accessor: row => row.severity ?? '-' },
+    {
+      id: 'sev',
+      header: t('table.severity'),
+      accessor: row => row.severity ?? '-',
+    },
     {
       id: 'late',
-      header: 'Gecikme (gün)',
+      header: t('table.delayDays'),
       accessor: row => row.daysLate ?? '-',
     },
-    { id: 'cost', header: 'Aşım (₺)', accessor: row => row.costOver ?? '-' },
+    {
+      id: 'cost',
+      header: t('table.costOver'),
+      accessor: row => row.costOver ?? '-',
+    },
   ]
 
   return (
-    <DataTable data={rows} columns={cols} emptyMessage="Sorun bulunamadı" />
+    <DataTable data={rows} columns={cols} emptyMessage={t('empty.issues')} />
   )
 }

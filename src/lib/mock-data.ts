@@ -53,6 +53,8 @@ export interface DetailedProject extends BaseProject {
     mechanicalId: string
     electricalId: string
   }
+  // Proje genelinde atanan tüm taşeron kimlikleri (değişken sayıda)
+  subcontractorIds: string[]
   createdBy: string
   createdAt: string
   updatedAt: string
@@ -67,6 +69,15 @@ export interface Milestone {
   dueDate: string
   status: 'completed' | 'in-progress' | 'pending' | 'overdue'
   progress: number
+  // Extended fields for richer UI
+  forecastDate?: string
+  actualDate?: string
+  isCritical?: boolean
+  owner?: string
+  blockers?: number
+  predecessors?: number
+  successors?: number
+  slipDays?: number // +gecikme/-erken
 }
 
 export interface Activity {
@@ -120,7 +131,7 @@ export const MOCK_PROJECTS: DetailedProject[] = [
     budget: 25000000,
     budgetSpent: 17500000,
     startDate: '2024-01-15',
-    endDate: '2024-12-15',
+    endDate: '2025-12-31',
     manager: 'Ahmet Yılmaz',
     totalTasks: 124,
     completedTasks: 84,
@@ -137,22 +148,76 @@ export const MOCK_PROJECTS: DetailedProject[] = [
         id: 'm1',
         name: 'Temel Atma Tamamlama',
         dueDate: '2024-09-15',
+        forecastDate: '2024-09-14',
+        actualDate: '2024-09-14',
         status: 'completed',
         progress: 100,
+        isCritical: true,
+        owner: 'Yapı Ekibi',
+        blockers: 0,
+        predecessors: 2,
+        successors: 3,
+        slipDays: -1,
+      },
+      {
+        id: 'm1b',
+        name: 'Zemin Kat Betonarme',
+        dueDate: '2025-11-05',
+        forecastDate: '2025-11-12',
+        status: 'in-progress',
+        progress: 40,
+        isCritical: false,
+        owner: 'Yapı Ekibi',
+        slipDays: 7,
+      },
+      {
+        id: 'm1c',
+        name: 'İç Mekan Tasarım Onayı',
+        dueDate: '2025-10-01',
+        forecastDate: '2025-09-28',
+        status: 'pending',
+        progress: 0,
+        isCritical: false,
+        owner: 'Yapı Ekibi',
+        slipDays: -3,
+      },
+      {
+        id: 'm1d',
+        name: 'Mekanik Tesisat Başlangıç',
+        dueDate: '2025-10-20',
+        // forecast intentionally missing to exercise SPI-based estimate
+        status: 'in-progress',
+        progress: 15,
+        isCritical: true,
+        owner: 'Kalıp-Demir',
       },
       {
         id: 'm2',
         name: 'İskelet Yapı Bitirme',
         dueDate: '2024-11-30',
+        forecastDate: '2024-12-05',
         status: 'in-progress',
-        progress: 75,
+        progress: 78,
+        isCritical: true,
+        owner: 'Kalıp-Demir',
+        blockers: 1,
+        predecessors: 3,
+        successors: 2,
+        slipDays: 5,
       },
       {
         id: 'm3',
         name: 'Dış Cephe Kaplama',
         dueDate: '2024-12-15',
+        forecastDate: '2024-12-20',
         status: 'pending',
-        progress: 0,
+        progress: 10,
+        isCritical: false,
+        owner: 'Cephe Taşeronu',
+        blockers: 0,
+        predecessors: 1,
+        successors: 1,
+        slipDays: 5,
       },
     ],
     recentActivities: [
@@ -220,6 +285,7 @@ export const MOCK_PROJECTS: DetailedProject[] = [
       mechanicalId: 'sub-5',
       electricalId: 'sub-8',
     },
+    subcontractorIds: ['sub-1', 'sub-2', 'sub-3', 'sub-4', 'sub-5'],
     createdBy: 'Demo User',
     createdAt: '2024-01-10T00:00:00.000Z',
     updatedAt: '2025-08-20T00:00:00.000Z',
@@ -322,6 +388,16 @@ export const MOCK_PROJECTS: DetailedProject[] = [
       mechanicalId: 'sub-6',
       electricalId: 'sub-9',
     },
+    subcontractorIds: [
+      'sub-2',
+      'sub-6',
+      'sub-9',
+      'sub-10',
+      'sub-11',
+      'sub-12',
+      'sub-13',
+      'sub-14',
+    ],
     createdBy: 'Demo User',
     createdAt: '2024-02-25T00:00:00.000Z',
     updatedAt: '2025-08-20T00:00:00.000Z',
@@ -408,6 +484,7 @@ export const MOCK_PROJECTS: DetailedProject[] = [
       mechanicalId: 'sub-7',
       electricalId: 'sub-10',
     },
+    subcontractorIds: ['sub-3', 'sub-7', 'sub-10'],
     createdBy: 'Demo User',
     createdAt: '2024-03-10T00:00:00.000Z',
     updatedAt: '2025-08-20T00:00:00.000Z',
@@ -487,6 +564,7 @@ export const MOCK_PROJECTS: DetailedProject[] = [
       mechanicalId: 'sub-8',
       electricalId: 'sub-11',
     },
+    subcontractorIds: ['sub-4', 'sub-8'],
     createdBy: 'Demo User',
     createdAt: '2024-01-05T00:00:00.000Z',
     updatedAt: '2024-09-15T16:00:00.000Z',
@@ -594,6 +672,7 @@ export const MOCK_PROJECTS: DetailedProject[] = [
     updatedAt: '2025-08-20T00:00:00.000Z',
     divisions: [],
     divisionInstances: [],
+    subcontractorIds: ['sub-5', 'sub-9', 'sub-12', 'sub-15'],
   },
   {
     // Project 6 - On Hold
@@ -673,6 +752,7 @@ export const MOCK_PROJECTS: DetailedProject[] = [
     updatedAt: '2025-08-20T00:00:00.000Z',
     divisions: [],
     divisionInstances: [],
+    subcontractorIds: ['sub-6', 'sub-10', 'sub-13'],
   },
   {
     // Project 7 - Cancelled
@@ -721,6 +801,7 @@ export const MOCK_PROJECTS: DetailedProject[] = [
       mechanicalId: 'sub-11',
       electricalId: 'sub-14',
     },
+    subcontractorIds: ['sub-7', 'sub-11', 'sub-14', 'sub-15'],
     createdBy: 'Demo User',
     createdAt: '2024-06-25T00:00:00.000Z',
     updatedAt: '2024-08-10T14:30:00.000Z',
@@ -729,45 +810,121 @@ export const MOCK_PROJECTS: DetailedProject[] = [
   },
 ]
 
+// ---- Derived series helpers for simple projects ----
+// Seed helpers for deterministic mocks
+function hashStringToSeed(str: string): number {
+  let h = 2166136261 >>> 0
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
+
+function mulberry32(a: number) {
+  return function () {
+    let t = (a += 0x6d2b79f5)
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+function buildSeries(
+  current: number,
+  mode: 'months' | 'weeks',
+  seedStr?: string
+) {
+  const n = mode === 'months' ? 6 : 8
+  const now = new Date()
+  const items: Array<{ label: string; value: number }> = []
+  const rng = mulberry32(hashStringToSeed(seedStr || 'seed'))
+  let v = Math.max(0.6, Math.min(1.2, current || 1))
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(now)
+    if (mode === 'months') d.setMonth(d.getMonth() - i)
+    else d.setDate(d.getDate() - i * 7)
+    v = v + (current - v) * 0.35 + (rng() - 0.5) * 0.04
+    v = Math.max(0.6, Math.min(1.4, v))
+    const label =
+      mode === 'months'
+        ? d.toLocaleDateString('tr-TR', { month: 'short' })
+        : `${d.getDate()}.${d.getMonth() + 1}`
+    items.push({ label, value: Number(v.toFixed(2)) })
+  }
+  return items
+}
+
 // Convert to simple projects for pages that don't need full details
 export const getSimpleProjects = (): Project[] => {
-  return MOCK_PROJECTS.map(project => ({
-    id: project.id,
-    name: project.name,
-    location: project.location,
-    startDate: project.startDate,
-    endDate: project.endDate,
-    budget: project.budget,
-    description: project.description,
-    status: project.status,
-    progress: project.progress,
-    plannedProgress: Math.min(project.progress + 5, 100), // Assume planned is slightly ahead
-    earnedValue: Math.round(project.budget * (project.progress / 100)),
-    actualCost: Math.round(project.budgetSpent),
-    plannedValue: Math.round(
-      project.budget * (Math.min(project.progress + 5, 100) / 100)
-    ),
-    plannedBudgetToDate: Math.round(
-      project.budget * (Math.min(project.progress + 5, 100) / 100)
-    ),
-    totalTasks: project.totalTasks,
-    completedTasks: project.completedTasks,
-    healthStatus: project.healthStatus,
-    riskLevel: project.riskLevel,
-    qualityScore: project.qualityScore,
-    manager: project.manager,
-    budgetSpent: project.budgetSpent,
-    daysRemaining: project.daysRemaining,
-    createdBy: project.createdBy,
-    createdAt: project.createdAt,
-    updatedAt: project.updatedAt,
-    mainContractorTeam: project.mainContractorTeam,
-    subcontractors: project.subcontractors,
-    category: project.category,
-    templateId: project.templateId,
-    divisions: project.divisions,
-    divisionInstances: project.divisionInstances,
-  }))
+  return MOCK_PROJECTS.map(project => {
+    const plannedProgress = Math.min(project.progress + 5, 100)
+    const earnedValue = Math.round(project.budget * (project.progress / 100))
+    const actualCost = Math.round(project.budgetSpent)
+    const plannedValue = Math.round(project.budget * (plannedProgress / 100))
+    const plannedBudgetToDate = Math.round(
+      project.budget * (plannedProgress / 100)
+    )
+
+    const cpi = earnedValue > 0 ? earnedValue / Math.max(actualCost, 1) : 1
+    const spi = earnedValue > 0 ? earnedValue / Math.max(plannedValue, 1) : 1
+
+    // workflow counts mocked from project health
+    const remaining = Math.max(project.totalTasks - project.completedTasks, 0)
+    // Deterministic RNG based on project id
+    const rng = mulberry32(hashStringToSeed(project.id))
+    // Weights by health
+    const weights =
+      project.healthStatus === 'critical'
+        ? { d: 0.32, r: 0.28, b: 0.14 }
+        : project.healthStatus === 'warning'
+          ? { d: 0.2, r: 0.18, b: 0.08 }
+          : { d: 0.12, r: 0.1, b: 0.05 }
+    const delayed = Math.round(remaining * (weights.d + (rng() - 0.5) * 0.03))
+    const risk = Math.round(remaining * (weights.r + (rng() - 0.5) * 0.03))
+    const blocked = Math.round(remaining * (weights.b + (rng() - 0.5) * 0.02))
+    const normal = Math.max(remaining - delayed - risk - blocked, 0)
+
+    return {
+      id: project.id,
+      name: project.name,
+      location: project.location,
+      startDate: project.startDate,
+      endDate: project.endDate,
+      budget: project.budget,
+      description: project.description,
+      status: project.status,
+      progress: project.progress,
+      plannedProgress,
+      earnedValue,
+      actualCost,
+      plannedValue,
+      plannedBudgetToDate,
+      totalTasks: project.totalTasks,
+      completedTasks: project.completedTasks,
+      healthStatus: project.healthStatus,
+      riskLevel: project.riskLevel,
+      qualityScore: project.qualityScore,
+      manager: project.manager,
+      budgetSpent: project.budgetSpent,
+      daysRemaining: project.daysRemaining,
+      createdBy: project.createdBy,
+      createdAt: project.createdAt,
+      updatedAt: project.updatedAt,
+      mainContractorTeam: project.mainContractorTeam,
+      subcontractors: project.subcontractors,
+      subcontractorIds: project.subcontractorIds,
+      category: project.category,
+      templateId: project.templateId,
+      divisions: project.divisions,
+      divisionInstances: project.divisionInstances,
+      workflowStatus: { delayed, risk, blocked, normal },
+      cpiSeriesMonthly: buildSeries(cpi, 'months', `${project.id}-cm`),
+      spiSeriesMonthly: buildSeries(spi, 'months', `${project.id}-sm`),
+      cpiSeriesWeekly: buildSeries(cpi, 'weeks', `${project.id}-cw`),
+      spiSeriesWeekly: buildSeries(spi, 'weeks', `${project.id}-sw`),
+    }
+  })
 }
 
 // Get detailed project by ID

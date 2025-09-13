@@ -4,6 +4,7 @@ import * as React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { useTranslations } from 'next-intl'
 import type {
   OwnerAggregate,
   OwnerIssueSummary,
@@ -24,6 +25,7 @@ export function SubcontractorOverview({
   data,
   onSelect,
 }: SubcontractorOverviewProps) {
+  const t = useTranslations('projectDetail')
   const sorted = React.useMemo(
     () => [...data].sort((a, b) => b.aggregate.combined - a.aggregate.combined),
     [data]
@@ -66,23 +68,23 @@ export function SubcontractorOverview({
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
             <div className="flex items-center justify-between">
-              <span>CPI</span>
+              <span>{t('metrics.cpi')}</span>
               <span className="font-medium text-foreground">
                 {item.aggregate.cpi.toFixed(2)}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span>SPI</span>
+              <span>{t('metrics.spi')}</span>
               <span className="font-medium text-foreground">
                 {item.aggregate.spi.toFixed(2)}
               </span>
             </div>
             <div className="mt-2 flex items-center gap-2">
               <Badge variant="secondary">
-                Gecikme: {item.issues?.delay ?? 0}
+                {t('issues.delay')}: {item.issues?.delay ?? 0}
               </Badge>
               <Badge variant="secondary">
-                Bütçe: {item.issues?.overrun ?? 0}
+                {t('issues.overrun')}: {item.issues?.overrun ?? 0}
               </Badge>
             </div>
           </CardContent>

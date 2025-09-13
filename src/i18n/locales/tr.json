@@ -199,5 +199,34 @@
     "foreman": {
       "reassurance": "Merak etmeyin şefim! Bu bölümü çok kısa sürede tamamlarız. Bu arada üs kampına geri dönmeye ne dersiniz?"
     }
+  },
+  "projectDetail": {
+    "metrics": {
+      "cpi": "CPI",
+      "spi": "SPI"
+    },
+    "issues": {
+      "delay": "Gecikme",
+      "overrun": "Bütçe"
+    },
+    "table": {
+      "type": "Tür",
+      "node": "Düğüm",
+      "owner": "Taşeron",
+      "severity": "Öncelik",
+      "delayDays": "Gecikme (gün)",
+      "costOver": "Aşım (₺)"
+    },
+    "empty": {
+      "issues": "Sorun bulunamadı",
+      "team": "Ekip üyesi bulunamadı"
+    }
+  },
+  "milestone": {
+    "owner": {
+      "yapi-ekibi": "Yapı Ekibi",
+      "kalip-demir": "Kalıp-Demir",
+      "cephe-taseronu": "Cephe Taşeronu"
+    }
   }
 }

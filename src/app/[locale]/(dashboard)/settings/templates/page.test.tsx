@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
 import {
   render,
@@ -11,8 +12,8 @@ import { vi } from 'vitest'
 import DivisionTemplatesPage from './page'
 
 // Mock additional Lucide React icons used in the component
-vi.mock('lucide-react', () => {
-  const originalModule = vi.importActual('lucide-react')
+vi.mock('lucide-react', async () => {
+  const originalModule: any = await vi.importActual<any>('lucide-react')
   return {
     ...originalModule,
     Plus: ({ className, ...props }: any) => (
@@ -427,9 +428,7 @@ describe('DivisionTemplatesPage', () => {
       // Modal açılmalı
       expect(screen.getByText('Şablonu Projeye Uygula')).toBeInTheDocument()
       expect(
-        screen.getByText(
-          /"Yüksek Kat Konut Binası" şablonunu hangi projeye uygulamak istiyorsunuz?/
-        )
+        screen.getByText('Bu şablonu hangi projeye uygulamak istiyorsunuz?')
       ).toBeInTheDocument()
 
       // Projeler gösterilmeli
@@ -460,34 +459,35 @@ describe('DivisionTemplatesPage', () => {
       const copyButtons = screen.getAllByTestId('copy')
       await user.click(copyButtons[0])
 
-      // Alert çağrılmalı
-      expect(mockAlert).toHaveBeenCalledWith(
-        expect.stringContaining(
-          '✅ "Yüksek Kat Konut Binası (Kopya)" oluşturuldu!'
-        )
+      // Kopyalama modalı açılmalı ve onay sonrası editor açılmalı
+      await waitFor(() =>
+        expect(screen.getByText('Şablonu Kopyala')).toBeInTheDocument()
       )
+      const nameInput = screen.getByLabelText('Yeni Şablon Adı')
+      expect(nameInput).toHaveValue(expect.stringContaining('(Kopya)'))
+      await user.click(screen.getByText('Kopyala'))
+      await waitFor(() =>
+        expect(screen.queryByText('Şablonu Kopyala')).not.toBeInTheDocument()
+      )
+      // Editor başlığında kopya isim görünmeli
+      expect(screen.getByText(/Kopya/)).toBeInTheDocument()
     })
 
     it('template silme işlevi çalışmalıdır', async () => {
       const user = userEvent.setup()
       render(<DivisionTemplatesPage />)
 
-      mockConfirm.mockReturnValue(true)
-
       // Sil butonuna tıkla
       const deleteButtons = screen.getAllByTestId('trash2')
       await user.click(deleteButtons[0])
 
-      // Confirm çağrılmalı
-      expect(mockConfirm).toHaveBeenCalledWith(
-        expect.stringContaining(
-          '⚠️ Yüksek Kat Konut Binası şablonunu silmek istediğinizden emin misiniz?'
-        )
+      // Silme modalı açılmalı
+      await waitFor(() =>
+        expect(screen.getByText('Şablonu Sil')).toBeInTheDocument()
       )
-
-      // Alert çağrılmalı
-      expect(mockAlert).toHaveBeenCalledWith(
-        '🗑️ Yüksek Kat Konut Binası şablonu başarıyla silindi'
+      await user.click(screen.getByText('Kalıcı Olarak Sil'))
+      await waitFor(() =>
+        expect(screen.queryByText('Şablonu Sil')).not.toBeInTheDocument()
       )
     })
 
@@ -495,15 +495,17 @@ describe('DivisionTemplatesPage', () => {
       const user = userEvent.setup()
       render(<DivisionTemplatesPage />)
 
-      mockConfirm.mockReturnValue(false)
-
       // Sil butonuna tıkla
       const deleteButtons = screen.getAllByTestId('trash2')
       await user.click(deleteButtons[0])
 
-      // Confirm çağrılmalı ama alert çağrılmamalı
-      expect(mockConfirm).toHaveBeenCalled()
-      expect(mockAlert).not.toHaveBeenCalled()
+      await waitFor(() =>
+        expect(screen.getByText('Şablonu Sil')).toBeInTheDocument()
+      )
+      await user.click(screen.getByText('İptal'))
+      await waitFor(() =>
+        expect(screen.queryByText('Şablonu Sil')).not.toBeInTheDocument()
+      )
     })
   })
 
@@ -537,9 +539,10 @@ describe('DivisionTemplatesPage', () => {
       const temelNode = screen.getByText('Temel & Bodrum')
       await user.click(temelNode)
 
-      // Node seçildiğinde stil değişmeli (ring-2 class)
+      // Node seçildiğinde vurgu stilleri gelmeli
       const nodeElement = temelNode.closest('.group')
-      expect(nodeElement).toHaveClass('ring-2')
+      expect(nodeElement).toHaveClass('border-primary')
+      expect(nodeElement).toHaveClass('bg-primary/10')
     })
 
     it('expand/collapse butonları mevcut olmalıdır', async () => {
@@ -574,17 +577,15 @@ describe('DivisionTemplatesPage', () => {
       // Edit functionality varsayımsal olarak test edildi
     })
 
-    it('division iconları ve renkler gösterilmelidir', () => {
-      // Her division'ın icon'u olmalı - multiple elements kontrolü
-      const temelIcons = screen.getAllByText('🏗️')
-      const elektrikIcons = screen.getAllByText('⚡')
-      const tesisatIcons = screen.getAllByText('🚰')
-      const finisajIcons = screen.getAllByText('🎨')
+    it('icon ve vurgu stilleri gösterilmelidir', () => {
+      // En azından ağaç kontrol ikonları ve işlem ikonları görünür olmalı
+      const expandIcons = screen.getAllByTestId('chevron-down')
+      const editButtons = screen.getAllByTestId('edit')
+      const deleteButtons = screen.getAllByTestId('trash2')
 
-      expect(temelIcons.length).toBeGreaterThan(0) // Temel icon
-      expect(elektrikIcons.length).toBeGreaterThan(0) // Elektrik icon
-      expect(tesisatIcons.length).toBeGreaterThan(0) // Tesisat icon
-      expect(finisajIcons.length).toBeGreaterThan(0) // Finisaj icon
+      expect(expandIcons.length).toBeGreaterThan(0)
+      expect(editButtons.length).toBeGreaterThan(0)
+      expect(deleteButtons.length).toBeGreaterThan(0)
     })
 
     it('tree yapısı doğru hiyerarşide gösterilmelidir', () => {

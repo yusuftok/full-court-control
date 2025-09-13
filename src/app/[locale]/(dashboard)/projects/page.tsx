@@ -20,6 +20,9 @@ import {
   Project,
 } from '@/components/projects/types/project-types'
 import { cn } from '@/lib/utils'
+import { getSimpleProjects } from '@/lib/mock-data'
+import { useRouter } from 'next/navigation'
+import { useLocale } from 'next-intl'
 
 // Project interface now imported from shared component
 
@@ -338,7 +341,9 @@ const convertToCardProject = (project: Project): ProjectCardProject => ({
   actualCost: project.actualCost,
   plannedValue: project.plannedValue,
   plannedBudgetToDate: project.plannedBudgetToDate,
-  subcontractors: 3, // Static for now - could calculate from project.subcontractors
+  subcontractors:
+    (project.subcontractorIds?.length ?? 0) ||
+    Object.values(project.subcontractors).filter(Boolean).length,
   totalTasks: project.totalTasks,
   completedTasks: project.completedTasks,
   location: project.location,
@@ -354,13 +359,15 @@ const convertToCardProject = (project: Project): ProjectCardProject => ({
 // DataTable columns removed - using ProjectCard for display instead
 
 export default function ProjectsPage() {
+  const router = useRouter()
+  const locale = useLocale()
   const [searchTerm, setSearchTerm] = React.useState('')
   const [statusFilter, setStatusFilter] = React.useState<string>('active')
   const [sortConfig, setSortConfig] = React.useState<
     { key: string; direction: 'asc' | 'desc' } | undefined
   >(undefined)
   const [searchFocused, setSearchFocused] = React.useState(false)
-  const [projects] = React.useState<Project[]>(mockProjects)
+  const [projects] = React.useState<Project[]>(getSimpleProjects())
 
   const breadcrumbItems = [{ label: 'Projeler', href: '/projects' }]
 
@@ -420,13 +427,13 @@ export default function ProjectsPage() {
   }
 
   const handleProjectClick = (project: ProjectCardProject) => {
-    // Navigate to project detail page (simulated)
-    window.location.href = `/projects/${project.id}`
+    // Navigate to localized project detail page
+    router.push(`/${locale}/projects/${project.id}`)
   }
 
   const handleCreateProject = () => {
-    // Navigate to new project page
-    window.location.href = '/projects/new'
+    // Navigate to localized new project page
+    router.push(`/${locale}/projects/new`)
   }
 
   return (

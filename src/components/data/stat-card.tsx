@@ -45,7 +45,8 @@ export function StatCard({
 
   const formatChange = (changeValue: number): string => {
     const absValue = Math.abs(changeValue)
-    return `${changeValue >= 0 ? '+' : ''}${absValue.toFixed(1)}%`
+    const sign = changeValue > 0 ? '+' : changeValue < 0 ? '-' : '+'
+    return `${sign}${absValue.toFixed(1)}%`
   }
 
   return (
