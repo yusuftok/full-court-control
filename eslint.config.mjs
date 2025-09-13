@@ -19,6 +19,7 @@ const eslintConfig = [{
     'out/**',
     'build/**',
     'dist/**',
+    '.conductor/**',
     '.prettierrc',
     '*.config.js',
     '*.config.mjs',
