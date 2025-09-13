@@ -33,47 +33,11 @@ import {
   type NodeMetrics,
   type OwnerAggregate,
   type OwnerIssueSummary,
+  type SubcontractorId,
 } from '@/lib/project-analytics'
 import { mockSubcontractors } from '@/components/projects/data/mock-subcontractors'
 import { getDetailedProject, getSimpleProjects } from '@/lib/mock-data'
 import { useTranslations, useLocale } from 'next-intl'
-
-// Mock project data - in real app this would come from API
-interface ProjectDetails {
-  id: string
-  name: string
-  status: 'active' | 'inactive' | 'pending' | 'completed' | 'cancelled'
-  startDate: string
-  endDate: string
-  progress: number
-  budget: number
-  spent: number
-  location: string
-  contractor: string
-  teamSize: number
-  completedTasks: number
-  totalTasks: number
-  upcomingMilestones: Milestone[]
-  recentActivities: Activity[]
-  teamMembers: TeamMember[]
-}
-
-interface Milestone {
-  id: string
-  name: string
-  dueDate: string
-  status: 'completed' | 'in-progress' | 'pending' | 'overdue'
-  progress: number
-}
-
-interface Activity {
-  id: string
-  type: 'task' | 'milestone' | 'issue' | 'update'
-  title: string
-  description: string
-  timestamp: string
-  user: string
-}
 
 interface TeamMember {
   id: string
@@ -511,7 +475,7 @@ export default function ProjectDashboardPage() {
         },
       ],
     }),
-    [projectId]
+    [simple?.name]
   )
 
   const metricsById = React.useMemo(() => {
@@ -556,11 +520,28 @@ export default function ProjectDashboardPage() {
     return Number.isFinite(v) ? Math.max(1, Math.floor(v)) : 2
   }, [searchParams])
 
+  // Tasks generated from WBS nodes for the timeline
+  type WbsTask = {
+    id: string
+    name: string
+    dueDate: string
+    forecastDate?: string
+    actualDate?: string
+    slipDays?: number
+    status: 'completed' | 'in-progress'
+    progress: number
+    owner?: SubcontractorId
+    isCritical?: boolean
+    blockers: number
+  }
+
   // Produce WBS tasks at given depth, mapped into milestone-like shape to reuse visuals
   const getWbsTasks = React.useCallback(
-    (minDepth: number) => {
+    (minDepth: number): WbsTask[] => {
       // Build a visual timeline range that centers 'today' around ~55% when project timeline is skewed
-      const rawStart = simple?.startDate ? new Date(simple.startDate).getTime() : 0
+      const rawStart = simple?.startDate
+        ? new Date(simple.startDate).getTime()
+        : 0
       const rawEnd = simple?.endDate ? new Date(simple.endDate).getTime() : 0
       let start = rawStart
       let end = rawEnd
@@ -577,18 +558,22 @@ export default function ProjectDashboardPage() {
       // Collect nodes at depth >= minDepth (not only leaves), to ensure enough tasks
       const nodes: Array<{ id: string; name: string; depth: number }> = []
       const walk = (n: WbsNode, d: number) => {
-        if (d >= minDepth) nodes.push({ id: n.id, name: n.name || n.id, depth: d })
-        n.children?.forEach(c => walk(c as any, d + 1))
+        if (d >= minDepth)
+          nodes.push({ id: n.id, name: n.name || n.id, depth: d })
+        n.children?.forEach(c => walk(c, d + 1))
       }
       walk(wbsRoot, 0)
-      if (nodes.length === 0) return [] as any[]
-      const tasks: any[] = []
+      if (nodes.length === 0) return []
+      const tasks: WbsTask[] = []
       // Expand each node into several sub-parts to increase variety
       for (let ni = 0; ni < nodes.length && tasks.length < tasksMax; ni++) {
         const l = nodes[ni]
         for (let p = 0; p < taskParts && tasks.length < tasksMax; p++) {
           const idx = tasks.length
-          const seed = Array.from(l.id).reduce((a, c) => (a * 33 + c.charCodeAt(0)) >>> 0, 0)
+          const seed = Array.from(l.id).reduce(
+            (a, c) => (a * 33 + c.charCodeAt(0)) >>> 0,
+            0
+          )
           const offBase = (seed % 60) / 100 // 0..0.59
           const offJitter = (p * 7) / 100 // small shift per part
           const offRatio = Math.min(0.85, offBase + offJitter)
@@ -602,7 +587,7 @@ export default function ProjectDashboardPage() {
           const pv = m?.pv ?? 1
           const spi = pv > 0 ? ev / pv : 1
           // Diversify status: completed early/late, in-progress (fc late/early/on-track)
-          const pattern = (idx % 6)
+          const pattern = idx % 6
           let actual: number | undefined
           let forecast: number | undefined
           if (pattern === 0) {
@@ -612,35 +597,46 @@ export default function ProjectDashboardPage() {
             // Completed late
             actual = e + Math.floor((e - s) * 0.2)
           } else if (pattern === 2) {
-          // In-progress -> forecast by SPI (may be early/late)
-          forecast = s + Math.floor((e - s) / Math.max(spi || 1, 0.01)) // could be early/late
-        } else if (pattern === 3) {
-          // In-progress late: push forecast beyond due and today for dashed
-          forecast = Math.max(e + Math.floor((e - s) * 0.25), Date.now() + 7 * 86400000)
-        } else if (pattern === 4) {
-          // In-progress near plan
-          forecast = e - Math.floor((e - s) * 0.05)
-        } else {
-          // In-progress early but still future (ensure dashed green case)
-          const futureShift = Math.max(3 * 86400000, Math.floor((e - s) * 0.05))
-          const near = Math.min(e - Math.floor((e - s) * 0.15), end - futureShift)
-          forecast = Math.max(near, Date.now() + futureShift)
-        }
-        // In‑progress işte forecast geçmişte olamaz; en azından bugün+1g olsun
-        if (!actual && forecast && forecast < Date.now() + 24 * 3600 * 1000) {
-          forecast = Date.now() + 24 * 3600 * 1000
-        }
+            // In-progress -> forecast by SPI (may be early/late)
+            forecast = s + Math.floor((e - s) / Math.max(spi || 1, 0.01)) // could be early/late
+          } else if (pattern === 3) {
+            // In-progress late: push forecast beyond due and today for dashed
+            forecast = Math.max(
+              e + Math.floor((e - s) * 0.25),
+              Date.now() + 7 * 86400000
+            )
+          } else if (pattern === 4) {
+            // In-progress near plan
+            forecast = e - Math.floor((e - s) * 0.05)
+          } else {
+            // In-progress early but still future (ensure dashed green case)
+            const futureShift = Math.max(
+              3 * 86400000,
+              Math.floor((e - s) * 0.05)
+            )
+            const near = Math.min(
+              e - Math.floor((e - s) * 0.15),
+              end - futureShift
+            )
+            forecast = Math.max(near, Date.now() + futureShift)
+          }
+          // In‑progress işte forecast geçmişte olamaz; en azından bugün+1g olsun
+          if (!actual && forecast && forecast < Date.now() + 24 * 3600 * 1000) {
+            forecast = Date.now() + 24 * 3600 * 1000
+          }
           const fc = forecast ?? actual ?? e
           tasks.push({
             id: `${l.id}-p${p}`,
             name: p > 0 ? `${l.name} • Faz ${p + 1}` : l.name,
             dueDate: new Date(e).toISOString(),
-            forecastDate: forecast ? new Date(forecast).toISOString() : undefined,
+            forecastDate: forecast
+              ? new Date(forecast).toISOString()
+              : undefined,
             actualDate: actual ? new Date(actual).toISOString() : undefined,
             slipDays: Math.round((fc - e) / 86400000),
             status: actual ? 'completed' : 'in-progress',
             progress: actual ? 100 : 0,
-            owner: analytics.ownership.get(l.id) || undefined,
+            owner: analytics.ownership.get(l.id) ?? undefined,
             isCritical: analytics.nodeHealth.get(l.id)?.level === 'critical',
             blockers: 0,
           })
@@ -654,15 +650,22 @@ export default function ProjectDashboardPage() {
         const due = new Date(t.dueDate).getTime()
         t.actualDate = undefined
         t.status = 'in-progress'
-        t.forecastDate = new Date(Math.max(due + 7 * 86400000, Date.now() + 7 * 86400000)).toISOString()
-        t.slipDays = Math.round((new Date(t.forecastDate).getTime() - due) / 86400000)
+        t.forecastDate = new Date(
+          Math.max(due + 7 * 86400000, Date.now() + 7 * 86400000)
+        ).toISOString()
+        t.slipDays = Math.round(
+          (new Date(t.forecastDate).getTime() - due) / 86400000
+        )
         t.progress = 0
       }
       // Ensure at least one task forecasts exactly project end for visual variety
       if (tasks.length > 0) {
         let lastIdx = -1
         for (let i = tasks.length - 1; i >= 0; i--) {
-          if (!tasks[i].actualDate) { lastIdx = i; break }
+          if (!tasks[i].actualDate) {
+            lastIdx = i
+            break
+          }
         }
         if (lastIdx >= 0) {
           const t = tasks[lastIdx]
@@ -673,7 +676,16 @@ export default function ProjectDashboardPage() {
       }
       return tasks
     },
-    [analytics.nodeHealth, analytics.ownership, metricsById, simple?.endDate, simple?.startDate, wbsRoot]
+    [
+      analytics.nodeHealth,
+      analytics.ownership,
+      metricsById,
+      simple?.endDate,
+      simple?.startDate,
+      wbsRoot,
+      taskParts,
+      tasksMax,
+    ]
   )
 
   const subcontractorOverviewData = React.useMemo(() => {
@@ -838,27 +850,39 @@ export default function ProjectDashboardPage() {
                   {(() => {
                     const today = new Date()
                     const buildTasks = () => {
-                      const start = simple?.startDate ? new Date(simple.startDate).getTime() : 0
-                      const end = simple?.endDate ? new Date(simple.endDate).getTime() : 0
+                      const start = simple?.startDate
+                        ? new Date(simple.startDate).getTime()
+                        : 0
+                      const end = simple?.endDate
+                        ? new Date(simple.endDate).getTime()
+                        : 0
                       const total = end > start ? end - start : 1
                       const leaves: Array<{ id: string; name: string }> = []
                       const walk = (n: WbsNode) => {
-                        if (!n.children || n.children.length === 0) leaves.push({ id: n.id, name: n.name || n.id })
+                        if (!n.children || n.children.length === 0)
+                          leaves.push({ id: n.id, name: n.name || n.id })
                         else n.children.forEach(walk)
                       }
                       walk(wbsRoot)
                       const top = leaves.slice(0, 6)
                       return top.map(l => {
-                        const seed = Array.from(l.id).reduce((a, c) => (a * 33 + c.charCodeAt(0)) >>> 0, 0)
+                        const seed = Array.from(l.id).reduce(
+                          (a, c) => (a * 33 + c.charCodeAt(0)) >>> 0,
+                          0
+                        )
                         const offRatio = (seed % 70) / 100
                         const durRatio = 0.15 + ((seed >> 3) % 30) / 100
                         const s = start + Math.floor(total * offRatio)
-                        const e = Math.min(end, s + Math.floor(total * durRatio))
+                        const e = Math.min(
+                          end,
+                          s + Math.floor(total * durRatio)
+                        )
                         const nodeMetrics = metricsById.get(l.id)
                         const ev = nodeMetrics?.ev ?? 0
                         const pv = nodeMetrics?.pv ?? 1
                         const spiNode = pv > 0 ? ev / pv : 1
-                        const fc = s + Math.floor((e - s) / Math.max(spiNode || 1, 0.01))
+                        const fc =
+                          s + Math.floor((e - s) / Math.max(spiNode || 1, 0.01))
                         return {
                           id: l.id,
                           name: l.name,
@@ -870,7 +894,9 @@ export default function ProjectDashboardPage() {
                           actualDate: undefined,
                           owner: analytics.ownership.get(l.id) || undefined,
                           blockers: 0,
-                          isCritical: analytics.nodeHealth.get(l.id)?.level === 'critical',
+                          isCritical:
+                            analytics.nodeHealth.get(l.id)?.level ===
+                            'critical',
                         }
                       })
                     }
@@ -955,8 +981,12 @@ export default function ProjectDashboardPage() {
                 <div className="relative overflow-visible">
                   {/* Global today line that cuts through all rows */}
                   {(() => {
-                    const rawStart = simple?.startDate ? new Date(simple.startDate).getTime() : 0
-                    const rawEnd = simple?.endDate ? new Date(simple.endDate).getTime() : 0
+                    const rawStart = simple?.startDate
+                      ? new Date(simple.startDate).getTime()
+                      : 0
+                    const rawEnd = simple?.endDate
+                      ? new Date(simple.endDate).getTime()
+                      : 0
                     let start = rawStart
                     let end = rawEnd
                     if (rawEnd > rawStart) {
@@ -1097,8 +1127,18 @@ export default function ProjectDashboardPage() {
                           (baseDate.getTime() - due.getTime()) / 86400000
                         )
                         // label positions: push to exact edges when very close to 0%/100%
-                        const planLabelPct = duePct > 99.2 ? 100 : duePct < 0.8 ? 0 : Math.min(97, Math.max(3, duePct))
-                        const fcLabelPct = fcPct > 99.2 ? 100 : fcPct < 0.8 ? 0 : Math.min(97, Math.max(3, fcPct))
+                        const planLabelPct =
+                          duePct > 99.2
+                            ? 100
+                            : duePct < 0.8
+                              ? 0
+                              : Math.min(97, Math.max(3, duePct))
+                        const fcLabelPct =
+                          fcPct > 99.2
+                            ? 100
+                            : fcPct < 0.8
+                              ? 0
+                              : Math.min(97, Math.max(3, fcPct))
                         // today overlay for overdue visualization
                         const todayPct = (() => {
                           if (!(start && end && end > start)) return duePct
@@ -1147,7 +1187,10 @@ export default function ProjectDashboardPage() {
                         // Future/Delta rendering between Plan and Forecast (only future part)
                         const isLate = fcPct > duePct
                         const dashedStart = Math.max(planLabelPct, todayPct)
-                        const dashedSegWidth = Math.max(0, fcLabelPct - dashedStart)
+                        const dashedSegWidth = Math.max(
+                          0,
+                          fcLabelPct - dashedStart
+                        )
                         // Tooltip positioning: if markers are far, show Plan above and Forecast below; if close, only Forecast shows combined tooltip below
                         const planTipPos = !markersClose
                           ? ({
@@ -1225,13 +1268,16 @@ export default function ProjectDashboardPage() {
                               <div className="relative group group/msrow">
                                 {/* Track */}
                                 <div className="relative h-2 w-full">
-                                    {/* track background + clipped fills */}
+                                  {/* track background + clipped fills */}
                                   <div className="absolute inset-0 rounded-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
                                     {/* Progress fill: completed→actual, in‑progress→plan (no gap before dashed) */}
                                     <div
-                                      className={cn('h-full rounded-full', spiBaseColor)}
+                                      className={cn(
+                                        'h-full rounded-full',
+                                        spiBaseColor
+                                      )}
                                       style={{
-                                        width: `${(isCompleted ? fcPct : Math.min(planLabelPct, fcLabelPct))}%`,
+                                        width: `${isCompleted ? fcPct : Math.min(planLabelPct, fcLabelPct)}%`,
                                       }}
                                     />
                                     {/* Plan↔Forecast difference (from plan to forecast) */}
@@ -1309,17 +1355,28 @@ export default function ProjectDashboardPage() {
                                         >
                                           {isCompleted ? (
                                             <span>
-                                              Plan: {due.toLocaleDateString('tr-TR')} • Gerçek:{' '}
-                                              {(fc as Date).toLocaleDateString('tr-TR')}
+                                              Plan:{' '}
+                                              {due.toLocaleDateString('tr-TR')}{' '}
+                                              • Gerçek:{' '}
+                                              {(fc as Date).toLocaleDateString(
+                                                'tr-TR'
+                                              )}
                                             </span>
                                           ) : markersClose ? (
                                             <span>
-                                              Plan: {due.toLocaleDateString('tr-TR')} • Tahmin:{' '}
-                                              {(fc as Date).toLocaleDateString('tr-TR')}
+                                              Plan:{' '}
+                                              {due.toLocaleDateString('tr-TR')}{' '}
+                                              • Tahmin:{' '}
+                                              {(fc as Date).toLocaleDateString(
+                                                'tr-TR'
+                                              )}
                                             </span>
                                           ) : (
                                             <span>
-                                              Tahmin: {(fc as Date).toLocaleDateString('tr-TR')}
+                                              Tahmin:{' '}
+                                              {(fc as Date).toLocaleDateString(
+                                                'tr-TR'
+                                              )}
                                             </span>
                                           )}
                                         </div>
