@@ -122,6 +122,27 @@
     ],
     "{docs,stories}/**/*.{md,mdx}": [
       "prettier --write"
+    ],
+    "config/**/*.{js,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "config/**/*.{json,yml,yaml,md,mdx,css}": [
+      "prettier --write"
+    ],
+    "{next.config.js,tailwind.config.js,postcss.config.mjs,eslint.config.mjs,playwright.config.ts,vitest.config.ts}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "tsconfig*.json": [
+      "prettier --write"
+    ],
+    ".storybook/**/*.{ts,tsx,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    ".storybook/**/*.{md,mdx}": [
+      "prettier --write"
     ]
   }
 }
