@@ -21,6 +21,14 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from '@/components/ui/tooltip'
+import { Progress as UiProgress } from '@/components/ui/progress'
 import { Progress } from '@/components/ui/progress'
 import {
   PageContainer,
@@ -33,6 +41,7 @@ import { SubcontractorOverview } from '@/components/projects/SubcontractorOvervi
 import { WbsHealthTree } from '@/components/projects/WbsHealthTree'
 import { IssueList } from '@/components/projects/IssueList'
 import { BudgetSchedulePanel } from '@/components/projects/BudgetSchedulePanel'
+import { ProjectOverviewHeader } from '@/components/projects/project-overview-header'
 import {
   buildAnalytics,
   type WbsNode,
@@ -42,6 +51,8 @@ import {
   type OwnerIssueSummary,
 } from '@/lib/project-analytics'
 import { mockSubcontractors } from '@/components/projects/data/mock-subcontractors'
+import { getDetailedProject, getSimpleProjects } from '@/lib/mock-data'
+import { useTranslations, useLocale } from 'next-intl'
 
 // Mock project data - in real app this would come from API
 interface ProjectDetails {
@@ -498,11 +509,19 @@ const teamColumns: Column<TeamMember>[] = [
 ]
 
 export default function ProjectDashboardPage() {
+  const t = useTranslations('projectDetail')
+  const tCommon = useTranslations('common')
+  const tMilestone = useTranslations('milestone')
+  const locale = useLocale()
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
   const projectId = params.id as string
-  const project = mockProjectData[projectId]
+  const detailed = getDetailedProject(projectId)
+  const simple = React.useMemo(
+    () => getSimpleProjects().find(p => p.id === projectId),
+    [projectId]
+  )
 
   // --- WBS & Analytics (hooks must be before any early return) ---
   const subsNameMap = React.useMemo(() => {
@@ -514,7 +533,7 @@ export default function ProjectDashboardPage() {
   const wbsRoot: WbsNode = React.useMemo(
     () => ({
       id: 'root',
-      name: (mockProjectData[projectId]?.name as string) || 'Proje',
+      name: simple?.name || 'Proje',
       children: [
         {
           id: 'structure',
@@ -599,6 +618,23 @@ export default function ProjectDashboardPage() {
     return arr.sort((a, b) => a.aggregate.combined - b.aggregate.combined)
   }, [analytics.ownerAgg, analytics.ownerIssue, subsNameMap])
 
+  const ownerLabel = (raw?: string) => {
+    if (!raw) return undefined
+    const slug = raw
+      .replaceAll('İ', 'I')
+      .replaceAll('ı', 'i')
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
+    const key = `owner.${slug}`
+    // Cast to never to satisfy typed next-intl function without using 'any'
+    const translated = tMilestone(key as never)
+    // Fallback when key missing
+    return translated === key ? raw : translated
+  }
+
   type TabKey = 'overview' | 'subs' | 'wbs' | 'issues' | 'evm'
   const [activeTab, setActiveTab] = React.useState<TabKey>(
     (searchParams.get('tab') as TabKey) || 'overview'
@@ -609,6 +645,27 @@ export default function ProjectDashboardPage() {
   const [view, setView] = React.useState<'contract' | 'leaf'>(
     (searchParams.get('view') as 'contract' | 'leaf') || 'contract'
   )
+  const [selectedNodeId, setSelectedNodeId] = React.useState<string | null>(
+    searchParams.get('nodeId')
+  )
+  const [wbsQuery, setWbsQuery] = React.useState<string>(
+    searchParams.get('q') || ''
+  )
+
+  // Milestone filter states (URL-driven)
+  const [msState, setMsState] = React.useState<
+    'overdue' | 'upcoming' | 'ontrack' | null
+  >(
+    (searchParams.get('msState') as
+      | 'overdue'
+      | 'upcoming'
+      | 'ontrack'
+      | null) ?? null
+  )
+  const [msRange, setMsRange] = React.useState<number | null>(() => {
+    const v = searchParams.get('msRange')
+    return v ? Number(v) : null
+  })
 
   React.useEffect(() => {
     const sp = new URLSearchParams(searchParams.toString())
@@ -616,11 +673,27 @@ export default function ProjectDashboardPage() {
     if (selectedOwner) sp.set('subcontractorId', selectedOwner)
     else sp.delete('subcontractorId')
     sp.set('view', view)
+    if (selectedNodeId) sp.set('nodeId', selectedNodeId)
+    else sp.delete('nodeId')
+    if (wbsQuery) sp.set('q', wbsQuery)
+    else sp.delete('q')
+    if (msState) sp.set('msState', msState)
+    else sp.delete('msState')
+    if (msRange != null) sp.set('msRange', String(msRange))
+    else sp.delete('msRange')
     router.replace(`?${sp.toString()}`)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, selectedOwner, view])
+  }, [
+    activeTab,
+    selectedOwner,
+    view,
+    selectedNodeId,
+    wbsQuery,
+    msState,
+    msRange,
+  ])
 
-  if (!project) {
+  if (!detailed || !simple) {
     return (
       <PageContainer>
         <PageContent>
@@ -632,7 +705,7 @@ export default function ProjectDashboardPage() {
                 Aradığınız proje mevcut değil veya erişim izniniz bulunmuyor.
               </p>
               <Button asChild>
-                <Link href="/dashboard">
+                <Link href={`/${locale}/dashboard`}>
                   <ArrowLeft className="size-4 mr-2" />
                   Ana Panele Dön
                 </Link>
@@ -644,88 +717,11 @@ export default function ProjectDashboardPage() {
     )
   }
 
-  const budgetUsagePercentage = Math.round(
-    (project.spent / project.budget) * 100
-  )
-
   return (
     <PageContainer>
       <PageContent>
-        <div className="flex items-center gap-3 mb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            asChild
-            className="construction-hover"
-          >
-            <Link href="/dashboard">
-              <ArrowLeft className="size-4" />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-2xl font-semibold">{project.name}</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <StatusBadge status={project.status} />
-              <span className="text-sm text-muted-foreground">•</span>
-              <span className="text-sm text-muted-foreground">
-                {project.location}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <PageHeader
-          title="Proje Kontrol Paneli"
-          description={`${project.contractor} • ${project.teamSize} kişilik ekip`}
-          action={
-            <div className="flex items-center gap-2">
-              <Button variant="outline">
-                <Calendar className="size-4 mr-2" />
-                Program Görüntüle
-              </Button>
-              <Button>
-                <Wrench className="size-4 mr-2" />
-                Proje Ayarları
-              </Button>
-            </div>
-          }
-        />
-
-        {/* Project Stats */}
-        <StatCardGrid columns={4} className="mb-8">
-          <StatCard
-            title="Proje İlerlemesi"
-            value={`${project.progress}%`}
-            icon={TrendingUp}
-            change={{
-              value: 5.2,
-              type: 'increase',
-              period: 'geçen haftaya göre',
-            }}
-          />
-          <StatCard
-            title="Bütçe Kullanımı"
-            value={`${budgetUsagePercentage}%`}
-            icon={Building2}
-            description={`${(project.spent / 1000000).toFixed(1)}M₺ / ${(project.budget / 1000000).toFixed(1)}M₺`}
-          />
-          <StatCard
-            title="Tamamlanan Görevler"
-            value={`${project.completedTasks}/${project.totalTasks}`}
-            icon={CheckCircle}
-            change={{
-              value: 12,
-              type: 'increase',
-              period: 'bu hafta tamamlanan',
-            }}
-          />
-          <StatCard
-            title="Ekip Mevcudu"
-            value={project.teamSize}
-            icon={Users}
-            description="Aktif çalışan"
-          />
-        </StatCardGrid>
+        {/* Modern overview header with KPI card content moved here */}
+        <ProjectOverviewHeader project={simple} />
 
         {/* Tabs */}
         <div className="mb-4 border-b">
@@ -758,56 +754,477 @@ export default function ProjectDashboardPage() {
             {/* Milestones */}
             <Card className="lg:col-span-2">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="size-5" />
-                  Kilometre Taşları
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Calendar className="size-5" />
+                    Kilometre Taşları
+                  </span>
+                  {(() => {
+                    const today = new Date()
+                    const ms = detailed.upcomingMilestones ?? []
+                    const overdue = ms.filter(
+                      m =>
+                        (m.actualDate
+                          ? new Date(m.actualDate) > new Date(m.dueDate)
+                          : today > new Date(m.dueDate)) && m.progress < 100
+                    ).length
+                    const upcoming = ms.filter(m => {
+                      const d = new Date(m.dueDate)
+                      const dt = Math.ceil(
+                        (d.getTime() - today.getTime()) / 86400000
+                      )
+                      return dt >= 0 && dt <= 14 && m.progress < 100
+                    }).length
+                    const onTrack =
+                      ms.filter(m => m.progress < 100).length -
+                      overdue -
+                      upcoming
+                    const slips = ms.map(m => m.slipDays ?? 0)
+                    const avgSlip = slips.length
+                      ? Math.round(
+                          slips.reduce((a, b) => a + b, 0) / slips.length
+                        )
+                      : 0
+                    return (
+                      <div className="hidden md:flex items-center gap-2 text-sm">
+                        <button
+                          className={cn(
+                            'px-2 py-0.5 rounded border transition-colors',
+                            msState === 'overdue'
+                              ? 'bg-red-600 text-white border-red-600'
+                              : 'bg-red-100 text-red-700 border-red-200'
+                          )}
+                          onClick={() =>
+                            setMsState(msState === 'overdue' ? null : 'overdue')
+                          }
+                        >
+                          Overdue {overdue}
+                        </button>
+                        <button
+                          className={cn(
+                            'px-2 py-0.5 rounded border transition-colors',
+                            msState === 'upcoming'
+                              ? 'bg-yellow-600 text-white border-yellow-600'
+                              : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                          )}
+                          onClick={() => {
+                            setMsState(
+                              msState === 'upcoming' ? null : 'upcoming'
+                            )
+                            setMsRange(14)
+                          }}
+                        >
+                          ≤14g {upcoming}
+                        </button>
+                        <button
+                          className={cn(
+                            'px-2 py-0.5 rounded border transition-colors',
+                            msState === 'ontrack'
+                              ? 'bg-green-600 text-white border-green-600'
+                              : 'bg-green-100 text-green-700 border-green-200'
+                          )}
+                          onClick={() =>
+                            setMsState(msState === 'ontrack' ? null : 'ontrack')
+                          }
+                        >
+                          On‑track {Math.max(onTrack, 0)}
+                        </button>
+                        <span className="text-muted-foreground">
+                          Δ {avgSlip >= 0 ? '+' : ''}
+                          {avgSlip}g
+                        </span>
+                      </div>
+                    )
+                  })()}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {project.upcomingMilestones.map(milestone => (
-                    <div
-                      key={milestone.id}
-                      className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg construction-hover"
-                    >
+                <div className="relative overflow-visible">
+                  {/* Global today line that cuts through all rows */}
+                  {(() => {
+                    const start = simple?.startDate
+                      ? new Date(simple.startDate).getTime()
+                      : 0
+                    const end = simple?.endDate
+                      ? new Date(simple.endDate).getTime()
+                      : 0
+                    const today = Date.now()
+                    const pct =
+                      start && end && end > start
+                        ? Math.min(
+                            100,
+                            Math.max(0, ((today - start) / (end - start)) * 100)
+                          )
+                        : 0
+                    return (
                       <div
-                        className={cn(
-                          'size-8 rounded-full flex items-center justify-center',
-                          milestone.status === 'completed'
-                            ? 'bg-green-100 dark:bg-green-900/30'
-                            : milestone.status === 'in-progress'
-                              ? 'bg-blue-100 dark:bg-blue-900/30'
-                              : milestone.status === 'overdue'
-                                ? 'bg-red-100 dark:bg-red-900/30'
-                                : 'bg-gray-100 dark:bg-gray-900/30'
-                        )}
+                        aria-hidden
+                        className="absolute inset-y-0 pointer-events-none z-40"
+                        style={{ left: `${pct}%` }}
                       >
-                        <Calendar
-                          className={cn(
-                            'size-4',
-                            milestone.status === 'completed'
-                              ? 'text-green-600 dark:text-green-400'
-                              : milestone.status === 'in-progress'
-                                ? 'text-blue-600 dark:text-blue-400'
-                                : milestone.status === 'overdue'
-                                  ? 'text-red-600 dark:text-red-400'
-                                  : 'text-gray-600 dark:text-gray-400'
-                          )}
-                        />
+                        <div className="h-full border-l-2 border-dashed border-sky-600/50" />
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <h4 className="font-medium">{milestone.name}</h4>
-                          <span className="text-sm text-muted-foreground">
-                            {new Date(milestone.dueDate).toLocaleDateString(
-                              'tr-TR'
-                            )}
-                          </span>
-                        </div>
-                        <Progress value={milestone.progress} className="h-2" />
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })()}
+                  <div className="space-y-3">
+                    {(() => {
+                      const all = detailed.upcomingMilestones ?? []
+                      const today = new Date()
+                      const filtered = all.filter(m => {
+                        if (!msState) return true
+                        const due = new Date(m.dueDate)
+                        const daysToDue = Math.ceil(
+                          (due.getTime() - today.getTime()) / 86400000
+                        )
+                        const isOverdue =
+                          (m.actualDate
+                            ? new Date(m.actualDate) > due
+                            : today > due) && m.progress < 100
+                        const isUpcoming =
+                          daysToDue >= 0 &&
+                          (msRange != null
+                            ? daysToDue <= msRange
+                            : daysToDue <= 14) &&
+                          m.progress < 100
+                        const isOnTrack =
+                          m.progress < 100 && !isOverdue && !isUpcoming
+                        if (msState === 'overdue') return isOverdue
+                        if (msState === 'upcoming') return isUpcoming
+                        if (msState === 'ontrack') return isOnTrack
+                        return true
+                      })
+                      return filtered.map(m => {
+                        const due = new Date(m.dueDate)
+                        let fc = m.forecastDate
+                          ? new Date(m.forecastDate)
+                          : undefined
+                        const delta =
+                          m.slipDays ??
+                          (fc
+                            ? Math.round(
+                                (fc.getTime() - due.getTime()) / 86400000
+                              )
+                            : 0)
+                        const daysToDue = Math.ceil(
+                          (due.getTime() - Date.now()) / 86400000
+                        )
+                        const statusColor =
+                          m.progress >= 100
+                            ? 'green'
+                            : delta > 0
+                              ? 'red'
+                              : daysToDue <= 14
+                                ? 'yellow'
+                                : 'blue'
+                        const colorClasses =
+                          statusColor === 'green'
+                            ? 'bg-green-100 text-green-700'
+                            : statusColor === 'red'
+                              ? 'bg-red-100 text-red-700'
+                              : statusColor === 'yellow'
+                                ? 'bg-yellow-100 text-yellow-700'
+                                : 'bg-blue-100 text-blue-700'
+                        const start = simple?.startDate
+                          ? new Date(simple.startDate).getTime()
+                          : 0
+                        const end = simple?.endDate
+                          ? new Date(simple.endDate).getTime()
+                          : 0
+                        const duePct =
+                          start && end && end > start
+                            ? Math.min(
+                                100,
+                                Math.max(
+                                  0,
+                                  ((due.getTime() - start) / (end - start)) *
+                                    100
+                                )
+                              )
+                            : 0
+                        if (!fc && simple) {
+                          const spi =
+                            simple.earnedValue > 0
+                              ? simple.earnedValue /
+                                Math.max(simple.plannedValue, 1)
+                              : 1
+                          const plannedDur = Math.max(1, due.getTime() - start)
+                          const estDur = plannedDur / (spi || 1)
+                          fc = new Date(start + estDur)
+                        }
+                        const isCompleted =
+                          (m.progress ?? 0) >= 100 ||
+                          m.status === 'completed' ||
+                          !!m.actualDate
+                        const fcEff: Date | undefined = isCompleted
+                          ? m.actualDate
+                            ? new Date(m.actualDate)
+                            : (fc as Date | undefined)
+                          : (fc as Date | undefined)
+                        const fcPct =
+                          fcEff && start && end && end > start
+                            ? Math.min(
+                                100,
+                                Math.max(
+                                  0,
+                                  (((fcEff as Date).getTime() - start) /
+                                    (end - start)) *
+                                    100
+                                )
+                              )
+                            : duePct
+                        const baseDate = fcEff ?? due
+                        const drift = Math.round(
+                          (baseDate.getTime() - due.getTime()) / 86400000
+                        )
+                        // clamp label positions to keep inside container visually
+                        const planLabelPct = Math.min(97, Math.max(3, duePct))
+                        const fcLabelPct = Math.min(97, Math.max(3, fcPct))
+                        // today overlay for overdue visualization
+                        const todayPct = (() => {
+                          if (!(start && end && end > start)) return duePct
+                          const t = Math.min(
+                            100,
+                            Math.max(
+                              0,
+                              ((Date.now() - start) / (end - start)) * 100
+                            )
+                          )
+                          return t
+                        })()
+                        const fcColor =
+                          drift > 0 ? 'bg-red-500' : 'bg-green-600'
+                        // Consider markers visually "close" only when < ~1% of width apart
+                        const markersClose =
+                          Math.abs(fcLabelPct - planLabelPct) < 1
+                        const planAnchor =
+                          planLabelPct > 92
+                            ? 'right'
+                            : planLabelPct < 8
+                              ? 'left'
+                              : 'center'
+                        const fcAnchor =
+                          fcLabelPct > 92
+                            ? 'right'
+                            : fcLabelPct < 8
+                              ? 'left'
+                              : 'center'
+                        // Milestone-specific SPI using start→due vs start→forecast durations
+                        // spiMs = plannedDuration / forecastDuration
+                        // If forecast earlier than due -> spiMs > 1 (treat as green)
+                        const plannedDurMs =
+                          start && due ? Math.max(1, due.getTime() - start) : 1
+                        const forecastDurMs =
+                          start && fcEff
+                            ? Math.max(1, (fcEff as Date).getTime() - start)
+                            : plannedDurMs
+                        const spiMs = plannedDurMs / Math.max(1, forecastDurMs)
+                        // Base color strictly by milestone SPI thresholds (tolerance respected)
+                        const spiBaseColor =
+                          spiMs >= 0.95
+                            ? 'bg-green-600'
+                            : spiMs >= 0.85
+                              ? 'bg-orange-500'
+                              : 'bg-red-600'
+                        // Future/Delta rendering between Plan and Forecast
+                        const isLate = fcPct > duePct
+                        const diffStart = Math.min(duePct, fcPct)
+                        const diffEnd = Math.max(duePct, fcPct)
+                        // Entire Plan↔Forecast delta is rendered as dashed, irrespective of 'today'
+                        const dashedStart = diffStart
+                        const dashedSegWidth = Math.max(0, diffEnd - diffStart)
+                        // Tooltip positioning: if markers are far, show Plan above and Forecast below; if close, only Forecast shows combined tooltip below
+                        const planTipPos = !markersClose
+                          ? ({
+                              bottom: '100%',
+                              marginBottom: 8,
+                            } as React.CSSProperties)
+                          : ({
+                              top: '100%',
+                              marginTop: 8,
+                            } as React.CSSProperties)
+                        const fcTipPos = {
+                          top: '100%',
+                          marginTop: 8,
+                        } as React.CSSProperties
+                        return (
+                          <div
+                            key={m.id}
+                            className="p-3 rounded-lg bg-muted/40 border"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <div
+                                  className={cn(
+                                    'size-8 rounded-full flex items-center justify-center',
+                                    colorClasses
+                                  )}
+                                >
+                                  <Calendar className="size-4" />
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <h4 className="font-medium truncate">
+                                      {m.name}
+                                    </h4>
+                                    {m.isCritical && (
+                                      <Badge
+                                        variant="outline"
+                                        className="px-1.5 py-0.5 text-[11px] bg-red-100 text-red-700 border-red-200"
+                                      >
+                                        Kritik
+                                      </Badge>
+                                    )}
+                                    {m.owner && (
+                                      <span className="px-1.5 py-0.5 text-[11px] rounded bg-secondary text-foreground/80">
+                                        {ownerLabel(m.owner)}
+                                      </span>
+                                    )}
+                                  </div>
+                                  {typeof m.blockers === 'number' &&
+                                    m.blockers > 0 && (
+                                      <div className="text-xs text-muted-foreground">
+                                        Engelleyici: {m.blockers}
+                                      </div>
+                                    )}
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div
+                                  className={cn(
+                                    'text-sm font-semibold',
+                                    drift > 0
+                                      ? 'text-red-600'
+                                      : drift < 0
+                                        ? 'text-green-700'
+                                        : 'text-muted-foreground'
+                                  )}
+                                >
+                                  {drift >= 0 ? '+' : ''}
+                                  {drift}g
+                                </div>
+                              </div>
+                            </div>
+                            <div className="mt-2">
+                              {/* Use a named group so both tooltips can react to the same hover target */}
+                              <div className="relative group group/msrow">
+                                {/* Track */}
+                                <div className="relative h-2 w-full">
+                                  {/* track background + clipped fills */}
+                                  <div className="absolute inset-0 rounded-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
+                                    {/* Base fill up to earlier of Plan/Forecast */}
+                                    <div
+                                      className={cn(
+                                        'h-full rounded-full',
+                                        spiBaseColor
+                                      )}
+                                      style={{
+                                        width: `${Math.min(duePct, fcPct)}%`,
+                                      }}
+                                    />
+                                    {/* Plan↔Forecast difference (always dashed) */}
+                                    {dashedSegWidth > 0 &&
+                                      diffEnd > todayPct && (
+                                        <div
+                                          className="absolute inset-y-0 left-0 z-10"
+                                          style={{
+                                            left: `${dashedStart}%`,
+                                            width: `${dashedSegWidth}%`,
+                                            // Denser colored portion: thicker color band, thinner gap
+                                            backgroundImage: isLate
+                                              ? 'repeating-linear-gradient(135deg, rgba(239,68,68,0.9) 0, rgba(239,68,68,0.9) 12px, rgba(239,68,68,0.0) 12px, rgba(239,68,68,0.0) 16px)'
+                                              : 'repeating-linear-gradient(135deg, rgba(22,163,74,0.9) 0, rgba(22,163,74,0.9) 12px, rgba(22,163,74,0.0) 12px, rgba(22,163,74,0.0) 16px)',
+                                          }}
+                                        />
+                                      )}
+                                  </div>
+                                  {/* Removed per-bar today line; using global dashed line */}
+                                  {/* Plan marker */}
+                                  <div
+                                    className="absolute"
+                                    style={{
+                                      left: `calc(${planLabelPct}% - 6px)`,
+                                      top: markersClose ? -10 : -6,
+                                    }}
+                                  >
+                                    {/* Avoid nested default group collisions; name the inner group */}
+                                    <div className="relative group/marker z-50">
+                                      <div className="size-3.5 rounded-full bg-gray-300 border border-gray-500 shadow-md ring-2 ring-white dark:ring-gray-900" />
+                                      {!markersClose && (
+                                        <div
+                                          className={cn(
+                                            'absolute z-50 px-2 py-1 rounded-md border bg-popover text-popover-foreground text-xs shadow opacity-0 group-hover/msrow:opacity-100 group-hover:opacity-100 pointer-events-none whitespace-nowrap',
+                                            planAnchor === 'center' &&
+                                              'left-1/2 -translate-x-1/2',
+                                            planAnchor === 'left' && 'left-0',
+                                            planAnchor === 'right' && 'right-0'
+                                          )}
+                                          style={planTipPos}
+                                        >
+                                          Plan:{' '}
+                                          {due.toLocaleDateString('tr-TR')}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                  {/* Forecast marker */}
+                                  {fc && (
+                                    <div
+                                      className="absolute"
+                                      style={{
+                                        left: `calc(${fcLabelPct}% - 6px)`,
+                                        top: markersClose ? undefined : -6,
+                                        bottom: markersClose ? -10 : undefined,
+                                      }}
+                                    >
+                                      <div className="relative group/marker z-50">
+                                        <div
+                                          className={cn(
+                                            'size-3.5 rounded-full border shadow-md ring-2 ring-white dark:ring-gray-900',
+                                            drift > 0
+                                              ? 'bg-red-600 border-red-700'
+                                              : 'bg-emerald-600 border-emerald-700'
+                                          )}
+                                        />
+                                        <div
+                                          className={cn(
+                                            'absolute z-50 px-2 py-1 rounded-md border bg-popover text-popover-foreground text-xs shadow opacity-0 group-hover/msrow:opacity-100 group-hover:opacity-100 pointer-events-none whitespace-nowrap',
+                                            fcAnchor === 'center' &&
+                                              'left-1/2 -translate-x-1/2',
+                                            fcAnchor === 'left' && 'left-0',
+                                            fcAnchor === 'right' && 'right-0'
+                                          )}
+                                          style={fcTipPos}
+                                        >
+                                          {markersClose ? (
+                                            <span>
+                                              Plan:{' '}
+                                              {due.toLocaleDateString('tr-TR')}{' '}
+                                              • Tahmin:{' '}
+                                              {(fc as Date).toLocaleDateString(
+                                                'tr-TR'
+                                              )}
+                                            </span>
+                                          ) : (
+                                            <span>
+                                              Tahmin:{' '}
+                                              {(fc as Date).toLocaleDateString(
+                                                'tr-TR'
+                                              )}
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {/* Remove duplicate overdue overlay (already rendered above) */}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })
+                    })()}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -819,7 +1236,7 @@ export default function ProjectDashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {project.recentActivities.map(activity => {
+                  {detailed.recentActivities.map(activity => {
                     const config = activityTypeConfig[activity.type]
                     const Icon = config.icon
 
@@ -876,37 +1293,48 @@ export default function ProjectDashboardPage() {
 
         {activeTab === 'wbs' && (
           <div className="mb-8">
-            <div className="flex items-center justify-end gap-2 mb-2">
-              <button
-                className={cn(
-                  'px-2 py-1 text-xs rounded border',
-                  view === 'contract'
-                    ? 'bg-primary text-white border-primary'
-                    : 'text-muted-foreground'
-                )}
-                onClick={() => setView('contract')}
-              >
-                Kontrat Düzeyi
-              </button>
-              <button
-                className={cn(
-                  'px-2 py-1 text-xs rounded border',
-                  view === 'leaf'
-                    ? 'bg-primary text-white border-primary'
-                    : 'text-muted-foreground'
-                )}
-                onClick={() => setView('leaf')}
-              >
-                Tüm Yapraklar
-              </button>
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex-1 max-w-[320px]">
+                <Input
+                  placeholder={tCommon('search')}
+                  value={wbsQuery}
+                  onChange={e => setWbsQuery(e.target.value)}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  className={cn(
+                    'px-2 py-1 text-xs rounded border',
+                    view === 'contract'
+                      ? 'bg-primary text-white border-primary'
+                      : 'text-muted-foreground'
+                  )}
+                  onClick={() => setView('contract')}
+                >
+                  Kontrat Düzeyi
+                </button>
+                <button
+                  className={cn(
+                    'px-2 py-1 text-xs rounded border',
+                    view === 'leaf'
+                      ? 'bg-primary text-white border-primary'
+                      : 'text-muted-foreground'
+                  )}
+                  onClick={() => setView('leaf')}
+                >
+                  Tüm Yapraklar
+                </button>
+              </div>
             </div>
             <WbsHealthTree
               root={wbsRoot}
               ownership={analytics.ownership}
               nodeHealth={analytics.nodeHealth}
-              onSelectNode={() => {}}
+              onSelectNode={id => setSelectedNodeId(id)}
               filterOwnerId={selectedOwner}
               view={view}
+              selectedNodeId={selectedNodeId}
+              searchQuery={wbsQuery}
             />
           </div>
         )}
@@ -942,9 +1370,9 @@ export default function ProjectDashboardPage() {
           </CardHeader>
           <CardContent>
             <DataTable
-              data={project.teamMembers}
+              data={detailed.teamMembers}
               columns={teamColumns}
-              emptyMessage="Ekip üyesi bulunamadı"
+              emptyMessage={t('empty.team')}
             />
           </CardContent>
         </Card>
@@ -959,7 +1387,7 @@ export default function ProjectDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {project.equipment.map(equipment => (
+              {detailed.equipment.map(equipment => (
                 <div
                   key={equipment.id}
                   className="p-4 border rounded-lg construction-hover"
