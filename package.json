@@ -10,6 +10,7 @@
     "lint:fix": "eslint . --fix",
     "lint:src": "eslint src",
     "lint:src:fix": "eslint src --fix",
+    "lint:ci": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
@@ -108,11 +109,18 @@
     "vitest": "^3.2.4"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
+    "src/**/*.{js,jsx,ts,tsx}": [
       "eslint --fix",
       "prettier --write"
     ],
-    "*.{json,md,css}": [
+    "e2e/**/*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "src/**/*.{json,md,css}": [
+      "prettier --write"
+    ],
+    "{docs,stories}/**/*.{md,mdx}": [
       "prettier --write"
     ]
   }
