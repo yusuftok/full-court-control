@@ -47,7 +47,7 @@ export function Breadcrumbs({
       ]
     }
     return items
-  }, [items, homeIcon, homeLabel])
+  }, [items, homeIcon, homeLabel, locale])
 
   return (
     <nav aria-label="Breadcrumb" className={cn('', className)}>
@@ -107,7 +107,7 @@ export function generateBreadcrumbs({
   pathname,
   params = {},
   customLabels = {},
-  homeIcon = true,
+  homeIcon: _homeIcon = true,
 }: GenerateBreadcrumbsOptions): BreadcrumbItem[] {
   const segments = pathname.split('/').filter(Boolean)
   const items: BreadcrumbItem[] = []
@@ -140,7 +140,7 @@ export function generateBreadcrumbs({
 // Hook for automatic breadcrumbs based on current route
 export function useBreadcrumbs({
   customLabels,
-  homeIcon = true,
+  homeIcon: _homeIcon = true,
 }: {
   customLabels?: Record<string, string>
   homeIcon?: boolean
@@ -152,7 +152,7 @@ export function useBreadcrumbs({
     // Placeholder implementation
     // In a real app, this would derive breadcrumbs from current route
     return []
-  }, [customLabels, homeIcon])
+  }, [])
 }
 
 // Breadcrumb wrapper with responsive behavior

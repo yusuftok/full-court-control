@@ -26,10 +26,6 @@ const TestIcon = ({ className }: { className?: string }) => (
   <svg data-testid="test-icon" className={className} />
 )
 
-const HomeIcon = ({ className }: { className?: string }) => (
-  <svg data-testid="home-icon" className={className} />
-)
-
 // Mock Lucide icons
 vi.mock('lucide-react', () => ({
   ChevronRight: ({ className }: any) => (

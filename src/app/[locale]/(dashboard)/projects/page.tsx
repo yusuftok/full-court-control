@@ -29,7 +29,8 @@ import { useLocale } from 'next-intl'
 // Import ProjectCategory
 import { ProjectCategory } from '@/components/projects/types/project-types'
 
-// Mock projects for demo
+// Mock projects for demo (kept for reference)
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const mockProjects: Project[] = [
   {
     id: '1',
@@ -327,6 +328,7 @@ const mockProjects: Project[] = [
     divisionInstances: [],
   },
 ]
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 // Convert Project to ProjectCardProject for display
 const convertToCardProject = (project: Project): ProjectCardProject => ({

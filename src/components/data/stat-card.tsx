@@ -3,7 +3,6 @@ import { LucideIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { CircularProgress } from '@/components/ui/circular-progress'
 
 interface StatCardProps {
   title: string

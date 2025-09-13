@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-require-imports */
-import { render, screen, fireEvent } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { FormProvider, useForm } from 'react-hook-form'
+import { render, screen } from '@testing-library/react'
 import { vi } from 'vitest'
 import {
   FormField,
@@ -26,15 +24,10 @@ vi.mock('@/components/ui/label', () => ({
 // Test wrapper component with react-hook-form context
 interface TestFormWrapperProps {
   children: React.ReactNode
-  defaultValues?: any
   errors?: any
 }
 
-function TestFormWrapper({
-  children,
-  defaultValues = {},
-  errors = {},
-}: TestFormWrapperProps) {
+function TestFormWrapper({ children, errors = {} }: TestFormWrapperProps) {
   ;(globalThis as any).__TEST_RHF_ERRORS__ = errors
   const mockForm = {
     register: vi.fn((name: string) => ({

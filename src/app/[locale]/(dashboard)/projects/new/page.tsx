@@ -242,10 +242,6 @@ export default function CreateProjectPage() {
     setShowSuccessDialog(true)
   }
 
-  const getProgressPercentage = (): number => {
-    return Math.round(((currentStep + 1) / stepConfig.length) * 100)
-  }
-
   const getCurrentStepConfig = () => {
     return stepConfig.find(step => step.id === currentStep)
   }

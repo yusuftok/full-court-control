@@ -250,34 +250,11 @@ export default function DashboardPage() {
   // Calculate dashboard stats
   const totalProjects = mockProjects.length
   const activeProjects = mockProjects.filter(p => p.status === 'active').length
-  const completedProjects = mockProjects.filter(
-    p => p.status === 'completed'
-  ).length
-  const totalTasks = mockProjects.reduce((sum, p) => sum + p.totalTasks, 0)
-  const completedTasks = mockProjects.reduce(
-    (sum, p) => sum + p.completedTasks,
-    0
-  )
-  const averageProgress = Math.round(
-    mockProjects.reduce((sum, p) => sum + p.progress, 0) / totalProjects
-  )
-
-  const criticalProjects = mockProjects.filter(
-    p => p.progress < 30 && p.status === 'active'
-  ).length
-  const onScheduleProjects = mockProjects.filter(
-    p => p.progress >= 75 && p.status === 'active'
-  ).length
-
-  // Calculate overview card metrics
+  // Calculate overview card metrics (only what we use below)
   const activeBudget = mockProjects
     .filter(p => p.status === 'active')
     .reduce((sum, p) => sum + p.budget, 0)
-  const overallPerformance = Math.round(
-    mockProjects
-      .filter(p => p.status === 'active')
-      .reduce((sum, p) => sum + p.progress, 0) / activeProjects
-  )
+  // Derivations like averageProgress/overallPerformance are removed to avoid unused vars
   const mockActiveArea = 20000 // Mock value in m²
 
   // Rubriğe göre proje sınıflandırması ve metrik hesapları
