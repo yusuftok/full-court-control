@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { Settings, FolderTree, User, Bell, Globe, Shield } from 'lucide-react'
+import { FolderTree, User, Bell, Globe, Shield } from 'lucide-react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {

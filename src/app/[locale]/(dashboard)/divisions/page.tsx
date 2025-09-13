@@ -370,7 +370,6 @@ export default function ProjectDivisionsPage() {
   const [selectedProject, setSelectedProject] = useState<string>('')
   const [showTemplateDialog, setShowTemplateDialog] = useState(false)
   const [showCopyDialog, setShowCopyDialog] = useState(false)
-  const [showSaveTemplateDialog, setShowSaveTemplateDialog] = useState(false)
   const [showAddNodeDialog, setShowAddNodeDialog] = useState(false)
   const [showEditNodeDialog, setShowEditNodeDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
@@ -393,9 +392,7 @@ export default function ProjectDivisionsPage() {
     }
   }, [selectedProject])
 
-  const handleStartFromTemplate = () => {
-    setShowTemplateDialog(true)
-  }
+  // Dialoglar doğrudan DialogTrigger ile açılıyor; ayrıca başlatma fonksiyonu gerekmiyor
 
   const handleApplyTemplate = (templateId: string) => {
     // Create new structure from template
@@ -462,9 +459,7 @@ export default function ProjectDivisionsPage() {
     )
   }
 
-  const handleCopyFromProject = () => {
-    setShowCopyDialog(true)
-  }
+  // Projeden kopyalama da DialogTrigger üzerinden yönetiliyor
 
   const handleCopyFromSourceProject = (sourceProjectId: string) => {
     const sourceStructure = mockDivisionStructures[sourceProjectId]
@@ -486,11 +481,11 @@ export default function ProjectDivisionsPage() {
   }
 
   const handleSaveAsTemplate = () => {
-    setShowSaveTemplateDialog(true)
+    toast.success('Şablon olarak kaydetme özelliği yakında!')
   }
 
-  const handleCreateInstance = (nodeId: string) => {
-    toast.success('Yeni instance oluşturuluyor...')
+  const handleCreateInstance = (_nodeId: string) => {
+    toast.success(`Yeni instance oluşturuluyor: ${_nodeId}`)
     // TODO: Create new instance
   }
 
@@ -499,8 +494,8 @@ export default function ProjectDivisionsPage() {
     // TODO: Open edit dialog
   }
 
-  const handleDeleteInstance = (instanceId: string) => {
-    toast.success('Instance silindi')
+  const handleDeleteInstance = (_instanceId: string) => {
+    toast.success(`Instance silindi: ${_instanceId}`)
     // TODO: Delete instance
   }
 

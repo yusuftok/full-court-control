@@ -7,14 +7,11 @@ import {
   ArrowLeft,
   Building2,
   Calendar,
-  Users,
   Clock,
   CheckCircle,
   AlertTriangle,
-  TrendingUp,
   Truck,
   HardHat,
-  Wrench,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -22,21 +19,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import {
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from '@/components/ui/tooltip'
-import { Progress as UiProgress } from '@/components/ui/progress'
-import { Progress } from '@/components/ui/progress'
-import {
-  PageContainer,
-  PageHeader,
-  PageContent,
-} from '@/components/layout/page-container'
-import { StatCard, StatCardGrid } from '@/components/data/stat-card'
-import { DataTable, Column, StatusBadge } from '@/components/data/data-table'
+// tooltips/progress components not used here
+import { PageContainer, PageContent } from '@/components/layout/page-container'
+import { DataTable, Column } from '@/components/data/data-table'
 import { SubcontractorOverview } from '@/components/projects/SubcontractorOverview'
 import { WbsHealthTree } from '@/components/projects/WbsHealthTree'
 import { IssueList } from '@/components/projects/IssueList'
@@ -110,6 +95,7 @@ interface Equipment {
   lastMaintenance: string
 }
 
+/*
 const mockProjectData: Record<string, ProjectDetails> = {
   '1': {
     id: '1',
@@ -450,6 +436,7 @@ const mockProjectData: Record<string, ProjectDetails> = {
     ],
   },
 }
+*/
 
 const activityTypeConfig = {
   task: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-100' },
@@ -991,8 +978,7 @@ export default function ProjectDashboardPage() {
                           )
                           return t
                         })()
-                        const fcColor =
-                          drift > 0 ? 'bg-red-500' : 'bg-green-600'
+                        // color for forecast marker handled via drift check inline
                         // Consider markers visually "close" only when < ~1% of width apart
                         const markersClose =
                           Math.abs(fcLabelPct - planLabelPct) < 1
