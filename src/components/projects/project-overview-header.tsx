@@ -62,8 +62,9 @@ function buildSeries(current: number, mode: RangeMode) {
 }
 
 export function ProjectOverviewHeader({ project }: { project: Project }) {
+  // CPI = EV / AC (guard against divide-by-zero)
   const cpi =
-    project.earnedValue > 0 ? project.earnedValue / project.actualCost : 0
+    project.actualCost > 0 ? project.earnedValue / project.actualCost : 1
   const spi =
     project.earnedValue > 0 ? project.earnedValue / project.plannedValue : 0
   const perfLevel = levelFrom(0.6 * cpi + 0.4 * spi)
@@ -72,10 +73,8 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
     Object.values(project.subcontractors || {}).filter(Boolean).length
 
   const remainingTasks = project.totalTasks - project.completedTasks
-  const eac =
-    project.earnedValue > 0
-      ? project.actualCost / (cpi || 1)
-      : project.actualCost
+  // EAC ≈ BAC / CPI. If CPI < 1, EAC >= BAC olması beklenir.
+  const eac = cpi > 0 ? project.budget / cpi : project.budget
   const projectedEnd = (() => {
     const s =
       project.earnedValue > 0 ? project.earnedValue / project.plannedValue : 1
@@ -237,7 +236,7 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
                 <span className="text-amber-600 dark:text-amber-400">
                   Böyle Giderse:
                 </span>
-                <span className="font-semibold text-amber-700 dark:text-amber-300">
+                <span className="font-bold text-base text-amber-700 dark:text-amber-300">
                   ₺{(eac / 1_000_000).toFixed(1)}M
                 </span>
               </div>
