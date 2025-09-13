@@ -179,8 +179,9 @@ export default function DashboardPage() {
   const breadcrumbItems: Array<{ label: string; href: string }> = []
 
   const handleProjectClick = (project: CardProject) => {
-    // Navigate to localized project details page
-    router.push(`/${locale}/projects/${project.id}`)
+    // Navigate to localized project details page with rich WBS demo params
+    const params = new URLSearchParams({ taskDepth: '2', tasksMax: '18' })
+    router.push(`/${locale}/projects/${project.id}?${params.toString()}`)
   }
 
   const handleCreateProject = () => {

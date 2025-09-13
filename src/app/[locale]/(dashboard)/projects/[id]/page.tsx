@@ -539,6 +539,143 @@ export default function ProjectDashboardPage() {
     [wbsRoot, metricsById, issues]
   )
 
+  // Configurable WBS depth for tasks shown in the timeline (default: one below top)
+  const taskDepth = React.useMemo(() => {
+    const qp = searchParams.get('taskDepth')
+    const v = qp ? Number(qp) : 2
+    return Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 2
+  }, [searchParams])
+  const tasksMax = React.useMemo(() => {
+    const qp = searchParams.get('tasksMax')
+    const v = qp ? Number(qp) : 18
+    return Number.isFinite(v) ? Math.max(1, Math.floor(v)) : 18
+  }, [searchParams])
+  const taskParts = React.useMemo(() => {
+    const qp = searchParams.get('taskParts')
+    const v = qp ? Number(qp) : 2
+    return Number.isFinite(v) ? Math.max(1, Math.floor(v)) : 2
+  }, [searchParams])
+
+  // Produce WBS tasks at given depth, mapped into milestone-like shape to reuse visuals
+  const getWbsTasks = React.useCallback(
+    (minDepth: number) => {
+      // Build a visual timeline range that centers 'today' around ~55% when project timeline is skewed
+      const rawStart = simple?.startDate ? new Date(simple.startDate).getTime() : 0
+      const rawEnd = simple?.endDate ? new Date(simple.endDate).getTime() : 0
+      let start = rawStart
+      let end = rawEnd
+      if (rawEnd > rawStart) {
+        const span = rawEnd - rawStart
+        const realPct = (Date.now() - rawStart) / span
+        const desired = 0.55
+        if (realPct < 0.35 || realPct > 0.75) {
+          start = Math.floor(Date.now() - desired * span)
+          end = start + span
+        }
+      }
+      const total = end > start ? end - start : 1
+      // Collect nodes at depth >= minDepth (not only leaves), to ensure enough tasks
+      const nodes: Array<{ id: string; name: string; depth: number }> = []
+      const walk = (n: WbsNode, d: number) => {
+        if (d >= minDepth) nodes.push({ id: n.id, name: n.name || n.id, depth: d })
+        n.children?.forEach(c => walk(c as any, d + 1))
+      }
+      walk(wbsRoot, 0)
+      if (nodes.length === 0) return [] as any[]
+      const tasks: any[] = []
+      // Expand each node into several sub-parts to increase variety
+      for (let ni = 0; ni < nodes.length && tasks.length < tasksMax; ni++) {
+        const l = nodes[ni]
+        for (let p = 0; p < taskParts && tasks.length < tasksMax; p++) {
+          const idx = tasks.length
+          const seed = Array.from(l.id).reduce((a, c) => (a * 33 + c.charCodeAt(0)) >>> 0, 0)
+          const offBase = (seed % 60) / 100 // 0..0.59
+          const offJitter = (p * 7) / 100 // small shift per part
+          const offRatio = Math.min(0.85, offBase + offJitter)
+          const durBase = 0.18 + ((seed >> 3) % 25) / 100 // 0.18..0.43
+          const durShrink = Math.max(0.5, 1 - p * 0.15)
+          const durRatio = Math.min(0.6, durBase * durShrink)
+          const s = start + Math.floor(total * offRatio)
+          const e = Math.min(end, s + Math.floor(total * durRatio))
+          const m = metricsById.get(l.id)
+          const ev = m?.ev ?? 0
+          const pv = m?.pv ?? 1
+          const spi = pv > 0 ? ev / pv : 1
+          // Diversify status: completed early/late, in-progress (fc late/early/on-track)
+          const pattern = (idx % 6)
+          let actual: number | undefined
+          let forecast: number | undefined
+          if (pattern === 0) {
+            // Completed early
+            actual = e - Math.floor((e - s) * 0.1)
+          } else if (pattern === 1) {
+            // Completed late
+            actual = e + Math.floor((e - s) * 0.2)
+          } else if (pattern === 2) {
+          // In-progress -> forecast by SPI (may be early/late)
+          forecast = s + Math.floor((e - s) / Math.max(spi || 1, 0.01)) // could be early/late
+        } else if (pattern === 3) {
+          // In-progress late: push forecast beyond due and today for dashed
+          forecast = Math.max(e + Math.floor((e - s) * 0.25), Date.now() + 7 * 86400000)
+        } else if (pattern === 4) {
+          // In-progress near plan
+          forecast = e - Math.floor((e - s) * 0.05)
+        } else {
+          // In-progress early but still future (ensure dashed green case)
+          const futureShift = Math.max(3 * 86400000, Math.floor((e - s) * 0.05))
+          const near = Math.min(e - Math.floor((e - s) * 0.15), end - futureShift)
+          forecast = Math.max(near, Date.now() + futureShift)
+        }
+        // In‑progress işte forecast geçmişte olamaz; en azından bugün+1g olsun
+        if (!actual && forecast && forecast < Date.now() + 24 * 3600 * 1000) {
+          forecast = Date.now() + 24 * 3600 * 1000
+        }
+          const fc = forecast ?? actual ?? e
+          tasks.push({
+            id: `${l.id}-p${p}`,
+            name: p > 0 ? `${l.name} • Faz ${p + 1}` : l.name,
+            dueDate: new Date(e).toISOString(),
+            forecastDate: forecast ? new Date(forecast).toISOString() : undefined,
+            actualDate: actual ? new Date(actual).toISOString() : undefined,
+            slipDays: Math.round((fc - e) / 86400000),
+            status: actual ? 'completed' : 'in-progress',
+            progress: actual ? 100 : 0,
+            owner: analytics.ownership.get(l.id) || undefined,
+            isCritical: analytics.nodeHealth.get(l.id)?.level === 'critical',
+            blockers: 0,
+          })
+        }
+      }
+      // Ensure at least one unfinished task exists for active projects
+      const hasActive = tasks.some(t => !t.actualDate)
+      if (!hasActive && tasks.length > 0) {
+        // Mark the last one as in-progress into the future to show dashed
+        const t = tasks[tasks.length - 1]
+        const due = new Date(t.dueDate).getTime()
+        t.actualDate = undefined
+        t.status = 'in-progress'
+        t.forecastDate = new Date(Math.max(due + 7 * 86400000, Date.now() + 7 * 86400000)).toISOString()
+        t.slipDays = Math.round((new Date(t.forecastDate).getTime() - due) / 86400000)
+        t.progress = 0
+      }
+      // Ensure at least one task forecasts exactly project end for visual variety
+      if (tasks.length > 0) {
+        let lastIdx = -1
+        for (let i = tasks.length - 1; i >= 0; i--) {
+          if (!tasks[i].actualDate) { lastIdx = i; break }
+        }
+        if (lastIdx >= 0) {
+          const t = tasks[lastIdx]
+          t.forecastDate = new Date(end).toISOString()
+          const due = new Date(t.dueDate).getTime()
+          t.slipDays = Math.round((end - due) / 86400000)
+        }
+      }
+      return tasks
+    },
+    [analytics.nodeHealth, analytics.ownership, metricsById, simple?.endDate, simple?.startDate, wbsRoot]
+  )
+
   const subcontractorOverviewData = React.useMemo(() => {
     const arr: Array<{
       id: string
@@ -689,18 +826,55 @@ export default function ProjectDashboardPage() {
         </div>
 
         {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 gap-6 mb-8">
             {/* Milestones */}
             <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span className="flex items-center gap-2">
                     <Calendar className="size-5" />
-                    Kilometre Taşları
+                    İş Kırılımı Görevleri (WBS)
                   </span>
                   {(() => {
                     const today = new Date()
-                    const ms = detailed.upcomingMilestones ?? []
+                    const buildTasks = () => {
+                      const start = simple?.startDate ? new Date(simple.startDate).getTime() : 0
+                      const end = simple?.endDate ? new Date(simple.endDate).getTime() : 0
+                      const total = end > start ? end - start : 1
+                      const leaves: Array<{ id: string; name: string }> = []
+                      const walk = (n: WbsNode) => {
+                        if (!n.children || n.children.length === 0) leaves.push({ id: n.id, name: n.name || n.id })
+                        else n.children.forEach(walk)
+                      }
+                      walk(wbsRoot)
+                      const top = leaves.slice(0, 6)
+                      return top.map(l => {
+                        const seed = Array.from(l.id).reduce((a, c) => (a * 33 + c.charCodeAt(0)) >>> 0, 0)
+                        const offRatio = (seed % 70) / 100
+                        const durRatio = 0.15 + ((seed >> 3) % 30) / 100
+                        const s = start + Math.floor(total * offRatio)
+                        const e = Math.min(end, s + Math.floor(total * durRatio))
+                        const nodeMetrics = metricsById.get(l.id)
+                        const ev = nodeMetrics?.ev ?? 0
+                        const pv = nodeMetrics?.pv ?? 1
+                        const spiNode = pv > 0 ? ev / pv : 1
+                        const fc = s + Math.floor((e - s) / Math.max(spiNode || 1, 0.01))
+                        return {
+                          id: l.id,
+                          name: l.name,
+                          dueDate: new Date(e).toISOString(),
+                          forecastDate: new Date(fc).toISOString(),
+                          progress: 0,
+                          slipDays: Math.round((fc - e) / 86400000),
+                          status: 'in-progress',
+                          actualDate: undefined,
+                          owner: analytics.ownership.get(l.id) || undefined,
+                          blockers: 0,
+                          isCritical: analytics.nodeHealth.get(l.id)?.level === 'critical',
+                        }
+                      })
+                    }
+                    const ms = buildTasks()
                     const overdue = ms.filter(
                       m =>
                         (m.actualDate
@@ -781,12 +955,19 @@ export default function ProjectDashboardPage() {
                 <div className="relative overflow-visible">
                   {/* Global today line that cuts through all rows */}
                   {(() => {
-                    const start = simple?.startDate
-                      ? new Date(simple.startDate).getTime()
-                      : 0
-                    const end = simple?.endDate
-                      ? new Date(simple.endDate).getTime()
-                      : 0
+                    const rawStart = simple?.startDate ? new Date(simple.startDate).getTime() : 0
+                    const rawEnd = simple?.endDate ? new Date(simple.endDate).getTime() : 0
+                    let start = rawStart
+                    let end = rawEnd
+                    if (rawEnd > rawStart) {
+                      const span = rawEnd - rawStart
+                      const realPct = (Date.now() - rawStart) / span
+                      const desired = 0.55
+                      if (realPct < 0.35 || realPct > 0.75) {
+                        start = Math.floor(Date.now() - desired * span)
+                        end = start + span
+                      }
+                    }
                     const today = Date.now()
                     const pct =
                       start && end && end > start
@@ -807,7 +988,7 @@ export default function ProjectDashboardPage() {
                   })()}
                   <div className="space-y-3">
                     {(() => {
-                      const all = detailed.upcomingMilestones ?? []
+                      const all = getWbsTasks(taskDepth)
                       const today = new Date()
                       const filtered = all.filter(m => {
                         if (!msState) return true
@@ -915,9 +1096,9 @@ export default function ProjectDashboardPage() {
                         const drift = Math.round(
                           (baseDate.getTime() - due.getTime()) / 86400000
                         )
-                        // clamp label positions to keep inside container visually
-                        const planLabelPct = Math.min(97, Math.max(3, duePct))
-                        const fcLabelPct = Math.min(97, Math.max(3, fcPct))
+                        // label positions: push to exact edges when very close to 0%/100%
+                        const planLabelPct = duePct > 99.2 ? 100 : duePct < 0.8 ? 0 : Math.min(97, Math.max(3, duePct))
+                        const fcLabelPct = fcPct > 99.2 ? 100 : fcPct < 0.8 ? 0 : Math.min(97, Math.max(3, fcPct))
                         // today overlay for overdue visualization
                         const todayPct = (() => {
                           if (!(start && end && end > start)) return duePct
@@ -963,13 +1144,10 @@ export default function ProjectDashboardPage() {
                             : spiMs >= 0.85
                               ? 'bg-orange-500'
                               : 'bg-red-600'
-                        // Future/Delta rendering between Plan and Forecast
+                        // Future/Delta rendering between Plan and Forecast (only future part)
                         const isLate = fcPct > duePct
-                        const diffStart = Math.min(duePct, fcPct)
-                        const diffEnd = Math.max(duePct, fcPct)
-                        // Entire Plan↔Forecast delta is rendered as dashed, irrespective of 'today'
-                        const dashedStart = diffStart
-                        const dashedSegWidth = Math.max(0, diffEnd - diffStart)
+                        const dashedStart = Math.max(planLabelPct, todayPct)
+                        const dashedSegWidth = Math.max(0, fcLabelPct - dashedStart)
                         // Tooltip positioning: if markers are far, show Plan above and Forecast below; if close, only Forecast shows combined tooltip below
                         const planTipPos = !markersClose
                           ? ({
@@ -1047,33 +1225,29 @@ export default function ProjectDashboardPage() {
                               <div className="relative group group/msrow">
                                 {/* Track */}
                                 <div className="relative h-2 w-full">
-                                  {/* track background + clipped fills */}
+                                    {/* track background + clipped fills */}
                                   <div className="absolute inset-0 rounded-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
-                                    {/* Base fill up to earlier of Plan/Forecast */}
+                                    {/* Progress fill: completed→actual, in‑progress→plan (no gap before dashed) */}
                                     <div
-                                      className={cn(
-                                        'h-full rounded-full',
-                                        spiBaseColor
-                                      )}
+                                      className={cn('h-full rounded-full', spiBaseColor)}
                                       style={{
-                                        width: `${Math.min(duePct, fcPct)}%`,
+                                        width: `${(isCompleted ? fcPct : Math.min(planLabelPct, fcLabelPct))}%`,
                                       }}
                                     />
-                                    {/* Plan↔Forecast difference (always dashed) */}
-                                    {dashedSegWidth > 0 &&
-                                      diffEnd > todayPct && (
-                                        <div
-                                          className="absolute inset-y-0 left-0 z-10"
-                                          style={{
-                                            left: `${dashedStart}%`,
-                                            width: `${dashedSegWidth}%`,
-                                            // Denser colored portion: thicker color band, thinner gap
-                                            backgroundImage: isLate
-                                              ? 'repeating-linear-gradient(135deg, rgba(239,68,68,0.9) 0, rgba(239,68,68,0.9) 12px, rgba(239,68,68,0.0) 12px, rgba(239,68,68,0.0) 16px)'
-                                              : 'repeating-linear-gradient(135deg, rgba(22,163,74,0.9) 0, rgba(22,163,74,0.9) 12px, rgba(22,163,74,0.0) 12px, rgba(22,163,74,0.0) 16px)',
-                                          }}
-                                        />
-                                      )}
+                                    {/* Plan↔Forecast difference (from plan to forecast) */}
+                                    {!isCompleted && dashedSegWidth > 0 && (
+                                      <div
+                                        className="absolute inset-y-0 left-0 z-10"
+                                        style={{
+                                          left: `${planLabelPct}%`,
+                                          width: `${Math.max(0, fcLabelPct - planLabelPct)}%`,
+                                          // Denser colored portion: thicker color band, thinner gap
+                                          backgroundImage: isLate
+                                            ? 'repeating-linear-gradient(135deg, rgba(239,68,68,0.9) 0, rgba(239,68,68,0.9) 12px, rgba(239,68,68,0.0) 12px, rgba(239,68,68,0.0) 16px)'
+                                            : 'repeating-linear-gradient(135deg, rgba(22,163,74,0.9) 0, rgba(22,163,74,0.9) 12px, rgba(22,163,74,0.0) 12px, rgba(22,163,74,0.0) 16px)',
+                                        }}
+                                      />
+                                    )}
                                   </div>
                                   {/* Removed per-bar today line; using global dashed line */}
                                   {/* Plan marker */}
@@ -1133,21 +1307,19 @@ export default function ProjectDashboardPage() {
                                           )}
                                           style={fcTipPos}
                                         >
-                                          {markersClose ? (
+                                          {isCompleted ? (
                                             <span>
-                                              Plan:{' '}
-                                              {due.toLocaleDateString('tr-TR')}{' '}
-                                              • Tahmin:{' '}
-                                              {(fc as Date).toLocaleDateString(
-                                                'tr-TR'
-                                              )}
+                                              Plan: {due.toLocaleDateString('tr-TR')} • Gerçek:{' '}
+                                              {(fc as Date).toLocaleDateString('tr-TR')}
+                                            </span>
+                                          ) : markersClose ? (
+                                            <span>
+                                              Plan: {due.toLocaleDateString('tr-TR')} • Tahmin:{' '}
+                                              {(fc as Date).toLocaleDateString('tr-TR')}
                                             </span>
                                           ) : (
                                             <span>
-                                              Tahmin:{' '}
-                                              {(fc as Date).toLocaleDateString(
-                                                'tr-TR'
-                                              )}
+                                              Tahmin: {(fc as Date).toLocaleDateString('tr-TR')}
                                             </span>
                                           )}
                                         </div>
