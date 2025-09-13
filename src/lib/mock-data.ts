@@ -41,7 +41,6 @@ export interface DetailedProject extends BaseProject {
   upcomingMilestones: Milestone[]
   recentActivities: Activity[]
   teamMembers: TeamMember[]
-  equipment: Equipment[]
   mainContractorTeam: {
     chiefEngineer: string
     civilEngineer: string
@@ -98,14 +97,7 @@ export interface TeamMember {
   status: 'active' | 'on-leave' | 'off-site'
 }
 
-export interface Equipment {
-  id: string
-  name: string
-  type: string
-  status: 'operational' | 'maintenance' | 'broken'
-  location: string
-  lastMaintenance: string
-}
+// Equipment removed from project scope
 
 // Search item interface for global search
 export interface SearchItem {
@@ -256,24 +248,6 @@ export const MOCK_PROJECTS: DetailedProject[] = [
         status: 'active',
       },
     ],
-    equipment: [
-      {
-        id: 'e1',
-        name: 'Kule Vinç #1',
-        type: 'Kaldırma',
-        status: 'operational',
-        location: 'Blok A',
-        lastMaintenance: '2024-08-01',
-      },
-      {
-        id: 'e2',
-        name: 'Beton Mikseri #3',
-        type: 'Beton',
-        status: 'maintenance',
-        location: 'Santral',
-        lastMaintenance: '2024-08-15',
-      },
-    ],
     mainContractorTeam: {
       chiefEngineer: 'Ahmet Yılmaz',
       civilEngineer: 'Mehmet Demir',
@@ -367,16 +341,6 @@ export const MOCK_PROJECTS: DetailedProject[] = [
         status: 'active',
       },
     ],
-    equipment: [
-      {
-        id: 'e3',
-        name: 'Kule Vinç #2',
-        type: 'Kaldırma',
-        status: 'operational',
-        location: 'Konut Blok A',
-        lastMaintenance: '2024-07-20',
-      },
-    ],
     mainContractorTeam: {
       chiefEngineer: 'Fatma Demir',
       civilEngineer: 'Hasan Özkan',
@@ -463,16 +427,6 @@ export const MOCK_PROJECTS: DetailedProject[] = [
         status: 'active',
       },
     ],
-    equipment: [
-      {
-        id: 'e4',
-        name: 'Forklift #1',
-        type: 'Taşıma',
-        status: 'operational',
-        location: 'Depo',
-        lastMaintenance: '2024-08-10',
-      },
-    ],
     mainContractorTeam: {
       chiefEngineer: 'Mehmet Kaya',
       civilEngineer: 'Kemal Öz',
@@ -541,16 +495,6 @@ export const MOCK_PROJECTS: DetailedProject[] = [
         tasksCompleted: 65,
         hoursWorked: 420,
         status: 'off-site',
-      },
-    ],
-    equipment: [
-      {
-        id: 'e5',
-        name: 'Asfalt Makinesi',
-        type: 'Yol',
-        status: 'operational',
-        location: 'Köprü Girişi',
-        lastMaintenance: '2024-08-05',
       },
     ],
     mainContractorTeam: {
@@ -646,16 +590,6 @@ export const MOCK_PROJECTS: DetailedProject[] = [
         status: 'active',
       },
     ],
-    equipment: [
-      {
-        id: 'e6',
-        name: 'Beton Pompası',
-        type: 'Beton',
-        status: 'maintenance',
-        location: 'Ana Giriş',
-        lastMaintenance: '2024-08-12',
-      },
-    ],
     mainContractorTeam: {
       chiefEngineer: 'Ayşe Özkan',
       civilEngineer: 'Nurcan Yıldız',
@@ -726,16 +660,6 @@ export const MOCK_PROJECTS: DetailedProject[] = [
         status: 'on-leave',
       },
     ],
-    equipment: [
-      {
-        id: 'e7',
-        name: 'Kazı Makinesi',
-        type: 'Kazı',
-        status: 'broken',
-        location: 'Saha Girişi',
-        lastMaintenance: '2024-07-30',
-      },
-    ],
     mainContractorTeam: {
       chiefEngineer: 'Serkan Yıldırım',
       civilEngineer: 'Pınar Özdemir',
@@ -789,7 +713,6 @@ export const MOCK_PROJECTS: DetailedProject[] = [
       },
     ],
     teamMembers: [],
-    equipment: [],
     mainContractorTeam: {
       chiefEngineer: 'Tolga Avcı',
       civilEngineer: 'Gamze Yılmaz',

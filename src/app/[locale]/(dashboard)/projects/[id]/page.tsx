@@ -10,7 +10,6 @@ import {
   Clock,
   CheckCircle,
   AlertTriangle,
-  Truck,
   HardHat,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -57,7 +56,6 @@ interface ProjectDetails {
   upcomingMilestones: Milestone[]
   recentActivities: Activity[]
   teamMembers: TeamMember[]
-  equipment: Equipment[]
 }
 
 interface Milestone {
@@ -86,14 +84,7 @@ interface TeamMember {
   status: 'active' | 'on-leave' | 'off-site'
 }
 
-interface Equipment {
-  id: string
-  name: string
-  type: string
-  status: 'operational' | 'maintenance' | 'broken'
-  location: string
-  lastMaintenance: string
-}
+// Equipment type removed from scope
 
 /*
 const mockProjectData: Record<string, ProjectDetails> = {
@@ -186,24 +177,6 @@ const mockProjectData: Record<string, ProjectDetails> = {
         status: 'active',
       },
     ],
-    equipment: [
-      {
-        id: 'e1',
-        name: 'Kule Vinç #1',
-        type: 'Kaldırma',
-        status: 'operational',
-        location: 'Blok A',
-        lastMaintenance: '2024-08-01',
-      },
-      {
-        id: 'e2',
-        name: 'Beton Mikseri #3',
-        type: 'Beton',
-        status: 'maintenance',
-        location: 'Santral',
-        lastMaintenance: '2024-08-15',
-      },
-    ],
   },
   '2': {
     id: '2',
@@ -255,16 +228,6 @@ const mockProjectData: Record<string, ProjectDetails> = {
         status: 'active',
       },
     ],
-    equipment: [
-      {
-        id: 'e1',
-        name: 'Kepçe #2',
-        type: 'Hafriyat',
-        status: 'operational',
-        location: 'A Blok',
-        lastMaintenance: '2024-08-10',
-      },
-    ],
   },
   '3': {
     id: '3',
@@ -307,16 +270,6 @@ const mockProjectData: Record<string, ProjectDetails> = {
         tasksCompleted: 45,
         hoursWorked: 55,
         status: 'active',
-      },
-    ],
-    equipment: [
-      {
-        id: 'e1',
-        name: 'TBM Makinesi',
-        type: 'Tünel',
-        status: 'operational',
-        location: 'Hat B2',
-        lastMaintenance: '2024-08-05',
       },
     ],
   },
@@ -363,7 +316,6 @@ const mockProjectData: Record<string, ProjectDetails> = {
         status: 'active',
       },
     ],
-    equipment: [],
   },
   '5': {
     id: '5',
@@ -1360,54 +1312,6 @@ export default function ProjectDashboardPage() {
               columns={teamColumns}
               emptyMessage={t('empty.team')}
             />
-          </CardContent>
-        </Card>
-
-        {/* Equipment Status */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Truck className="size-5" />
-              Ekipman Durumu
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {detailed.equipment.map(equipment => (
-                <div
-                  key={equipment.id}
-                  className="p-4 border rounded-lg construction-hover"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium">{equipment.name}</h4>
-                    <Badge
-                      variant={
-                        equipment.status === 'operational'
-                          ? 'default'
-                          : equipment.status === 'maintenance'
-                            ? 'secondary'
-                            : 'destructive'
-                      }
-                    >
-                      {equipment.status === 'operational'
-                        ? 'Çalışıyor'
-                        : equipment.status === 'maintenance'
-                          ? 'Bakımda'
-                          : 'Arızalı'}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-1">
-                    {equipment.type} • {equipment.location}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Son bakım:{' '}
-                    {new Date(equipment.lastMaintenance).toLocaleDateString(
-                      'tr-TR'
-                    )}
-                  </p>
-                </div>
-              ))}
-            </div>
           </CardContent>
         </Card>
       </PageContent>
