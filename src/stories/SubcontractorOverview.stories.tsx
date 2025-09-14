@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { SubcontractorOverview } from '@/components/projects/SubcontractorOverview'
 import type { OwnerAggregate, OwnerIssueSummary } from '@/lib/project-analytics'
+import { PERFORMANCE_THRESHOLDS as T } from '@/lib/performance-thresholds'
 
 const meta: Meta<typeof SubcontractorOverview> = {
   title: 'Projects/SubcontractorOverview',
@@ -16,7 +17,12 @@ const mkAgg = (combined: number, cpi: number, spi: number): OwnerAggregate => ({
   combined,
   cpi,
   spi,
-  level: combined >= 0.95 ? 'good' : combined >= 0.9 ? 'risky' : 'critical',
+  level:
+    combined >= T.COMBINED.good
+      ? 'good'
+      : combined >= T.COMBINED.risky
+        ? 'risky'
+        : 'critical',
 })
 
 const data = [

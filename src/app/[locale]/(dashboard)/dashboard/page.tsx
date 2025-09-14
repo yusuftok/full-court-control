@@ -31,6 +31,7 @@ import {
 import { getSimpleProjects } from '@/lib/mock-data'
 import type { Project as SimpleProject } from '@/components/projects/types/project-types'
 import { useRouter } from 'next/navigation'
+import { PERFORMANCE_THRESHOLDS as T } from '@/lib/performance-thresholds'
 import { useLocale } from 'next-intl'
 
 // Mock data uses Project type from component
@@ -72,7 +73,7 @@ const mockProjects: CardProject[] = [
     endDate: '2024-08-15',
     progress: 45,
     plannedProgress: 55,
-    // RİSKLİ durumu: CPI = 0.87, SPI = 0.90 → Combined = 0.6*0.87 + 0.4*0.90 = 0.882 (0.85-0.94)
+    // RİSKLİ durumu: CPI = 0.87, SPI = 0.90 → Combined = 0.6*0.87 + 0.4*0.90 = 0.882 (0.90-0.94)
     earnedValue: 870000, // Kazanılan değer
     actualCost: 1000000, // CPI = 870000/1000000 = 0.87 (Riskli)
     plannedValue: 965000, // SPI = 870000/965000 = 0.90 (Riskli)
@@ -98,7 +99,7 @@ const mockProjects: CardProject[] = [
     endDate: '2024-12-15',
     progress: 25,
     plannedProgress: 30,
-    // KRİTİK durumu: CPI = 0.76, SPI = 0.79 → Combined = 0.6*0.76 + 0.4*0.79 = 0.772 (<0.85)
+    // KRİTİK durumu: CPI = 0.76, SPI = 0.79 → Combined = 0.6*0.76 + 0.4*0.79 = 0.772 (<0.90)
     earnedValue: 380000, // Kazanılan değer
     actualCost: 500000, // CPI = 380000/500000 = 0.76 (Kritik)
     plannedValue: 480000, // SPI = 380000/480000 = 0.79 (Kritik)
@@ -273,8 +274,8 @@ export default function DashboardPage() {
       project.earnedValue > 0 ? project.earnedValue / project.plannedValue : 0
     const combined = 0.6 * cpi + 0.4 * spi
 
-    if (combined < 0.85) return 'kritik'
-    if (combined < 0.95) return 'riskli'
+    if (combined < T.COMBINED.risky) return 'kritik'
+    if (combined < T.COMBINED.good) return 'riskli'
     return 'iyi'
   }
 

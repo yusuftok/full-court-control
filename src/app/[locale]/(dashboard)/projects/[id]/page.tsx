@@ -36,6 +36,7 @@ import {
   type SubcontractorId,
 } from '@/lib/project-analytics'
 import { mockSubcontractors } from '@/components/projects/data/mock-subcontractors'
+import { PERFORMANCE_THRESHOLDS as T } from '@/lib/performance-thresholds'
 import { getDetailedProject, getSimpleProjects } from '@/lib/mock-data'
 import { useTranslations, useLocale } from 'next-intl'
 
@@ -453,6 +454,16 @@ export default function ProjectDashboardPage() {
               name: 'Temel',
               assignedSubcontractorId: 'sub-construction-1',
             },
+            {
+              id: 'columns',
+              name: 'Kolonlar',
+              assignedSubcontractorId: 'sub-construction-1',
+            },
+            {
+              id: 'slabs',
+              name: 'Döşemeler',
+              assignedSubcontractorId: 'sub-construction-1',
+            },
           ],
         },
         {
@@ -462,6 +473,8 @@ export default function ProjectDashboardPage() {
           children: [
             { id: 'hvac', name: 'HVAC' },
             { id: 'plumbing', name: 'Sıhhi Tesisat' },
+            { id: 'fire', name: 'Yangın' },
+            { id: 'sprinkler', name: 'Sprinkler' },
           ],
         },
         {
@@ -471,6 +484,39 @@ export default function ProjectDashboardPage() {
           children: [
             { id: 'strong-power', name: 'Güçlü Akım' },
             { id: 'weak-power', name: 'Zayıf Akım' },
+            { id: 'lighting', name: 'Aydınlatma' },
+            { id: 'automation', name: 'Otomasyon' },
+          ],
+        },
+        {
+          id: 'finishes',
+          name: 'İnce İşler',
+          assignedSubcontractorId: 'sub-finishes-1',
+          children: [
+            {
+              id: 'plaster',
+              name: 'Sıva',
+              children: [
+                { id: 'plaster-floor1', name: 'Sıva - 1. Kat' },
+                { id: 'plaster-floor2', name: 'Sıva - 2. Kat' },
+              ],
+            },
+            {
+              id: 'painting',
+              name: 'Boya',
+              children: [
+                { id: 'paint-corridors', name: 'Boya - Koridorlar' },
+                { id: 'paint-rooms', name: 'Boya - Odalar' },
+              ],
+            },
+            {
+              id: 'flooring',
+              name: 'Zemin Kaplama',
+              children: [
+                { id: 'ceramic', name: 'Seramik' },
+                { id: 'laminate', name: 'Laminat' },
+              ],
+            },
           ],
         },
       ],
@@ -486,6 +532,21 @@ export default function ProjectDashboardPage() {
       ['plumbing', { ev: 60, ac: 70, pv: 75 }],
       ['strong-power', { ev: 80, ac: 85, pv: 90 }],
       ['weak-power', { ev: 70, ac: 95, pv: 85 }],
+      ['columns', { ev: 150, ac: 155, pv: 170 }],
+      ['slabs', { ev: 110, ac: 130, pv: 140 }],
+      ['fire', { ev: 55, ac: 65, pv: 80 }],
+      ['sprinkler', { ev: 45, ac: 60, pv: 70 }],
+      ['lighting', { ev: 95, ac: 100, pv: 120 }],
+      ['automation', { ev: 70, ac: 90, pv: 95 }],
+      ['plaster', { ev: 40, ac: 55, pv: 60 }],
+      ['plaster-floor1', { ev: 20, ac: 25, pv: 30 }],
+      ['plaster-floor2', { ev: 18, ac: 22, pv: 28 }],
+      ['painting', { ev: 35, ac: 40, pv: 50 }],
+      ['paint-corridors', { ev: 12, ac: 14, pv: 18 }],
+      ['paint-rooms', { ev: 16, ac: 20, pv: 25 }],
+      ['flooring', { ev: 50, ac: 60, pv: 65 }],
+      ['ceramic', { ev: 22, ac: 30, pv: 35 }],
+      ['laminate', { ev: 26, ac: 28, pv: 30 }],
     ])
   }, [])
 
@@ -535,9 +596,18 @@ export default function ProjectDashboardPage() {
     blockers: number
   }
 
+  // Optional "today" override via query param to simulate different views
+  const todayOverride = searchParams.get('today')
+  const nowMs = React.useMemo(() => {
+    if (!todayOverride) return Date.now()
+    const d = new Date(todayOverride)
+    const t = d.getTime()
+    return Number.isFinite(t) ? t : Date.now()
+  }, [todayOverride])
+
   // Produce WBS tasks at given depth, mapped into milestone-like shape to reuse visuals
   const getWbsTasks = React.useCallback(
-    (minDepth: number): WbsTask[] => {
+    (exactDepth: number): WbsTask[] => {
       // Build a visual timeline range that centers 'today' around ~55% when project timeline is skewed
       const rawStart = simple?.startDate
         ? new Date(simple.startDate).getTime()
@@ -547,18 +617,18 @@ export default function ProjectDashboardPage() {
       let end = rawEnd
       if (rawEnd > rawStart) {
         const span = rawEnd - rawStart
-        const realPct = (Date.now() - rawStart) / span
+        const realPct = (nowMs - rawStart) / span
         const desired = 0.55
         if (realPct < 0.35 || realPct > 0.75) {
-          start = Math.floor(Date.now() - desired * span)
+          start = Math.floor(nowMs - desired * span)
           end = start + span
         }
       }
       const total = end > start ? end - start : 1
-      // Collect nodes at depth >= minDepth (not only leaves), to ensure enough tasks
+      // Collect nodes at the exact requested depth to avoid heterogenous depths
       const nodes: Array<{ id: string; name: string; depth: number }> = []
       const walk = (n: WbsNode, d: number) => {
-        if (d >= minDepth)
+        if (d === exactDepth)
           nodes.push({ id: n.id, name: n.name || n.id, depth: d })
         n.children?.forEach(c => walk(c, d + 1))
       }
@@ -603,7 +673,7 @@ export default function ProjectDashboardPage() {
             // In-progress late: push forecast beyond due and today for dashed
             forecast = Math.max(
               e + Math.floor((e - s) * 0.25),
-              Date.now() + 7 * 86400000
+              nowMs + 7 * 86400000
             )
           } else if (pattern === 4) {
             // In-progress near plan
@@ -618,11 +688,11 @@ export default function ProjectDashboardPage() {
               e - Math.floor((e - s) * 0.15),
               end - futureShift
             )
-            forecast = Math.max(near, Date.now() + futureShift)
+            forecast = Math.max(near, nowMs + futureShift)
           }
           // In‑progress işte forecast geçmişte olamaz; en azından bugün+1g olsun
-          if (!actual && forecast && forecast < Date.now() + 24 * 3600 * 1000) {
-            forecast = Date.now() + 24 * 3600 * 1000
+          if (!actual && forecast && forecast < nowMs + 24 * 3600 * 1000) {
+            forecast = nowMs + 24 * 3600 * 1000
           }
           const fc = forecast ?? actual ?? e
           tasks.push({
@@ -651,11 +721,34 @@ export default function ProjectDashboardPage() {
         t.actualDate = undefined
         t.status = 'in-progress'
         t.forecastDate = new Date(
-          Math.max(due + 7 * 86400000, Date.now() + 7 * 86400000)
+          Math.max(due + 7 * 86400000, nowMs + 7 * 86400000)
         ).toISOString()
         t.slipDays = Math.round(
           (new Date(t.forecastDate).getTime() - due) / 86400000
         )
+        t.progress = 0
+      }
+      // Ensure there is at least one task due within the next 14 days (unfinished)
+      const hasUpcoming = tasks.some(t => {
+        if (t.actualDate) return false
+        const due = new Date(t.dueDate).getTime()
+        const dt = Math.ceil((due - nowMs) / 86400000)
+        return dt >= 0 && dt <= 14
+      })
+      if (!hasUpcoming && tasks.length > 0) {
+        // Pick the first unfinished task or last task
+        const idx = tasks.findIndex(t => !t.actualDate)
+        const t = idx >= 0 ? tasks[idx] : tasks[tasks.length - 1]
+        const desiredDue = Math.min(end - 2 * 86400000, nowMs + 7 * 86400000)
+        t.actualDate = undefined
+        t.status = 'in-progress'
+        t.dueDate = new Date(
+          Math.max(desiredDue, nowMs + 1 * 86400000)
+        ).toISOString()
+        const dueMs = new Date(t.dueDate).getTime()
+        const fcMs = Math.max(dueMs + 2 * 86400000, nowMs + 3 * 86400000)
+        t.forecastDate = new Date(fcMs).toISOString()
+        t.slipDays = Math.round((fcMs - dueMs) / 86400000)
         t.progress = 0
       }
       // Ensure at least one task forecasts exactly project end for visual variety
@@ -685,6 +778,7 @@ export default function ProjectDashboardPage() {
       wbsRoot,
       taskParts,
       tasksMax,
+      nowMs,
     ]
   )
 
@@ -708,6 +802,10 @@ export default function ProjectDashboardPage() {
 
   const ownerLabel = (raw?: string) => {
     if (!raw) return undefined
+    // 1) Prefer concrete subcontractor company name from mock registry
+    const mapped = subsNameMap.get(raw)
+    if (mapped) return mapped
+    // 2) Try i18n fallback for non-id slugs (kept for backwards compatibility)
     const slug = raw
       .replaceAll('İ', 'I')
       .replaceAll('ı', 'i')
@@ -717,10 +815,12 @@ export default function ProjectDashboardPage() {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '')
     const key = `owner.${slug}`
-    // Cast to never to satisfy typed next-intl function without using 'any'
     const translated = tMilestone(key as never)
-    // Fallback when key missing
-    return translated === key ? raw : translated
+    if (translated === key || translated === `milestone.${key}`) {
+      // 3) Humanize raw as last resort
+      return raw.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    }
+    return translated
   }
 
   type TabKey = 'overview' | 'subs' | 'wbs' | 'issues' | 'evm'
@@ -742,18 +842,22 @@ export default function ProjectDashboardPage() {
 
   // Milestone filter states (URL-driven)
   const [msState, setMsState] = React.useState<
-    'overdue' | 'upcoming' | 'ontrack' | null
+    'all' | 'overdue' | 'critical' | 'risky' | 'upcoming' | null
   >(
     (searchParams.get('msState') as
+      | 'all'
       | 'overdue'
+      | 'critical'
+      | 'risky'
       | 'upcoming'
-      | 'ontrack'
       | null) ?? null
   )
   const [msRange, setMsRange] = React.useState<number | null>(() => {
     const v = searchParams.get('msRange')
     return v ? Number(v) : null
   })
+  // Single-tooltip policy: track which marker is hovered
+  const [hoveredMs, setHoveredMs] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     const sp = new URLSearchParams(searchParams.toString())
@@ -845,93 +949,79 @@ export default function ProjectDashboardPage() {
                 <CardTitle className="flex items-center justify-between">
                   <span className="flex items-center gap-2">
                     <Calendar className="size-5" />
-                    İş Kırılımı Görevleri (WBS)
+                    İş Maddeleri
                   </span>
                   {(() => {
-                    const today = new Date()
-                    const buildTasks = () => {
-                      const start = simple?.startDate
-                        ? new Date(simple.startDate).getTime()
-                        : 0
-                      const end = simple?.endDate
-                        ? new Date(simple.endDate).getTime()
-                        : 0
-                      const total = end > start ? end - start : 1
-                      const leaves: Array<{ id: string; name: string }> = []
-                      const walk = (n: WbsNode) => {
-                        if (!n.children || n.children.length === 0)
-                          leaves.push({ id: n.id, name: n.name || n.id })
-                        else n.children.forEach(walk)
-                      }
-                      walk(wbsRoot)
-                      const top = leaves.slice(0, 6)
-                      return top.map(l => {
-                        const seed = Array.from(l.id).reduce(
-                          (a, c) => (a * 33 + c.charCodeAt(0)) >>> 0,
-                          0
-                        )
-                        const offRatio = (seed % 70) / 100
-                        const durRatio = 0.15 + ((seed >> 3) % 30) / 100
-                        const s = start + Math.floor(total * offRatio)
-                        const e = Math.min(
-                          end,
-                          s + Math.floor(total * durRatio)
-                        )
-                        const nodeMetrics = metricsById.get(l.id)
-                        const ev = nodeMetrics?.ev ?? 0
-                        const pv = nodeMetrics?.pv ?? 1
-                        const spiNode = pv > 0 ? ev / pv : 1
-                        const fc =
-                          s + Math.floor((e - s) / Math.max(spiNode || 1, 0.01))
-                        return {
-                          id: l.id,
-                          name: l.name,
-                          dueDate: new Date(e).toISOString(),
-                          forecastDate: new Date(fc).toISOString(),
-                          progress: 0,
-                          slipDays: Math.round((fc - e) / 86400000),
-                          status: 'in-progress',
-                          actualDate: undefined,
-                          owner: analytics.ownership.get(l.id) || undefined,
-                          blockers: 0,
-                          isCritical:
-                            analytics.nodeHealth.get(l.id)?.level ===
-                            'critical',
-                        }
-                      })
-                    }
-                    const ms = buildTasks()
-                    const overdue = ms.filter(
-                      m =>
-                        (m.actualDate
-                          ? new Date(m.actualDate) > new Date(m.dueDate)
-                          : today > new Date(m.dueDate)) && m.progress < 100
-                    ).length
-                    const upcoming = ms.filter(m => {
-                      const d = new Date(m.dueDate)
-                      const dt = Math.ceil(
-                        (d.getTime() - today.getTime()) / 86400000
-                      )
-                      return dt >= 0 && dt <= 14 && m.progress < 100
-                    }).length
-                    const onTrack =
-                      ms.filter(m => m.progress < 100).length -
-                      overdue -
-                      upcoming
-                    const slips = ms.map(m => m.slipDays ?? 0)
-                    const avgSlip = slips.length
-                      ? Math.round(
-                          slips.reduce((a, b) => a + b, 0) / slips.length
-                        )
+                    const today = new Date(nowMs)
+                    const ms = getWbsTasks(taskDepth)
+                    const startMs = simple?.startDate
+                      ? new Date(simple.startDate).getTime()
                       : 0
+
+                    const isOverdue = (m: WbsTask) =>
+                      (m.actualDate
+                        ? new Date(m.actualDate) > new Date(m.dueDate)
+                        : today > new Date(m.dueDate)) && m.progress < 100
+
+                    const daysToDue = (m: WbsTask) =>
+                      Math.ceil(
+                        (new Date(m.dueDate).getTime() - today.getTime()) /
+                          86400000
+                      )
+
+                    const spiMs = (m: WbsTask) => {
+                      const due = new Date(m.dueDate).getTime()
+                      const fc = (
+                        m.forecastDate
+                          ? new Date(m.forecastDate)
+                          : new Date(m.dueDate)
+                      ).getTime()
+                      const plannedDur = Math.max(1, due - startMs)
+                      const forecastDur = Math.max(1, fc - startMs)
+                      return plannedDur / forecastDur
+                    }
+
+                    // Counts are computed on the same dataset as the list below
+                    const allCount = ms.length
+                    let overdue = 0
+                    let upcoming = 0
+                    let kritCount = 0
+                    let riskCount = 0
+                    for (const m of ms) {
+                      const unfinished = m.progress < 100
+                      if (unfinished && isOverdue(m)) {
+                        overdue++
+                        continue // Overdue overrides other categories
+                      }
+                      if (unfinished) {
+                        const dt = daysToDue(m)
+                        if (dt >= 0 && dt <= 14) upcoming++
+                        const spi = spiMs(m)
+                        if (spi < T.SPI.risky) kritCount++
+                        else if (spi < T.SPI.good) riskCount++
+                      }
+                    }
                     return (
                       <div className="hidden md:flex items-center gap-2 text-sm">
+                        {/* All */}
+                        <button
+                          className={cn(
+                            'px-2 py-0.5 rounded border transition-colors',
+                            !msState || msState === 'all'
+                              ? 'bg-secondary text-foreground border-secondary'
+                              : 'text-muted-foreground border'
+                          )}
+                          onClick={() => setMsState(null)}
+                        >
+                          Hepsi {allCount}
+                        </button>
+                        {/* Overdue: very dark red */}
                         <button
                           className={cn(
                             'px-2 py-0.5 rounded border transition-colors',
                             msState === 'overdue'
-                              ? 'bg-red-600 text-white border-red-600'
-                              : 'bg-red-100 text-red-700 border-red-200'
+                              ? 'bg-red-800 text-white border-red-800'
+                              : 'bg-red-100 text-red-800 border-red-200'
                           )}
                           onClick={() =>
                             setMsState(msState === 'overdue' ? null : 'overdue')
@@ -939,11 +1029,42 @@ export default function ProjectDashboardPage() {
                         >
                           Overdue {overdue}
                         </button>
+                        {/* Kritik: normal red, SPI < 0.90 */}
+                        <button
+                          className={cn(
+                            'px-2 py-0.5 rounded border transition-colors',
+                            msState === 'critical'
+                              ? 'bg-red-600 text-white border-red-600'
+                              : 'bg-red-100 text-red-700 border-red-200'
+                          )}
+                          onClick={() =>
+                            setMsState(
+                              msState === 'critical' ? null : 'critical'
+                            )
+                          }
+                        >
+                          Kritik {kritCount}
+                        </button>
+                        {/* Riskli: orange, 0.90 ≤ SPI < 0.95 (non-overdue) */}
+                        <button
+                          className={cn(
+                            'px-2 py-0.5 rounded border transition-colors',
+                            msState === 'risky'
+                              ? 'bg-orange-500 text-white border-orange-500'
+                              : 'bg-orange-100 text-orange-700 border-orange-200'
+                          )}
+                          onClick={() =>
+                            setMsState(msState === 'risky' ? null : 'risky')
+                          }
+                        >
+                          Riskli {riskCount}
+                        </button>
+                        {/* Upcoming: distinctive yellow, independent of delay */}
                         <button
                           className={cn(
                             'px-2 py-0.5 rounded border transition-colors',
                             msState === 'upcoming'
-                              ? 'bg-yellow-600 text-white border-yellow-600'
+                              ? 'bg-yellow-500 text-white border-yellow-500'
                               : 'bg-yellow-100 text-yellow-800 border-yellow-200'
                           )}
                           onClick={() => {
@@ -955,23 +1076,6 @@ export default function ProjectDashboardPage() {
                         >
                           ≤14g {upcoming}
                         </button>
-                        <button
-                          className={cn(
-                            'px-2 py-0.5 rounded border transition-colors',
-                            msState === 'ontrack'
-                              ? 'bg-green-600 text-white border-green-600'
-                              : 'bg-green-100 text-green-700 border-green-200'
-                          )}
-                          onClick={() =>
-                            setMsState(msState === 'ontrack' ? null : 'ontrack')
-                          }
-                        >
-                          On‑track {Math.max(onTrack, 0)}
-                        </button>
-                        <span className="text-muted-foreground">
-                          Δ {avgSlip >= 0 ? '+' : ''}
-                          {avgSlip}g
-                        </span>
                       </div>
                     )
                   })()}
@@ -981,24 +1085,14 @@ export default function ProjectDashboardPage() {
                 <div className="relative overflow-visible">
                   {/* Global today line that cuts through all rows */}
                   {(() => {
-                    const rawStart = simple?.startDate
+                    // Use the same unadjusted project range as rows to avoid visual mismatch
+                    const start = simple?.startDate
                       ? new Date(simple.startDate).getTime()
                       : 0
-                    const rawEnd = simple?.endDate
+                    const end = simple?.endDate
                       ? new Date(simple.endDate).getTime()
                       : 0
-                    let start = rawStart
-                    let end = rawEnd
-                    if (rawEnd > rawStart) {
-                      const span = rawEnd - rawStart
-                      const realPct = (Date.now() - rawStart) / span
-                      const desired = 0.55
-                      if (realPct < 0.35 || realPct > 0.75) {
-                        start = Math.floor(Date.now() - desired * span)
-                        end = start + span
-                      }
-                    }
-                    const today = Date.now()
+                    const today = nowMs
                     const pct =
                       start && end && end > start
                         ? Math.min(
@@ -1019,9 +1113,9 @@ export default function ProjectDashboardPage() {
                   <div className="space-y-3">
                     {(() => {
                       const all = getWbsTasks(taskDepth)
-                      const today = new Date()
+                      const today = new Date(nowMs)
                       const filtered = all.filter(m => {
-                        if (!msState) return true
+                        if (!msState || msState === 'all') return true
                         const due = new Date(m.dueDate)
                         const daysToDue = Math.ceil(
                           (due.getTime() - today.getTime()) / 86400000
@@ -1036,11 +1130,24 @@ export default function ProjectDashboardPage() {
                             ? daysToDue <= msRange
                             : daysToDue <= 14) &&
                           m.progress < 100
-                        const isOnTrack =
-                          m.progress < 100 && !isOverdue && !isUpcoming
                         if (msState === 'overdue') return isOverdue
                         if (msState === 'upcoming') return isUpcoming
-                        if (msState === 'ontrack') return isOnTrack
+                        if (msState === 'critical' || msState === 'risky') {
+                          if (isOverdue) return false // overdue dominates
+                          if (m.progress >= 100) return false
+                          const start = simple?.startDate
+                            ? new Date(simple.startDate).getTime()
+                            : 0
+                          const dueMs = due.getTime()
+                          const fcMs = (
+                            m.forecastDate ? new Date(m.forecastDate) : due
+                          ).getTime()
+                          const plannedDur = Math.max(1, dueMs - start)
+                          const forecastDur = Math.max(1, fcMs - start)
+                          const spiMs = plannedDur / forecastDur
+                          if (msState === 'critical') return spiMs < T.SPI.risky
+                          return spiMs >= T.SPI.risky && spiMs < T.SPI.good
+                        }
                         return true
                       })
                       return filtered.map(m => {
@@ -1056,7 +1163,7 @@ export default function ProjectDashboardPage() {
                               )
                             : 0)
                         const daysToDue = Math.ceil(
-                          (due.getTime() - Date.now()) / 86400000
+                          (due.getTime() - nowMs) / 86400000
                         )
                         const statusColor =
                           m.progress >= 100
@@ -1144,17 +1251,14 @@ export default function ProjectDashboardPage() {
                           if (!(start && end && end > start)) return duePct
                           const t = Math.min(
                             100,
-                            Math.max(
-                              0,
-                              ((Date.now() - start) / (end - start)) * 100
-                            )
+                            Math.max(0, ((nowMs - start) / (end - start)) * 100)
                           )
                           return t
                         })()
                         // color for forecast marker handled via drift check inline
-                        // Consider markers visually "close" only when < ~1% of width apart
+                        // Consider markers visually "close" when within ~2.5% of width
                         const markersClose =
-                          Math.abs(fcLabelPct - planLabelPct) < 1
+                          Math.abs(fcLabelPct - planLabelPct) < 2.5
                         const planAnchor =
                           planLabelPct > 92
                             ? 'right'
@@ -1179,9 +1283,9 @@ export default function ProjectDashboardPage() {
                         const spiMs = plannedDurMs / Math.max(1, forecastDurMs)
                         // Base color strictly by milestone SPI thresholds (tolerance respected)
                         const spiBaseColor =
-                          spiMs >= 0.95
+                          spiMs >= T.SPI.good
                             ? 'bg-green-600'
-                            : spiMs >= 0.85
+                            : spiMs >= T.SPI.risky
                               ? 'bg-orange-500'
                               : 'bg-red-600'
                         // Future/Delta rendering between Plan and Forecast (only future part)
@@ -1225,14 +1329,7 @@ export default function ProjectDashboardPage() {
                                     <h4 className="font-medium truncate">
                                       {m.name}
                                     </h4>
-                                    {m.isCritical && (
-                                      <Badge
-                                        variant="outline"
-                                        className="px-1.5 py-0.5 text-[11px] bg-red-100 text-red-700 border-red-200"
-                                      >
-                                        Kritik
-                                      </Badge>
-                                    )}
+                                    {/* Removed per-task 'Kritik' label for clarity */}
                                     {m.owner && (
                                       <span className="px-1.5 py-0.5 text-[11px] rounded bg-secondary text-foreground/80">
                                         {ownerLabel(m.owner)}
@@ -1305,12 +1402,25 @@ export default function ProjectDashboardPage() {
                                     }}
                                   >
                                     {/* Avoid nested default group collisions; name the inner group */}
-                                    <div className="relative group/marker z-50">
+                                    <div
+                                      className="relative group/marker z-50"
+                                      onMouseEnter={() =>
+                                        setHoveredMs(
+                                          markersClose
+                                            ? `combo:${m.id}`
+                                            : `plan:${m.id}`
+                                        )
+                                      }
+                                      onMouseLeave={() => setHoveredMs(null)}
+                                    >
                                       <div className="size-3.5 rounded-full bg-gray-300 border border-gray-500 shadow-md ring-2 ring-white dark:ring-gray-900" />
                                       {!markersClose && (
                                         <div
                                           className={cn(
-                                            'absolute z-50 px-2 py-1 rounded-md border bg-popover text-popover-foreground text-xs shadow opacity-0 group-hover/msrow:opacity-100 group-hover:opacity-100 pointer-events-none whitespace-nowrap',
+                                            'absolute z-50 px-2 py-1 rounded-md border bg-popover text-popover-foreground text-xs shadow pointer-events-none whitespace-nowrap',
+                                            hoveredMs === `plan:${m.id}`
+                                              ? 'opacity-100'
+                                              : 'opacity-0',
                                             planAnchor === 'center' &&
                                               'left-1/2 -translate-x-1/2',
                                             planAnchor === 'left' && 'left-0',
@@ -1334,7 +1444,17 @@ export default function ProjectDashboardPage() {
                                         bottom: markersClose ? -10 : undefined,
                                       }}
                                     >
-                                      <div className="relative group/marker z-50">
+                                      <div
+                                        className="relative group/marker z-50"
+                                        onMouseEnter={() =>
+                                          setHoveredMs(
+                                            markersClose
+                                              ? `combo:${m.id}`
+                                              : `fc:${m.id}`
+                                          )
+                                        }
+                                        onMouseLeave={() => setHoveredMs(null)}
+                                      >
                                         <div
                                           className={cn(
                                             'size-3.5 rounded-full border shadow-md ring-2 ring-white dark:ring-gray-900',
@@ -1345,7 +1465,12 @@ export default function ProjectDashboardPage() {
                                         />
                                         <div
                                           className={cn(
-                                            'absolute z-50 px-2 py-1 rounded-md border bg-popover text-popover-foreground text-xs shadow opacity-0 group-hover/msrow:opacity-100 group-hover:opacity-100 pointer-events-none whitespace-nowrap',
+                                            'absolute z-50 px-2 py-1 rounded-md border bg-popover text-popover-foreground text-xs shadow pointer-events-none whitespace-nowrap',
+                                            hoveredMs === `fc:${m.id}` ||
+                                              (markersClose &&
+                                                hoveredMs === `combo:${m.id}`)
+                                              ? 'opacity-100'
+                                              : 'opacity-0',
                                             fcAnchor === 'center' &&
                                               'left-1/2 -translate-x-1/2',
                                             fcAnchor === 'left' && 'left-0',
@@ -1353,20 +1478,22 @@ export default function ProjectDashboardPage() {
                                           )}
                                           style={fcTipPos}
                                         >
-                                          {isCompleted ? (
+                                          {markersClose ? (
                                             <span>
                                               Plan:{' '}
                                               {due.toLocaleDateString('tr-TR')}{' '}
-                                              • Gerçek:{' '}
+                                              •{' '}
+                                              {isCompleted
+                                                ? 'Gerçek'
+                                                : 'Tahmin'}
+                                              :{' '}
                                               {(fc as Date).toLocaleDateString(
                                                 'tr-TR'
                                               )}
                                             </span>
-                                          ) : markersClose ? (
+                                          ) : isCompleted ? (
                                             <span>
-                                              Plan:{' '}
-                                              {due.toLocaleDateString('tr-TR')}{' '}
-                                              • Tahmin:{' '}
+                                              Gerçek:{' '}
                                               {(fc as Date).toLocaleDateString(
                                                 'tr-TR'
                                               )}

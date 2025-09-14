@@ -85,11 +85,13 @@ export interface Health {
   level: 'good' | 'risky' | 'critical'
 }
 
+import { PERFORMANCE_THRESHOLDS as T } from '@/lib/performance-thresholds'
+
 export function toHealth(cpi: number, spi: number): Health {
   const combined = 0.6 * cpi + 0.4 * spi
   let level: Health['level']
-  if (combined >= 0.95) level = 'good'
-  else if (combined >= 0.9) level = 'risky'
+  if (combined >= T.COMBINED.good) level = 'good'
+  else if (combined >= T.COMBINED.risky) level = 'risky'
   else level = 'critical'
   return { cpi, spi, combined, level }
 }

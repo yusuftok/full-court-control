@@ -5,6 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CircularProgress } from '@/components/ui/circular-progress'
 import { StatusBadge } from '@/components/data/data-table'
 import { Badge } from '@/components/ui/badge'
+import {
+  PERFORMANCE_THRESHOLDS as T,
+  levelFrom as levelFromCfg,
+} from '@/lib/performance-thresholds'
 
 // Project interface
 export interface Project {
@@ -37,11 +41,16 @@ export interface Project {
 type PerformanceLevel = 'İyi' | 'Riskli' | 'Kritik'
 
 // Status-only badge for title area
-function StatusOnlyBadge({ value }: { value: number }) {
+function StatusOnlyBadge({
+  value,
+  kind = 'COMBINED' as const,
+}: {
+  value: number
+  kind?: 'CPI' | 'SPI' | 'COMBINED'
+}) {
   const getPerformanceLevel = (val: number): PerformanceLevel => {
-    if (val >= 0.95) return 'İyi'
-    if (val >= 0.85) return 'Riskli'
-    return 'Kritik'
+    const lvl = levelFromCfg(val, kind)
+    return lvl
   }
 
   const getPerformanceColor = (level: PerformanceLevel) => {
@@ -79,9 +88,9 @@ function PerformanceBadge({
   type?: 'budget' | 'schedule'
 }) {
   const getPerformanceLevel = (val: number): PerformanceLevel => {
-    if (val >= 0.95) return 'İyi'
-    if (val >= 0.85) return 'Riskli'
-    return 'Kritik'
+    // Default to SPI thresholds when kind is not specified (used rarely)
+    const lvl = levelFromCfg(val, 'SPI')
+    return lvl
   }
 
   const getPerformanceColor = (level: PerformanceLevel) => {
@@ -151,7 +160,7 @@ export function ProjectCard({
   const combinedPerformance = 0.6 * cpi + 0.4 * spi
 
   const getPerformanceTheme = (combined: number) => {
-    if (combined >= 0.95) {
+    if (combined >= T.COMBINED.good) {
       return {
         border: 'border-l-4 border-l-green-400',
         background: 'bg-gradient-to-br from-green-50/30 to-emerald-50/20',
@@ -162,7 +171,7 @@ export function ProjectCard({
         buttonGradient: 'bg-gradient-to-r from-green-600 to-emerald-600',
       }
     }
-    if (combined >= 0.85) {
+    if (combined >= T.COMBINED.risky) {
       return {
         border: 'border-l-4 border-l-orange-400',
         background: 'bg-gradient-to-br from-orange-50/30 to-orange-100/20',
@@ -187,11 +196,12 @@ export function ProjectCard({
   const theme = getPerformanceTheme(combinedPerformance)
 
   // Helper function for individual metric boxes
-  const getMetricBoxTheme = (value: number) => {
-    if (value >= 0.95) {
+  const getMetricBoxTheme = (value: number, kind: 'CPI' | 'SPI') => {
+    const thr = kind === 'SPI' ? T.SPI : T.CPI
+    if (value >= thr.good) {
       return 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/60 text-green-800'
     }
-    if (value >= 0.85) {
+    if (value >= thr.risky) {
       return 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200/60 text-orange-800'
     }
     return 'bg-gradient-to-br from-red-50 to-rose-50 border-red-200/60 text-red-800'
@@ -297,7 +307,8 @@ export function ProjectCard({
                 getMetricBoxTheme(
                   project.earnedValue > 0
                     ? project.earnedValue / project.actualCost
-                    : 0
+                    : 0,
+                  'CPI'
                 )
               )}
               onClick={() => {
@@ -318,6 +329,7 @@ export function ProjectCard({
                       ? project.earnedValue / project.actualCost
                       : 0
                   }
+                  kind="CPI"
                 />
               </div>
 
@@ -385,7 +397,8 @@ export function ProjectCard({
                 getMetricBoxTheme(
                   project.earnedValue > 0
                     ? project.earnedValue / project.plannedValue
-                    : 0
+                    : 0,
+                  'SPI'
                 )
               )}
               onClick={() => {

@@ -4,7 +4,6 @@ import * as React from 'react'
 import { Calendar } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { CircularProgress } from '@/components/ui/circular-progress'
 import { StatusBadge } from '@/components/data/data-table'
 import { cn } from '@/lib/utils'
 import type { Project } from '@/components/projects/types/project-types'
@@ -17,14 +16,12 @@ import {
   Tooltip,
   ReferenceLine,
 } from 'recharts'
+import {
+  PERFORMANCE_THRESHOLDS as T,
+  levelFrom as levelFromCfg,
+} from '@/lib/performance-thresholds'
 
 type RangeMode = 'months' | 'weeks'
-
-function levelFrom(value: number): 'İyi' | 'Riskli' | 'Kritik' {
-  if (value >= 0.95) return 'İyi'
-  if (value >= 0.85) return 'Riskli'
-  return 'Kritik'
-}
 
 function badgeClass(level: 'İyi' | 'Riskli' | 'Kritik') {
   if (level === 'İyi') return 'bg-green-100 text-green-700 border-green-200'
@@ -33,10 +30,18 @@ function badgeClass(level: 'İyi' | 'Riskli' | 'Kritik') {
   return 'bg-red-100 text-red-700 border-red-200'
 }
 
-function boxTheme(value: number) {
-  if (value >= 0.95)
+function boxThemeSpi(value: number) {
+  if (value >= T.SPI.good)
     return 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/60 text-green-800'
-  if (value >= 0.85)
+  if (value >= T.SPI.risky)
+    return 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200/60 text-orange-800'
+  return 'bg-gradient-to-br from-red-50 to-rose-50 border-red-200/60 text-red-800'
+}
+
+function boxThemeCpi(value: number) {
+  if (value >= T.CPI.good)
+    return 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200/60 text-green-800'
+  if (value >= T.CPI.risky)
     return 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200/60 text-orange-800'
   return 'bg-gradient-to-br from-red-50 to-rose-50 border-red-200/60 text-red-800'
 }
@@ -67,7 +72,7 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
     project.actualCost > 0 ? project.earnedValue / project.actualCost : 1
   const spi =
     project.earnedValue > 0 ? project.earnedValue / project.plannedValue : 0
-  const perfLevel = levelFrom(0.6 * cpi + 0.4 * spi)
+  const perfLevel = levelFromCfg(0.6 * cpi + 0.4 * spi, 'COMBINED')
   const subCount =
     project.subcontractorIds?.length ??
     Object.values(project.subcontractors || {}).filter(Boolean).length
@@ -153,45 +158,21 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="flex items-start gap-4">
-          <div className="pt-2">
-            <CircularProgress
-              percentage={project.progress}
-              size={72}
-              strokeWidth={5}
-              showText
-            />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-              <span>
-                Plan: {project.plannedProgress}% → Gerçek: {project.progress}%
-              </span>
-              <span>
-                Kalan: {remainingTasks}/{project.totalTasks}
-              </span>
-            </div>
-            <div className="h-2 bg-secondary rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary rounded-full transition-all duration-700"
-                style={{ width: `${project.progress}%` }}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-3 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 items-stretch">
           {/* Bütçe Kutusu */}
           <div
             className={cn(
               'rounded-xl p-2 transition-all duration-300 space-y-1.5 flex flex-col border h-full min-h-[200px]',
-              boxTheme(cpi)
+              boxThemeCpi(cpi)
             )}
           >
             <div className="flex items-center justify-between mb-1">
               <span className="text-caption">Bütçe Performansı</span>
-              <Badge variant="outline" className={badgeClass(levelFrom(cpi))}>
-                {levelFrom(cpi)}
+              <Badge
+                variant="outline"
+                className={badgeClass(levelFromCfg(cpi, 'CPI'))}
+              >
+                {levelFromCfg(cpi, 'CPI')}
               </Badge>
             </div>
             <div className="mb-3">
@@ -200,9 +181,9 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
                 <div
                   className={cn(
                     'text-lg font-bold',
-                    cpi >= 0.95
+                    cpi >= T.CPI.good
                       ? 'text-green-700'
-                      : cpi >= 0.85
+                      : cpi >= T.CPI.risky
                         ? 'text-orange-700'
                         : 'text-red-700'
                   )}
@@ -247,13 +228,16 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
           <div
             className={cn(
               'rounded-xl p-2 transition-all duration-300 space-y-1.5 flex flex-col border h-full min-h-[200px]',
-              boxTheme(spi)
+              boxThemeSpi(spi)
             )}
           >
             <div className="flex items-center justify-between">
               <span className="text-caption">Takvim Performansı</span>
-              <Badge variant="outline" className={badgeClass(levelFrom(spi))}>
-                {levelFrom(spi)}
+              <Badge
+                variant="outline"
+                className={badgeClass(levelFromCfg(spi, 'SPI'))}
+              >
+                {levelFromCfg(spi, 'SPI')}
               </Badge>
             </div>
             <div className="mb-3">
@@ -262,9 +246,9 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
                 <div
                   className={cn(
                     'text-lg font-bold',
-                    spi >= 0.95
+                    spi >= T.SPI.good
                       ? 'text-green-700'
-                      : spi >= 0.85
+                      : spi >= T.SPI.risky
                         ? 'text-orange-700'
                         : 'text-red-700'
                   )}
