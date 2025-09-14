@@ -1021,9 +1021,9 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Milestone Summary Grid (Geciken, Yaklaşan, Kalan) */}
-                <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="grid grid-cols-3 gap-3 text-center items-stretch">
                   <div
-                    className="py-3 px-3 rounded-lg border border-red-200 bg-gradient-to-br from-red-50 to-red-100 cursor-pointer hover:scale-105 transition-transform"
+                    className="py-5 px-4 rounded-lg border border-red-200 bg-gradient-to-br from-red-50 to-red-100 cursor-pointer hover:scale-105 transition-transform"
                     onClick={e => {
                       e.stopPropagation()
                       alert(
@@ -1031,13 +1031,13 @@ export default function DashboardPage() {
                       )
                     }}
                   >
-                    <div className="text-xl font-bold text-red-700">
+                    <div className="text-2xl font-bold text-red-700">
                       {milestoneAgg.overdue}
                     </div>
-                    <div className="text-xs text-red-600">Geciken</div>
+                    <div className="text-sm text-red-600">Geciken</div>
                   </div>
                   <div
-                    className="py-3 px-3 rounded-lg border border-yellow-200 bg-gradient-to-br from-yellow-50 to-yellow-100 cursor-pointer hover:scale-105 transition-transform"
+                    className="py-5 px-4 rounded-lg border border-yellow-200 bg-gradient-to-br from-yellow-50 to-yellow-100 cursor-pointer hover:scale-105 transition-transform"
                     onClick={e => {
                       e.stopPropagation()
                       alert(
@@ -1045,13 +1045,13 @@ export default function DashboardPage() {
                       )
                     }}
                   >
-                    <div className="text-xl font-bold text-yellow-700">
+                    <div className="text-2xl font-bold text-yellow-700">
                       {milestoneAgg.upcoming}
                     </div>
-                    <div className="text-xs text-yellow-600">Yaklaşan</div>
+                    <div className="text-sm text-yellow-600">Yaklaşan</div>
                   </div>
                   <div
-                    className="py-3 px-3 rounded-lg border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 cursor-pointer hover:scale-105 transition-transform"
+                    className="py-5 px-4 rounded-lg border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 cursor-pointer hover:scale-105 transition-transform"
                     onClick={e => {
                       e.stopPropagation()
                       alert(
@@ -1059,10 +1059,10 @@ export default function DashboardPage() {
                       )
                     }}
                   >
-                    <div className="text-xl font-bold text-gray-700">
+                    <div className="text-2xl font-bold text-gray-700">
                       {milestoneAgg.remaining}
                     </div>
-                    <div className="text-xs text-gray-600">Kalan</div>
+                    <div className="text-sm text-gray-600">Kalan</div>
                   </div>
                 </div>
               </div>

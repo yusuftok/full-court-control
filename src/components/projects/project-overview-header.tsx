@@ -318,28 +318,28 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
               return (
                 <div className="flex-1 flex flex-col gap-1.5">
                   {/* Order: Geciken, Yaklaşan, Kalan */}
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="rounded-lg py-3 px-3 text-center bg-red-50 border border-red-100">
-                      <div className="text-xl font-bold text-red-700 leading-5">
+                  <div className="grid grid-cols-3 gap-3 items-stretch">
+                    <div className="rounded-lg py-5 px-4 text-center bg-red-50 border border-red-100">
+                      <div className="text-2xl font-bold text-red-700 leading-6">
                         {ms.overdue}
                       </div>
-                      <div className="text-xs text-red-700 leading-4">
+                      <div className="text-sm text-red-700 leading-5">
                         Geciken
                       </div>
                     </div>
-                    <div className="rounded-lg py-3 px-3 text-center bg-yellow-50 border border-yellow-100">
-                      <div className="text-xl font-bold text-yellow-700 leading-5">
+                    <div className="rounded-lg py-5 px-4 text-center bg-yellow-50 border border-yellow-100">
+                      <div className="text-2xl font-bold text-yellow-700 leading-6">
                         {ms.upcoming}
                       </div>
-                      <div className="text-xs text-yellow-700 leading-4">
+                      <div className="text-sm text-yellow-700 leading-5">
                         Yaklaşan
                       </div>
                     </div>
-                    <div className="rounded-lg py-3 px-3 text-center bg-gray-50 border border-gray-200">
-                      <div className="text-xl font-bold text-gray-700 leading-5">
+                    <div className="rounded-lg py-5 px-4 text-center bg-gray-50 border border-gray-200">
+                      <div className="text-2xl font-bold text-gray-700 leading-6">
                         {ms.remaining}
                       </div>
-                      <div className="text-xs text-gray-700 leading-4">
+                      <div className="text-sm text-gray-700 leading-5">
                         Kalan
                       </div>
                     </div>
