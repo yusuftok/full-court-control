@@ -837,8 +837,10 @@ export default function ProjectDashboardPage() {
           if (!t.dependsOn.includes(pid)) t.dependsOn.push(pid)
         }
       }
-      // Ensure invariant-compliant examples exist for filters
+      // Ensure invariant-compliant, deterministic examples per category for filters
       ;(() => {
+        const WANT = { blocked: 2, blocking: 2, blockedRisk: 2, blockRisk: 2 }
+
         const startMsOf = (x: WbsTask) => new Date(x.startDate).getTime()
         const dueMsOf = (x: WbsTask) => new Date(x.dueDate).getTime()
         const fcEndMsOf = (x: WbsTask) =>
@@ -848,53 +850,51 @@ export default function ProjectDashboardPage() {
               ? new Date(x.forecastDate).getTime()
               : new Date(x.dueDate).getTime()
 
-        // 1) BLOCKED: unfinished task started in past with an unfinished predecessor
-        const blockedIdx = tasks.findIndex(
-          t => !t.actualDate && startMsOf(t) < nowMs
-        )
-        if (blockedIdx >= 0) {
-          let predIdx = -1
-          for (let j = blockedIdx - 1; j >= 0; j--) {
-            const p = tasks[j]
-            if (!p.actualDate || new Date(p.actualDate).getTime() > nowMs) {
-              predIdx = j
+        const unfinished = tasks
+          .map((t, i) => ({ t, i }))
+          .filter(x => !x.t.actualDate)
+        const started = unfinished.filter(x => startMsOf(x.t) < nowMs)
+        const overdue = unfinished.filter(x => dueMsOf(x.t) < nowMs)
+        const future = unfinished.filter(x => startMsOf(x.t) > nowMs)
+
+        // BLOCKED: first WANT.blocked from started
+        for (let k = 0; k < Math.min(WANT.blocked, started.length); k++) {
+          const bi = started[k].i
+          // choose an unfinished predecessor deterministically: closest prior unfinished
+          let pj = -1
+          for (let j = bi - 1; j >= 0; j--) {
+            if (!tasks[j].actualDate) {
+              pj = j
               break
             }
           }
-          if (predIdx >= 0) {
-            const pid = tasks[predIdx].id
-            if (!tasks[blockedIdx].dependsOn.includes(pid))
-              tasks[blockedIdx].dependsOn.push(pid)
+          if (pj === -1 && unfinished.length > 0) pj = unfinished[0].i
+          if (pj >= 0) {
+            const pid = tasks[pj].id
+            if (!tasks[bi].dependsOn.includes(pid))
+              tasks[bi].dependsOn.push(pid)
           }
         }
 
-        // 2) BLOCKING: overdue unfinished task with a successor that already started
-        const overIdx = tasks.findIndex(
-          t => !t.actualDate && dueMsOf(t) < nowMs
-        )
-        if (overIdx >= 0) {
-          const succIdx = tasks.findIndex(
-            (s, i) => i !== overIdx && !s.actualDate && startMsOf(s) < nowMs
-          )
-          if (succIdx >= 0) {
-            const aid = tasks[overIdx].id
-            if (!tasks[succIdx].dependsOn.includes(aid))
-              tasks[succIdx].dependsOn.push(aid)
+        // BLOCKING: first WANT.blocking from overdue
+        for (let k = 0; k < Math.min(WANT.blocking, overdue.length); k++) {
+          const ai = overdue[k].i
+          const succ = started.find(x => x.i !== ai)
+          if (succ) {
+            const aid = tasks[ai].id
+            if (!tasks[succ.i].dependsOn.includes(aid))
+              tasks[succ.i].dependsOn.push(aid)
           }
         }
 
-        // 3) BLOCKED RISK: future-start task whose predecessor's forecast overlaps its start
-        const futureIdx = tasks.findIndex(
-          t => !t.actualDate && startMsOf(t) > nowMs
-        )
-        if (futureIdx >= 0) {
-          const pIdx = tasks.findIndex(
-            (p, i) => i !== futureIdx && !p.actualDate
-          )
-          if (pIdx >= 0) {
-            const t = tasks[futureIdx]
-            const p = tasks[pIdx]
+        // BLOCKED RISK: first WANT.blockedRisk from future
+        for (let k = 0; k < Math.min(WANT.blockedRisk, future.length); k++) {
+          const ti = future[k].i
+          const t = tasks[ti]
+          const pred = unfinished.find(x => x.i !== ti)
+          if (pred) {
             const tStart = startMsOf(t)
+            const p = tasks[pred.i]
             if (fcEndMsOf(p) <= tStart) {
               p.forecastDate = new Date(tStart + 2 * 86400000).toISOString()
             }
@@ -902,14 +902,12 @@ export default function ProjectDashboardPage() {
           }
         }
 
-        // 4) BLOCK RISK: task whose forecast overlaps a future-start successor
-        const candIdx = tasks.findIndex(t => !t.actualDate)
-        const succFutureIdx = tasks.findIndex(
-          (s, i) => i !== candIdx && !s.actualDate && startMsOf(s) > nowMs
-        )
-        if (candIdx >= 0 && succFutureIdx >= 0) {
-          const t = tasks[candIdx]
-          const s = tasks[succFutureIdx]
+        // BLOCK RISK: pair unfinished task with future-start successor
+        for (let k = 0; k < Math.min(WANT.blockRisk, future.length); k++) {
+          const s = tasks[future[k].i]
+          const cand = unfinished.find(x => x.i !== future[k].i)
+          if (!cand) break
+          const t = tasks[cand.i]
           const sStart = startMsOf(s)
           if (fcEndMsOf(t) <= sStart) {
             const due = new Date(t.dueDate).getTime()

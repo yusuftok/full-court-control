@@ -468,7 +468,7 @@ export function ProjectOverviewHeader({
               </div>
             </div>
             <div className="grid grid-cols-1 gap-2">
-              <div className="h-16">
+              <div className="h-18 md:h-20">
                 <div className="flex items-center justify-between mb-0.5">
                   <span className="text-xs text-muted-foreground">CPI</span>
                   <span className="text-xs font-medium">{cpi.toFixed(2)}</span>
@@ -476,13 +476,13 @@ export function ProjectOverviewHeader({
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     data={cpiSeries}
-                    margin={{ left: 28, right: 8, top: 2, bottom: 8 }}
+                    margin={{ left: 28, right: 8, top: 2, bottom: 10 }}
                   >
                     <XAxis
                       dataKey="label"
                       tick={{ fontSize: 10 }}
                       interval={0}
-                      height={16}
+                      height={18}
                     />
                     <YAxis
                       domain={[0.6, 1.4]}
@@ -514,21 +514,21 @@ export function ProjectOverviewHeader({
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-              <div className="h-16">
-                <div className="flex items-center justify-between mb-0.5">
+              <div className="pt-3 mt-2 border-t border-border/40 h-18 md:h-20">
+                <div className="flex items-center justify-between mb-1.5">
                   <span className="text-xs text-muted-foreground">SPI</span>
                   <span className="text-xs font-medium">{spi.toFixed(2)}</span>
                 </div>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     data={spiSeries}
-                    margin={{ left: 28, right: 8, top: 2, bottom: 8 }}
+                    margin={{ left: 28, right: 8, top: 2, bottom: 16 }}
                   >
                     <XAxis
                       dataKey="label"
                       tick={{ fontSize: 10 }}
                       interval={0}
-                      height={16}
+                      height={24}
                     />
                     <YAxis
                       domain={[0.6, 1.4]}
