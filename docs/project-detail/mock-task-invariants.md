@@ -20,8 +20,29 @@ Bu doküman, proje detay sayfasındaki İş Maddeleri (WBS tabanlı görevler) i
 4) Bloklayan: Gecikmiş (due < now) ve bitmemiş bir iş, başlatılmış bir ardılını (start < now) beklettiği durumda.
 5) Bloklanma Riski: Gelecekte başlayacak bir işin, bir öncülünün forecast bitişi bu işin başlangıcını aşıyorsa.
 6) Bloklama Riski: Bitmemiş bir işin forecast bitişi, gelecekte başlayacak bir ardılın başlangıcını aşıyorsa.
+7) Öz‑nedensellik yok: Aynı WBS düğümü (baz id) hem sebep hem de sonuç olamaz.
+   - Teknik olarak `base(id) = id.split('-p')[0]`. Herhangi bir `dependsOn`/`blocks` ilişkisi için `base(focus) !== base(other)` olmalıdır.
+   - Bu kural hem veri üretiminde hem de görselleştirmede (rozet sırası, ASCII ağaç) uygulanır.
+8) Dairesel bağımlılık yok: `dependsOn` ilişkileri bir DAG (Directed Acyclic Graph) oluşturur.
+   - Yeni bir bağ eklenmeden önce `wouldCreateCycle(A depends B)` kontrolü yapılır; `B`'den `A`'ya mevcut bir yol varsa ekleme iptal edilir.
+   - Bu kontrol seed sırasında tüm kategoriler için uygulanır.
 
 Bu kurallar hem sayaçlarda hem de liste filtrelerinde birebir uygulanır.
+
+## Kilometre Taşı Özeti (Milestone Summary) İnvariantı
+
+İlgili kod: `src/lib/mock-data.ts` içindeki `getSimpleProjects()` fonksiyonu.
+
+Amaç: Proje genelindeki kilometre taşlarının özet sayıları (toplam, tamamlanan, yaklaşan, geciken, kalan) gerçeğe yakın ve deterministik olsun.
+
+- Toplam: Proje süresine göre yılda ~8–10 adet üretilecek şekilde eşit aralıklarla dağıtılır.
+- Tamamlanan: `completed = round(progress% * total)`.
+- Yaklaşan: Varsayılan "bugün"e göre, `due - now <= 0.10 * (projectEnd - projectStart)` koşulunu sağlayan ve henüz tamamlanmamış kilometre taşlarının sayısıdır.
+  - Due tarihleri, proje başlangıcı ile bitişi arasında düzgün (eşit aralıklı) dağıtılır.
+- Geciken: Öncelikle takvime göre `due < now` olan ve tamamlanmamış taşlar; eğer 0 çıkarsa sağlık durumuna göre küçük bir taban gürültü eklenir (kritik > riskli > iyi).
+- Kalan: `total - completed - upcoming - overdue`.
+
+Bu yaklaşım sayesinde "Yaklaşan" eşiği, projenin toplam süresinin %10’u olarak normalize edilir; kısa projelerde 14 gün çok geniş/uzun projelerde çok dar kalma sorunları önlenir.
 
 ## Deterministik Mock Üretimi
 
@@ -41,10 +62,11 @@ Bu kurallar hem sayaçlarda hem de liste filtrelerinde birebir uygulanır.
 
 ### Seeding Adımları
 
-- Bloklanan (WANT.blocked): Başlamış ve bitmemiş ilk `N` görev için, en yakın önceki bitmemiş görev öncül (`dependsOn`) olarak atanır.
-- Bloklayan (WANT.blocking): Gecikmiş ve bitmemiş ilk `N` görev için, başlatılmış başka bir bitmemiş görev ardıl seçilir ve o ardılın `dependsOn` listesine bu gecikmiş görev eklenir.
-- Bloklanma Riski (WANT.blockedRisk): Gelecekte başlayacak ilk `N` görev için, bir bitmemiş öncül seçilir; gerekirse bu öncülün `forecastDate` değeri, ilgili görevin başlangıcını aşacak şekilde ileri alınır ve `dependsOn` atanır.
-- Bloklama Riski (WANT.blockRisk): Bir bitmemiş görev ile gelecekte başlayacak bir ardıl eşleştirilir; gerekirse ilk görevin `forecastDate` değeri ardılın başlangıcını aşacak şekilde ileri alınır ve ardılın `dependsOn` listesine bu görev eklenir.
+- Bloklanan (WANT.blocked): Başlamış ve bitmemiş ilk `N` görev için, en yakın önceki bitmemiş ve farklı baz id’ye sahip görev öncül (`dependsOn`) olarak atanır.
+- Bloklayan (WANT.blocking): Gecikmiş ve bitmemiş ilk `N` görev için, farklı baz id’ye sahip, başlatılmış bir bitmemiş görev ardıl seçilir ve o ardılın `dependsOn` listesine bu gecikmiş görev eklenir.
+- Bloklanma Riski (WANT.blockedRisk): Gelecekte başlayacak ilk `N` görev için, farklı baz id’ye sahip bir bitmemiş öncül seçilir; gerekirse bu öncülün `forecastDate` değeri, ilgili görevin başlangıcını aşacak şekilde ileri alınır ve `dependsOn` atanır.
+- Bloklama Riski (WANT.blockRisk): Bir bitmemiş görev ile farklı baz id’ye sahip, gelecekte başlayacak bir ardıl eşleştirilir; gerekirse ilk görevin `forecastDate` değeri ardılın başlangıcını aşacak şekilde ileri alınır ve ardılın `dependsOn` listesine bu görev eklenir.
+  - Her ekleme öncesi dairesellik kontrolü yapılır; döngü ihtimali varsa o aday atlanır.
 
 Notlar:
 - `blocks` ilişkileri, `dependsOn` kurulumundan sonra otomatik türetilir.
@@ -66,4 +88,4 @@ Liste ve sayaçlar, aynı mantıkla hesaplanır:
 ## Değişiklik Günlüğü
 
 - Deterministik seeding eklendi; her kategori için en az 2 örnek garanti edilir. Bitmiş işlerin bloklu/bloklayan görünmesi engellendi.
-
+- Öz‑nedensellik (aynı baz id’nin sebep=sonuç olması) engellendi; seeding ve filtrelerde `base(focus) !== base(other)` kuralı zorunlu hale getirildi. ASCII ağaç ve rozetlerde sebep önce, ikonlar: sebep=▶, etki=●.

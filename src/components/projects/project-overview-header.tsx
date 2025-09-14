@@ -360,7 +360,7 @@ export function ProjectOverviewHeader({
 
           {/* Kilometre Taşları */}
           <div className="rounded-xl p-2 border bg-background h-full min-h-[200px] flex flex-col">
-            <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-semibold text-blue-700">
                 Kilometre Taşları
               </span>
@@ -383,7 +383,7 @@ export function ProjectOverviewHeader({
                 ((ms.upcoming + ms.overdue) / Math.max(1, ms.total)) * 100
               )
               return (
-                <div className="flex-1 flex flex-col gap-1.5">
+                <div className="flex flex-col gap-2">
                   {/* Order: Geciken, Yaklaşan, Kalan */}
                   <div className="grid grid-cols-3 gap-3 items-stretch">
                     <div className="rounded-lg py-5 px-4 text-center bg-red-50 border border-red-100">
@@ -411,7 +411,7 @@ export function ProjectOverviewHeader({
                       </div>
                     </div>
                   </div>
-                  <div className="mt-1 mt-auto">
+                  <div className="mt-2">
                     <div className="rounded-lg py-2.5 px-3 flex items-center justify-between bg-green-50 border border-green-100">
                       <div className="text-sm font-semibold text-green-700">
                         Tamamlanan

@@ -832,28 +832,32 @@ export const getSimpleProjects = (): Project[] => {
       Math.round((project.progress / 100) * totalMs)
     )
     let remainingMs = Math.max(0, totalMs - completedMs)
-    // Overdue share depends on health
-    const overdueBase =
-      project.healthStatus === 'critical'
-        ? 0.22
-        : project.healthStatus === 'warning'
-          ? 0.12
-          : 0.06
-    let overdueMs = Math.round(
-      remainingMs * (overdueBase + (rng() - 0.5) * 0.04)
-    )
+    // Upcoming (due within 10% of total project duration from "today")
+    const now = Date.now()
+    const totalSpanMs = Math.max(1, end.getTime() - start.getTime())
+    const upcomingWindowMs = Math.floor(totalSpanMs * 0.1)
+    // Evenly spaced milestone due dates across project span
+    let scheduleUpcoming = 0
+    let scheduleOverdue = 0
+    for (let i = completedMs + 1; i <= totalMs; i++) {
+      const dueMs = start.getTime() + Math.floor((i / totalMs) * totalSpanMs)
+      if (dueMs < now) scheduleOverdue++
+      else if (dueMs - now <= upcomingWindowMs) scheduleUpcoming++
+    }
+    // Overdue: fall back to health-driven noise if schedule suggests 0
+    let overdueMs = scheduleOverdue
+    if (overdueMs === 0) {
+      const overdueBase =
+        project.healthStatus === 'critical'
+          ? 0.22
+          : project.healthStatus === 'warning'
+            ? 0.12
+            : 0.06
+      overdueMs = Math.round(remainingMs * (overdueBase + (rng() - 0.5) * 0.02))
+    }
     overdueMs = Math.max(0, Math.min(remainingMs, overdueMs))
     remainingMs -= overdueMs
-    // Upcoming (≤ ~2 weeks window) depends on remaining time
-    const upcomingBase =
-      project.daysRemaining <= 45
-        ? 0.35
-        : project.daysRemaining <= 90
-          ? 0.25
-          : 0.15
-    let upcomingMs = Math.round(
-      remainingMs * (upcomingBase + (rng() - 0.5) * 0.05)
-    )
+    let upcomingMs = Math.min(scheduleUpcoming, remainingMs)
     upcomingMs = Math.max(0, Math.min(remainingMs, upcomingMs))
     remainingMs -= upcomingMs
 
