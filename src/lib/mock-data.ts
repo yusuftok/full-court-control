@@ -792,21 +792,47 @@ export const getSimpleProjects = (): Project[] => {
     const cpi = earnedValue > 0 ? earnedValue / Math.max(actualCost, 1) : 1
     const spi = earnedValue > 0 ? earnedValue / Math.max(plannedValue, 1) : 1
 
-    // workflow counts mocked from project health
-    const remaining = Math.max(project.totalTasks - project.completedTasks, 0)
-    // Deterministic RNG based on project id
-    const rng = mulberry32(hashStringToSeed(project.id))
-    // Weights by health
-    const weights =
+    // --- Milestone summary (rename from old workflowStatus) ---
+    // Aim: ~8–10 milestones per project year
+    const start = new Date(project.startDate)
+    const end = new Date(project.endDate)
+    const durationDays = Math.max(
+      1,
+      (end.getTime() - start.getTime()) / 86400000
+    )
+    const years = durationDays / 365
+    const rng = mulberry32(hashStringToSeed(`ms-${project.id}`))
+    const perYear = 8 + Math.floor(rng() * 3) // 8..10
+    const totalMs = Math.max(4, Math.round(Math.max(0.2, years) * perYear))
+    const completedMs = Math.min(
+      totalMs,
+      Math.round((project.progress / 100) * totalMs)
+    )
+    let remainingMs = Math.max(0, totalMs - completedMs)
+    // Overdue share depends on health
+    const overdueBase =
       project.healthStatus === 'critical'
-        ? { d: 0.32, r: 0.28, b: 0.14 }
+        ? 0.22
         : project.healthStatus === 'warning'
-          ? { d: 0.2, r: 0.18, b: 0.08 }
-          : { d: 0.12, r: 0.1, b: 0.05 }
-    const delayed = Math.round(remaining * (weights.d + (rng() - 0.5) * 0.03))
-    const risk = Math.round(remaining * (weights.r + (rng() - 0.5) * 0.03))
-    const blocked = Math.round(remaining * (weights.b + (rng() - 0.5) * 0.02))
-    const normal = Math.max(remaining - delayed - risk - blocked, 0)
+          ? 0.12
+          : 0.06
+    let overdueMs = Math.round(
+      remainingMs * (overdueBase + (rng() - 0.5) * 0.04)
+    )
+    overdueMs = Math.max(0, Math.min(remainingMs, overdueMs))
+    remainingMs -= overdueMs
+    // Upcoming (≤ ~2 weeks window) depends on remaining time
+    const upcomingBase =
+      project.daysRemaining <= 45
+        ? 0.35
+        : project.daysRemaining <= 90
+          ? 0.25
+          : 0.15
+    let upcomingMs = Math.round(
+      remainingMs * (upcomingBase + (rng() - 0.5) * 0.05)
+    )
+    upcomingMs = Math.max(0, Math.min(remainingMs, upcomingMs))
+    remainingMs -= upcomingMs
 
     return {
       id: project.id,
@@ -841,7 +867,13 @@ export const getSimpleProjects = (): Project[] => {
       templateId: project.templateId,
       divisions: project.divisions,
       divisionInstances: project.divisionInstances,
-      workflowStatus: { delayed, risk, blocked, normal },
+      milestoneSummary: {
+        total: totalMs,
+        completed: completedMs,
+        upcoming: upcomingMs,
+        overdue: overdueMs,
+        remaining: remainingMs,
+      },
       cpiSeriesMonthly: buildSeries(cpi, 'months', `${project.id}-cm`),
       spiSeriesMonthly: buildSeries(spi, 'months', `${project.id}-sm`),
       cpiSeriesWeekly: buildSeries(cpi, 'weeks', `${project.id}-cw`),

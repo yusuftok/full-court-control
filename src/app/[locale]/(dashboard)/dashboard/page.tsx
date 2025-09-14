@@ -340,6 +340,30 @@ export default function DashboardPage() {
 
   const statusTheme = getStatusTheme(k, r, ktr)
 
+  // Aggregate milestone summary across active projects
+  const milestoneAgg = React.useMemo(() => {
+    const acc = {
+      total: 0,
+      completed: 0,
+      upcoming: 0,
+      overdue: 0,
+      remaining: 0,
+    }
+    try {
+      const sims: SimpleProject[] = getSimpleProjects()
+      for (const p of sims) {
+        const ms = p.milestoneSummary
+        if (!ms) continue
+        acc.total += ms.total
+        acc.completed += ms.completed
+        acc.upcoming += ms.upcoming
+        acc.overdue += ms.overdue
+        acc.remaining += ms.remaining
+      }
+    } catch {}
+    return acc
+  }, [])
+
   if (totalProjects === 0) {
     // Empty state for new users
     return (
@@ -932,12 +956,12 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* İş Akış Durumu Widget - Flow Visualization */}
+          {/* Kilometre Taşları Widget */}
           <Card
             className="cursor-pointer floating-card group scale-smooth container-responsive border-l-4 border-l-blue-400 bg-gradient-to-br from-blue-50/50 to-transparent hover:shadow-blue-200/50 transition-all duration-300"
             onClick={() =>
               alert(
-                `🎯 İş Akış Durumu\n\nGeciken (8): Odaklanma gerekli\nRisk Altında (15): Yakından izleniyor\nBloke (12): Bağımlılık beklemede\n\n📊 Toplam 35/250 iş takip gerektiriyor (%14 - Normal seviye)`
+                `🎯 Kilometre Taşları\n\nTamamlanan: ${milestoneAgg.completed}\nYaklaşan (≤14g): ${milestoneAgg.upcoming}\nGeciken: ${milestoneAgg.overdue}\nKalan: ${milestoneAgg.remaining}\n\n📊 Toplam: ${milestoneAgg.completed + milestoneAgg.upcoming + milestoneAgg.overdue + milestoneAgg.remaining}`
               )
             }
           >
@@ -945,20 +969,24 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-heading-md text-blue-700 dark:text-blue-400 flex items-center gap-2">
                   <Target className="size-5" />
-                  İş Akış Durumu
+                  Kilometre Taşları
                 </CardTitle>
                 <div className="flex items-center gap-1 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full text-xs font-bold min-w-[80px] justify-center">
-                  ✅ İYİ
+                  ✅ İZLEME
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Flow State Visualization */}
+              {/* Milestone Progress Visualization */}
               <div className="relative">
                 <div className="flex items-center justify-center mb-4">
                   <div className="relative">
                     <CircularProgress
-                      percentage={Math.round((35 / 250) * 100)}
+                      percentage={Math.round(
+                        (milestoneAgg.completed /
+                          Math.max(1, milestoneAgg.total)) *
+                          100
+                      )}
                       size={80}
                       strokeWidth={8}
                       color="rgb(59 130 246)"
@@ -967,65 +995,80 @@ export default function DashboardPage() {
                     />
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                       <span className="text-xl font-bold text-blue-700">
-                        35
+                        {milestoneAgg.completed}
                       </span>
-                      <span className="text-xs text-blue-600">/250</span>
-                      <span className="text-xs text-blue-500">Takip</span>
+                      <span className="text-xs text-blue-600">
+                        /{milestoneAgg.total}
+                      </span>
+                      <span className="text-xs text-blue-500">Tamamlandı</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Flow Status Grid */}
+                {/* Milestone Summary Grid */}
                 <div className="grid grid-cols-3 gap-2 text-center">
-                  <div
-                    className="p-2 rounded-lg border border-red-200 bg-gradient-to-br from-red-50 to-red-100 cursor-pointer hover:scale-105 transition-transform"
-                    onClick={e => {
-                      e.stopPropagation()
-                      alert(
-                        `🔴 Geciken İşler (8)\n\n• Elektrik montajı (3 gün gecikti)\n• Sıhhi tesisat testleri (2 gün)\n• Yapı denetim raporu (4 gün)\n• Zemin hazırlığı (1 gün)\n\n🎯 Odaklanma gerekli`
-                      )
-                    }}
-                  >
-                    <div className="text-lg font-bold text-red-700">8</div>
-                    <div className="text-xs text-red-600">Geciken</div>
-                  </div>
                   <div
                     className="p-2 rounded-lg border border-yellow-200 bg-gradient-to-br from-yellow-50 to-yellow-100 cursor-pointer hover:scale-105 transition-transform"
                     onClick={e => {
                       e.stopPropagation()
                       alert(
-                        `🟡 Risk Altındaki İşler (15)\n\n• Dış cephe işleri (hava durumu)\n• Beton dökümü (malzeme gecikmesi)\n• Cam montajı (tedarikçi sorunu)\n• Boyama hazırlıkları\n\n👀 Yakından izleniyor`
+                        `🟡 Yaklaşan Kilometre Taşları: ${milestoneAgg.upcoming}`
                       )
                     }}
                   >
-                    <div className="text-lg font-bold text-yellow-700">15</div>
-                    <div className="text-xs text-yellow-600">Risk</div>
+                    <div className="text-lg font-bold text-yellow-700">
+                      {milestoneAgg.upcoming}
+                    </div>
+                    <div className="text-xs text-yellow-600">Yaklaşan</div>
+                  </div>
+                  <div
+                    className="p-2 rounded-lg border border-red-200 bg-gradient-to-br from-red-50 to-red-100 cursor-pointer hover:scale-105 transition-transform"
+                    onClick={e => {
+                      e.stopPropagation()
+                      alert(
+                        `🔴 Geciken Kilometre Taşları: ${milestoneAgg.overdue}`
+                      )
+                    }}
+                  >
+                    <div className="text-lg font-bold text-red-700">
+                      {milestoneAgg.overdue}
+                    </div>
+                    <div className="text-xs text-red-600">Geciken</div>
                   </div>
                   <div
                     className="p-2 rounded-lg border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 cursor-pointer hover:scale-105 transition-transform"
                     onClick={e => {
                       e.stopPropagation()
                       alert(
-                        `⏸️ Bloke İşler (12)\n\n• İç dekorasyon (elektrik bekleniyor)\n• Zemin döşeme (sıhhi tesisat)\n• Boyama işleri (alçı kuruması)\n• Dış alan düzenleme\n\n🔗 Bağımlılık nedeniyle beklemede`
+                        `📋 Kalan Kilometre Taşları: ${milestoneAgg.remaining}`
                       )
                     }}
                   >
-                    <div className="text-lg font-bold text-gray-700">12</div>
-                    <div className="text-xs text-gray-600">Bloke</div>
+                    <div className="text-lg font-bold text-gray-700">
+                      {milestoneAgg.remaining}
+                    </div>
+                    <div className="text-xs text-gray-600">Kalan</div>
                   </div>
                 </div>
               </div>
 
-              {/* Healthy Tasks Indicator */}
+              {/* Completed Indicator */}
               <div className="flex items-center justify-between p-2 rounded-lg bg-gradient-to-r from-green-50 to-green-100 border border-green-200">
                 <span className="text-sm font-semibold text-green-800">
-                  Normal Akış
+                  Tamamlanan
                 </span>
-                <span className="text-lg font-bold text-green-700">215</span>
+                <span className="text-lg font-bold text-green-700">
+                  {milestoneAgg.completed}
+                </span>
               </div>
 
               <div className="text-xs text-blue-600 opacity-75">
-                14% iş özel takip gerektiriyor
+                {Math.round(
+                  ((milestoneAgg.upcoming + milestoneAgg.overdue) /
+                    Math.max(1, milestoneAgg.total)) *
+                    100
+                )}
+                % kilometre taşı yakın veya gecikmiş
               </div>
             </CardContent>
           </Card>

@@ -291,94 +291,69 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
             </div>
           </div>
 
-          {/* İş Akış Durumu */}
+          {/* Kilometre Taşları */}
           <div className="rounded-xl p-2 border bg-background h-full min-h-[200px] flex flex-col">
             <div className="flex items-center justify-between mb-1">
               <span className="text-sm font-semibold text-blue-700">
-                İş Akış Durumu
+                Kilometre Taşları
               </span>
               <Badge variant="outline" className={badgeClass(perfLevel)}>
                 {perfLevel}
               </Badge>
             </div>
             {(() => {
-              const ws = project.workflowStatus
-              const completed = project.completedTasks
-              const rem = Math.max(project.totalTasks - completed, 0)
-              const delayed =
-                ws?.delayed ??
-                Math.round(
-                  rem *
-                    (project.healthStatus === 'critical'
-                      ? 0.3
-                      : project.healthStatus === 'warning'
-                        ? 0.2
-                        : 0.12)
-                )
-              const risk =
-                ws?.risk ??
-                Math.round(
-                  rem *
-                    (project.healthStatus === 'critical'
-                      ? 0.25
-                      : project.healthStatus === 'warning'
-                        ? 0.18
-                        : 0.1)
-                )
-              const blocked =
-                ws?.blocked ??
-                Math.round(
-                  rem *
-                    (project.healthStatus === 'critical'
-                      ? 0.12
-                      : project.healthStatus === 'warning'
-                        ? 0.08
-                        : 0.05)
-                )
-              const normal =
-                ws?.normal ?? Math.max(rem - delayed - risk - blocked, 0)
+              const ms = project.milestoneSummary || {
+                total: 10,
+                completed: Math.round(10 * (project.progress / 100)),
+                upcoming: 2,
+                overdue: 1,
+                remaining: Math.max(
+                  0,
+                  10 - Math.round(10 * (project.progress / 100)) - 3
+                ),
+              }
               const followPct = Math.round(
-                ((delayed + risk + blocked) / project.totalTasks) * 100
+                ((ms.upcoming + ms.overdue) / Math.max(1, ms.total)) * 100
               )
               return (
                 <div className="flex-1 flex flex-col justify-between gap-1.5">
                   <div className="grid grid-cols-3 gap-2">
-                    <div className="rounded-lg py-2.5 px-2.5 text-center bg-red-50 border border-red-100">
-                      <div className="text-base font-bold text-red-700 leading-5">
-                        {delayed}
+                    <div className="rounded-lg py-2.5 px-2.5 text-center bg-green-50 border border-green-100">
+                      <div className="text-base font-bold text-green-700 leading-5">
+                        {ms.completed}
                       </div>
-                      <div className="text-[12px] text-red-700 leading-4">
-                        Geciken
+                      <div className="text-[12px] text-green-700 leading-4">
+                        Tamamlanan
                       </div>
                     </div>
                     <div className="rounded-lg py-2.5 px-2.5 text-center bg-yellow-50 border border-yellow-100">
                       <div className="text-base font-bold text-yellow-700 leading-5">
-                        {risk}
+                        {ms.upcoming}
                       </div>
                       <div className="text-[12px] text-yellow-700 leading-4">
-                        Risk
+                        Yaklaşan
                       </div>
                     </div>
-                    <div className="rounded-lg py-2.5 px-2.5 text-center bg-gray-50 border border-gray-200">
-                      <div className="text-base font-bold text-gray-700 leading-5">
-                        {blocked}
+                    <div className="rounded-lg py-2.5 px-2.5 text-center bg-red-50 border border-red-100">
+                      <div className="text-base font-bold text-red-700 leading-5">
+                        {ms.overdue}
                       </div>
-                      <div className="text-[12px] text-gray-700 leading-4">
-                        Bloke
+                      <div className="text-[12px] text-red-700 leading-4">
+                        Geciken
                       </div>
                     </div>
                   </div>
                   <div className="mt-1">
                     <div className="rounded-lg py-2 px-2 flex items-center justify-between bg-green-50 border border-green-100">
                       <div className="text-[14px] font-semibold text-green-700">
-                        Normal Akış
+                        Kalan
                       </div>
                       <div className="text-base font-bold text-green-700">
-                        {normal}
+                        {ms.remaining}
                       </div>
                     </div>
                     <div className="text-[12px] text-blue-700 mt-1">
-                      {followPct}% iş özel takip gerektiriyor
+                      %{followPct} kilometre taşı yakın veya gecikmiş
                     </div>
                   </div>
                 </div>

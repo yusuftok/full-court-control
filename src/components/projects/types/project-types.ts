@@ -119,12 +119,13 @@ export interface Project extends CreateProjectRequest {
   updatedAt: string
   // Opsiyonel: proje genelinde atanan tüm taşeron kimlikleri
   subcontractorIds?: string[]
-  // Opsiyonel: iş akış durumu
-  workflowStatus?: {
-    delayed: number
-    risk: number
-    blocked: number
-    normal: number
+  // Opsiyonel: kilometre taşı özeti (yıllık ~8-10 adet)
+  milestoneSummary?: {
+    total: number
+    completed: number
+    upcoming: number
+    overdue: number
+    remaining: number
   }
   // Opsiyonel: CPI/SPI trend serileri
   cpiSeriesMonthly?: TimePoint[]
