@@ -1020,22 +1020,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Milestone Summary Grid */}
+                {/* Milestone Summary Grid (Geciken, Yaklaşan, Kalan) */}
                 <div className="grid grid-cols-3 gap-2 text-center">
-                  <div
-                    className="p-2 rounded-lg border border-yellow-200 bg-gradient-to-br from-yellow-50 to-yellow-100 cursor-pointer hover:scale-105 transition-transform"
-                    onClick={e => {
-                      e.stopPropagation()
-                      alert(
-                        `🟡 Yaklaşan Kilometre Taşları: ${milestoneAgg.upcoming}`
-                      )
-                    }}
-                  >
-                    <div className="text-lg font-bold text-yellow-700">
-                      {milestoneAgg.upcoming}
-                    </div>
-                    <div className="text-xs text-yellow-600">Yaklaşan</div>
-                  </div>
                   <div
                     className="p-2 rounded-lg border border-red-200 bg-gradient-to-br from-red-50 to-red-100 cursor-pointer hover:scale-105 transition-transform"
                     onClick={e => {
@@ -1049,6 +1035,20 @@ export default function DashboardPage() {
                       {milestoneAgg.overdue}
                     </div>
                     <div className="text-xs text-red-600">Geciken</div>
+                  </div>
+                  <div
+                    className="p-2 rounded-lg border border-yellow-200 bg-gradient-to-br from-yellow-50 to-yellow-100 cursor-pointer hover:scale-105 transition-transform"
+                    onClick={e => {
+                      e.stopPropagation()
+                      alert(
+                        `🟡 Yaklaşan Kilometre Taşları: ${milestoneAgg.upcoming}`
+                      )
+                    }}
+                  >
+                    <div className="text-lg font-bold text-yellow-700">
+                      {milestoneAgg.upcoming}
+                    </div>
+                    <div className="text-xs text-yellow-600">Yaklaşan</div>
                   </div>
                   <div
                     className="p-2 rounded-lg border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 cursor-pointer hover:scale-105 transition-transform"

@@ -317,13 +317,14 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
               )
               return (
                 <div className="flex-1 flex flex-col justify-between gap-1.5">
+                  {/* Order: Geciken, Yaklaşan, Kalan */}
                   <div className="grid grid-cols-3 gap-2">
-                    <div className="rounded-lg py-2.5 px-2.5 text-center bg-green-50 border border-green-100">
-                      <div className="text-base font-bold text-green-700 leading-5">
-                        {ms.completed}
+                    <div className="rounded-lg py-2.5 px-2.5 text-center bg-red-50 border border-red-100">
+                      <div className="text-base font-bold text-red-700 leading-5">
+                        {ms.overdue}
                       </div>
-                      <div className="text-[12px] text-green-700 leading-4">
-                        Tamamlanan
+                      <div className="text-[12px] text-red-700 leading-4">
+                        Geciken
                       </div>
                     </div>
                     <div className="rounded-lg py-2.5 px-2.5 text-center bg-yellow-50 border border-yellow-100">
@@ -334,22 +335,22 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
                         Yaklaşan
                       </div>
                     </div>
-                    <div className="rounded-lg py-2.5 px-2.5 text-center bg-red-50 border border-red-100">
-                      <div className="text-base font-bold text-red-700 leading-5">
-                        {ms.overdue}
+                    <div className="rounded-lg py-2.5 px-2.5 text-center bg-gray-50 border border-gray-200">
+                      <div className="text-base font-bold text-gray-700 leading-5">
+                        {ms.remaining}
                       </div>
-                      <div className="text-[12px] text-red-700 leading-4">
-                        Geciken
+                      <div className="text-[12px] text-gray-700 leading-4">
+                        Kalan
                       </div>
                     </div>
                   </div>
                   <div className="mt-1">
                     <div className="rounded-lg py-2 px-2 flex items-center justify-between bg-green-50 border border-green-100">
                       <div className="text-[14px] font-semibold text-green-700">
-                        Kalan
+                        Tamamlanan
                       </div>
                       <div className="text-base font-bold text-green-700">
-                        {ms.remaining}
+                        {ms.completed}
                       </div>
                     </div>
                     <div className="text-[12px] text-blue-700 mt-1">
