@@ -194,19 +194,19 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
             </div>
             <div className="flex-1 flex flex-col">
               <div className="space-y-2 text-sm text-muted-foreground flex-1">
-                <div className="flex items-end justify-between">
+                <div className="flex items-end justify-between min-h-[24px]">
                   <span>Harcanan:</span>
                   <span className="font-semibold">
                     ₺{(project.actualCost / 1_000_000).toFixed(1)}M
                   </span>
                 </div>
-                <div className="flex items-end justify-between">
+                <div className="flex items-end justify-between min-h-[24px]">
                   <span>Elde Edilen:</span>
                   <span className="font-semibold">
                     ₺{(project.earnedValue / 1_000_000).toFixed(1)}M
                   </span>
                 </div>
-                <div className="flex items-end justify-between font-medium">
+                <div className="flex items-end justify-between font-medium min-h-[24px]">
                   <span>Toplam Bütçe:</span>
                   <span className="font-bold text-base">
                     ₺{(project.budget / 1_000_000).toFixed(1)}M
@@ -231,7 +231,7 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
               boxThemeSpi(spi)
             )}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-1">
               <span className="text-caption">Takvim Performansı</span>
               <Badge
                 variant="outline"
@@ -259,22 +259,22 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
             </div>
             <div className="flex-1 flex flex-col">
               <div className="space-y-2 text-sm text-muted-foreground flex-1">
-                <div className="flex items-end justify-between">
+                <div className="flex items-end justify-between min-h-[24px]">
                   <span>Elde Edilen:</span>
                   <span className="font-semibold text-sm">
                     ₺{(project.earnedValue / 1_000_000).toFixed(2)}M
                   </span>
                 </div>
-                <div className="flex items-end justify-between">
+                <div className="flex items-end justify-between min-h-[24px]">
                   <span>Planlanan:</span>
                   <span className="font-semibold text-sm">
                     ₺{(project.plannedValue / 1_000_000).toFixed(2)}M
                   </span>
                 </div>
                 {project.endDate && (
-                  <div className="flex items-end justify-between">
+                  <div className="flex items-end justify-between min-h-[24px]">
                     <span>Hedef Bitiş:</span>
-                    <span className="font-medium">
+                    <span className="font-bold text-base">
                       {new Date(project.endDate).toLocaleDateString('tr-TR')}
                     </span>
                   </div>
@@ -434,10 +434,7 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
                         fontSize: 10,
                       }}
                     />
-                    <Tooltip
-                      formatter={(v: unknown) => String(v)}
-                      labelFormatter={(l: unknown) => String(l)}
-                    />
+                    <Tooltip content={<MiniValueTooltip />} />
                     <Line
                       type="monotone"
                       dataKey="value"
@@ -483,10 +480,7 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
                         fontSize: 10,
                       }}
                     />
-                    <Tooltip
-                      formatter={(v: unknown) => String(v)}
-                      labelFormatter={(l: unknown) => String(l)}
-                    />
+                    <Tooltip content={<MiniValueTooltip />} />
                     <Line
                       type="monotone"
                       dataKey="value"
@@ -504,5 +498,32 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+// Minimal tooltip that only shows the value with compact styling
+function MiniValueTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean
+  payload?: Array<{ value?: number }>
+}) {
+  if (!active || !payload || payload.length === 0) return null
+  const val = payload[0]?.value
+  return (
+    <div
+      style={{
+        padding: '2px 6px',
+        fontSize: 10,
+        lineHeight: '14px',
+        background: 'var(--tooltip-bg, white)',
+        border: '1px solid #e5e7eb',
+        borderRadius: 4,
+        color: 'inherit',
+      }}
+    >
+      {typeof val === 'number' ? val.toFixed(2) : String(val)}
+    </div>
   )
 }
