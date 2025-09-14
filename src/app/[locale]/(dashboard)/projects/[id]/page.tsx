@@ -585,6 +585,7 @@ export default function ProjectDashboardPage() {
   type WbsTask = {
     id: string
     name: string
+    startDate: string
     dueDate: string
     forecastDate?: string
     actualDate?: string
@@ -594,6 +595,8 @@ export default function ProjectDashboardPage() {
     owner?: SubcontractorId
     isCritical?: boolean
     blockers: number
+    dependsOn: string[]
+    blocks: string[]
   }
 
   // Optional "today" override via query param to simulate different views
@@ -635,6 +638,8 @@ export default function ProjectDashboardPage() {
       walk(wbsRoot, 0)
       if (nodes.length === 0) return []
       const tasks: WbsTask[] = []
+      const startTimes: number[] = []
+      const endTimes: number[] = []
       // Expand each node into several sub-parts to increase variety
       for (let ni = 0; ni < nodes.length && tasks.length < tasksMax; ni++) {
         const l = nodes[ni]
@@ -695,9 +700,11 @@ export default function ProjectDashboardPage() {
             forecast = nowMs + 24 * 3600 * 1000
           }
           const fc = forecast ?? actual ?? e
+          const taskId = `${l.id}-p${p}`
           tasks.push({
-            id: `${l.id}-p${p}`,
+            id: taskId,
             name: p > 0 ? `${l.name} • Faz ${p + 1}` : l.name,
+            startDate: new Date(s).toISOString(),
             dueDate: new Date(e).toISOString(),
             forecastDate: forecast
               ? new Date(forecast).toISOString()
@@ -709,7 +716,11 @@ export default function ProjectDashboardPage() {
             owner: analytics.ownership.get(l.id) ?? undefined,
             isCritical: analytics.nodeHealth.get(l.id)?.level === 'critical',
             blockers: 0,
+            dependsOn: [],
+            blocks: [],
           })
+          startTimes.push(s)
+          endTimes.push(e)
         }
       }
       // Ensure at least one unfinished task exists for active projects
@@ -765,6 +776,36 @@ export default function ProjectDashboardPage() {
           t.forecastDate = new Date(end).toISOString()
           const due = new Date(t.dueDate).getTime()
           t.slipDays = Math.round((end - due) / 86400000)
+        }
+      }
+      // Build simple deterministic dependencies within the same depth
+      const idIndex = new Map<string, number>()
+      tasks.forEach((t, i) => idIndex.set(t.id, i))
+      for (let i = 0; i < tasks.length; i++) {
+        const t = tasks[i]
+        const start = startTimes[i]
+        // candidate predecessors: tasks that end before this task starts
+        const preds: number[] = []
+        for (let j = 0; j < i; j++) {
+          if (endTimes[j] <= start) preds.push(j)
+        }
+        // choose up to 2 predecessors based on index pattern
+        const want = i % 6 === 0 ? 2 : i % 3 === 0 ? 1 : 0
+        for (let k = 0; k < Math.min(want, preds.length); k++) {
+          const pj = preds[(i + k) % preds.length]
+          const pid = tasks[pj].id
+          if (!t.dependsOn.includes(pid)) t.dependsOn.push(pid)
+        }
+      }
+      // compute blocks (successors)
+      for (let i = 0; i < tasks.length; i++) {
+        for (const pid of tasks[i].dependsOn) {
+          const pj = idIndex.get(pid)
+          if (pj != null) {
+            const ptask = tasks[pj]
+            if (!ptask.blocks.includes(tasks[i].id))
+              ptask.blocks.push(tasks[i].id)
+          }
         }
       }
       return tasks
@@ -842,7 +883,16 @@ export default function ProjectDashboardPage() {
 
   // Milestone filter states (URL-driven)
   const [msState, setMsState] = React.useState<
-    'all' | 'overdue' | 'critical' | 'risky' | 'upcoming' | null
+    | 'all'
+    | 'overdue'
+    | 'critical'
+    | 'risky'
+    | 'upcoming'
+    | 'blocked'
+    | 'blocking'
+    | 'blockedRisk'
+    | 'blockRisk'
+    | null
   >(
     (searchParams.get('msState') as
       | 'all'
@@ -850,6 +900,10 @@ export default function ProjectDashboardPage() {
       | 'critical'
       | 'risky'
       | 'upcoming'
+      | 'blocked'
+      | 'blocking'
+      | 'blockedRisk'
+      | 'blockRisk'
       | null) ?? null
   )
   const [msRange, setMsRange] = React.useState<number | null>(() => {
@@ -981,6 +1035,62 @@ export default function ProjectDashboardPage() {
                       return plannedDur / forecastDur
                     }
 
+                    // Dependency helpers for bloklama/bloklanma analizleri
+                    const byId = new Map(ms.map(x => [x.id, x]))
+                    const startMsOf = (t: WbsTask) =>
+                      new Date(t.startDate).getTime()
+                    const fcEndMsOf = (t: WbsTask) =>
+                      t.actualDate
+                        ? new Date(t.actualDate).getTime()
+                        : t.forecastDate
+                          ? new Date(t.forecastDate).getTime()
+                          : new Date(t.dueDate).getTime()
+                    const isBlocked = (t: WbsTask) => {
+                      if (startMsOf(t) >= today.getTime()) return false
+                      for (const pid of t.dependsOn) {
+                        const p = byId.get(pid)
+                        if (!p) continue
+                        if (
+                          !p.actualDate ||
+                          new Date(p.actualDate).getTime() > today.getTime()
+                        )
+                          return true
+                      }
+                      return false
+                    }
+                    const isBlocking = (t: WbsTask) => {
+                      if (!isOverdue(t)) return false
+                      for (const sid of t.blocks) {
+                        const s = byId.get(sid)
+                        if (!s) continue
+                        if (startMsOf(s) < today.getTime()) return true
+                      }
+                      return false
+                    }
+                    const isBlockedRisk = (t: WbsTask) => {
+                      if (startMsOf(t) <= today.getTime()) return false
+                      for (const pid of t.dependsOn) {
+                        const p = byId.get(pid)
+                        if (!p) continue
+                        if (fcEndMsOf(p) > startMsOf(t)) return true
+                      }
+                      return false
+                    }
+                    const isBlockRisk = (t: WbsTask) => {
+                      if (fcEndMsOf(t) <= new Date(t.dueDate).getTime())
+                        return false
+                      for (const sid of t.blocks) {
+                        const s = byId.get(sid)
+                        if (!s) continue
+                        if (
+                          startMsOf(s) > today.getTime() &&
+                          fcEndMsOf(t) > startMsOf(s)
+                        )
+                          return true
+                      }
+                      return false
+                    }
+
                     // Counts are computed on the same dataset as the list below
                     const allCount = ms.length
                     let overdue = 0
@@ -1015,7 +1125,7 @@ export default function ProjectDashboardPage() {
                         >
                           Hepsi {allCount}
                         </button>
-                        {/* Overdue: very dark red */}
+                        {/* Gecikmiş */}
                         <button
                           className={cn(
                             'px-2 py-0.5 rounded border transition-colors',
@@ -1027,7 +1137,7 @@ export default function ProjectDashboardPage() {
                             setMsState(msState === 'overdue' ? null : 'overdue')
                           }
                         >
-                          Overdue {overdue}
+                          Gecikmiş {overdue}
                         </button>
                         {/* Kritik: normal red, SPI < 0.90 */}
                         <button
@@ -1059,7 +1169,7 @@ export default function ProjectDashboardPage() {
                         >
                           Riskli {riskCount}
                         </button>
-                        {/* Upcoming: distinctive yellow, independent of delay */}
+                        {/* Yaklaşan */}
                         <button
                           className={cn(
                             'px-2 py-0.5 rounded border transition-colors',
@@ -1075,6 +1185,69 @@ export default function ProjectDashboardPage() {
                           }}
                         >
                           ≤14g {upcoming}
+                        </button>
+                        {/* Bloklanan */}
+                        <button
+                          className={cn(
+                            'px-2 py-0.5 rounded border transition-colors',
+                            msState === 'blocked'
+                              ? 'bg-gray-800 text-white border-gray-800'
+                              : 'bg-gray-100 text-gray-800 border-gray-200'
+                          )}
+                          onClick={() =>
+                            setMsState(msState === 'blocked' ? null : 'blocked')
+                          }
+                        >
+                          Bloklanan {ms.filter(m => isBlocked(m)).length}
+                        </button>
+                        {/* Bloklayan */}
+                        <button
+                          className={cn(
+                            'px-2 py-0.5 rounded border transition-colors',
+                            msState === 'blocking'
+                              ? 'bg-slate-600 text-white border-slate-600'
+                              : 'bg-slate-100 text-slate-700 border-slate-200'
+                          )}
+                          onClick={() =>
+                            setMsState(
+                              msState === 'blocking' ? null : 'blocking'
+                            )
+                          }
+                        >
+                          Bloklayan {ms.filter(m => isBlocking(m)).length}
+                        </button>
+                        {/* Bloklanma Riski */}
+                        <button
+                          className={cn(
+                            'px-2 py-0.5 rounded border transition-colors',
+                            msState === 'blockedRisk'
+                              ? 'bg-amber-700 text-white border-amber-700'
+                              : 'bg-amber-100 text-amber-800 border-amber-200'
+                          )}
+                          onClick={() =>
+                            setMsState(
+                              msState === 'blockedRisk' ? null : 'blockedRisk'
+                            )
+                          }
+                        >
+                          Bloklanma Riski{' '}
+                          {ms.filter(m => isBlockedRisk(m)).length}
+                        </button>
+                        {/* Bloklama Riski */}
+                        <button
+                          className={cn(
+                            'px-2 py-0.5 rounded border transition-colors',
+                            msState === 'blockRisk'
+                              ? 'bg-rose-700 text-white border-rose-700'
+                              : 'bg-rose-100 text-rose-800 border-rose-200'
+                          )}
+                          onClick={() =>
+                            setMsState(
+                              msState === 'blockRisk' ? null : 'blockRisk'
+                            )
+                          }
+                        >
+                          Bloklama Riski {ms.filter(m => isBlockRisk(m)).length}
                         </button>
                       </div>
                     )
@@ -1132,6 +1305,79 @@ export default function ProjectDashboardPage() {
                           m.progress < 100
                         if (msState === 'overdue') return isOverdue
                         if (msState === 'upcoming') return isUpcoming
+                        if (
+                          msState === 'blocked' ||
+                          msState === 'blocking' ||
+                          msState === 'blockedRisk' ||
+                          msState === 'blockRisk'
+                        ) {
+                          // reconstruct helpers aligned with toolbar
+                          const byId = new Map(all.map(x => [x.id, x]))
+                          const startMsOf = (t: WbsTask) =>
+                            new Date(t.startDate).getTime()
+                          const fcEndMsOf = (t: WbsTask) =>
+                            t.actualDate
+                              ? new Date(t.actualDate).getTime()
+                              : t.forecastDate
+                                ? new Date(t.forecastDate).getTime()
+                                : new Date(t.dueDate).getTime()
+                          const isBlocked = (t: WbsTask) => {
+                            if (startMsOf(t) >= nowMs) return false
+                            for (const pid of t.dependsOn) {
+                              const p = byId.get(pid)
+                              if (!p) continue
+                              if (
+                                !p.actualDate ||
+                                new Date(p.actualDate).getTime() > nowMs
+                              )
+                                return true
+                            }
+                            return false
+                          }
+                          const isBlocking = (t: WbsTask) => {
+                            if (
+                              !(
+                                (t.actualDate
+                                  ? new Date(t.actualDate) > due
+                                  : today > due) && t.progress < 100
+                              )
+                            )
+                              return false
+                            for (const sid of t.blocks) {
+                              const s = byId.get(sid)
+                              if (!s) continue
+                              if (startMsOf(s) < nowMs) return true
+                            }
+                            return false
+                          }
+                          const isBlockedRisk = (t: WbsTask) => {
+                            if (startMsOf(t) <= nowMs) return false
+                            for (const pid of t.dependsOn) {
+                              const p = byId.get(pid)
+                              if (!p) continue
+                              if (fcEndMsOf(p) > startMsOf(t)) return true
+                            }
+                            return false
+                          }
+                          const isBlockRisk = (t: WbsTask) => {
+                            if (fcEndMsOf(t) <= new Date(t.dueDate).getTime())
+                              return false
+                            for (const sid of t.blocks) {
+                              const s = byId.get(sid)
+                              if (!s) continue
+                              if (
+                                startMsOf(s) > nowMs &&
+                                fcEndMsOf(t) > startMsOf(s)
+                              )
+                                return true
+                            }
+                            return false
+                          }
+                          if (msState === 'blocked') return isBlocked(m)
+                          if (msState === 'blocking') return isBlocking(m)
+                          if (msState === 'blockedRisk') return isBlockedRisk(m)
+                          if (msState === 'blockRisk') return isBlockRisk(m)
+                        }
                         if (msState === 'critical' || msState === 'risky') {
                           if (isOverdue) return false // overdue dominates
                           if (m.progress >= 100) return false
