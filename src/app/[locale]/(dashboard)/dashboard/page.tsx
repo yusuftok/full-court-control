@@ -971,7 +971,7 @@ export default function DashboardPage() {
 
           {/* Kilometre Taşları Widget */}
           <Card
-            className="cursor-pointer floating-card group scale-smooth container-responsive border-l-4 border-l-blue-400 bg-gradient-to-br from-blue-50/50 to-transparent hover:shadow-blue-200/50 transition-all duration-300"
+            className="cursor-pointer floating-card group scale-smooth container-responsive border-l-4 border-l-blue-400 bg-gradient-to-br from-blue-50/50 to-transparent hover:shadow-blue-200/50 transition-all duration-300 flex flex-col"
             onClick={() =>
               alert(
                 `🎯 Kilometre Taşları\n\nTamamlanan: ${milestoneAgg.completed}\nYaklaşan (≤14g): ${milestoneAgg.upcoming}\nGeciken: ${milestoneAgg.overdue}\nKalan: ${milestoneAgg.remaining}\n\n📊 Toplam: ${milestoneAgg.completed + milestoneAgg.upcoming + milestoneAgg.overdue + milestoneAgg.remaining}`
@@ -991,7 +991,7 @@ export default function DashboardPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 flex-1 flex flex-col">
               {/* Milestone Progress Visualization */}
               <div className="relative">
                 <div className="flex items-center justify-center mb-4">
@@ -1023,7 +1023,7 @@ export default function DashboardPage() {
                 {/* Milestone Summary Grid (Geciken, Yaklaşan, Kalan) */}
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div
-                    className="p-2 rounded-lg border border-red-200 bg-gradient-to-br from-red-50 to-red-100 cursor-pointer hover:scale-105 transition-transform"
+                    className="py-3 px-3 rounded-lg border border-red-200 bg-gradient-to-br from-red-50 to-red-100 cursor-pointer hover:scale-105 transition-transform"
                     onClick={e => {
                       e.stopPropagation()
                       alert(
@@ -1031,13 +1031,13 @@ export default function DashboardPage() {
                       )
                     }}
                   >
-                    <div className="text-lg font-bold text-red-700">
+                    <div className="text-xl font-bold text-red-700">
                       {milestoneAgg.overdue}
                     </div>
                     <div className="text-xs text-red-600">Geciken</div>
                   </div>
                   <div
-                    className="p-2 rounded-lg border border-yellow-200 bg-gradient-to-br from-yellow-50 to-yellow-100 cursor-pointer hover:scale-105 transition-transform"
+                    className="py-3 px-3 rounded-lg border border-yellow-200 bg-gradient-to-br from-yellow-50 to-yellow-100 cursor-pointer hover:scale-105 transition-transform"
                     onClick={e => {
                       e.stopPropagation()
                       alert(
@@ -1045,13 +1045,13 @@ export default function DashboardPage() {
                       )
                     }}
                   >
-                    <div className="text-lg font-bold text-yellow-700">
+                    <div className="text-xl font-bold text-yellow-700">
                       {milestoneAgg.upcoming}
                     </div>
                     <div className="text-xs text-yellow-600">Yaklaşan</div>
                   </div>
                   <div
-                    className="p-2 rounded-lg border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 cursor-pointer hover:scale-105 transition-transform"
+                    className="py-3 px-3 rounded-lg border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 cursor-pointer hover:scale-105 transition-transform"
                     onClick={e => {
                       e.stopPropagation()
                       alert(
@@ -1059,7 +1059,7 @@ export default function DashboardPage() {
                       )
                     }}
                   >
-                    <div className="text-lg font-bold text-gray-700">
+                    <div className="text-xl font-bold text-gray-700">
                       {milestoneAgg.remaining}
                     </div>
                     <div className="text-xs text-gray-600">Kalan</div>
@@ -1067,23 +1067,14 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Completed Indicator */}
-              <div className="flex items-center justify-between p-2 rounded-lg bg-gradient-to-r from-green-50 to-green-100 border border-green-200">
+              {/* Completed Indicator (bottom-aligned) */}
+              <div className="mt-auto flex items-center justify-between py-2.5 px-3 rounded-lg bg-gradient-to-r from-green-50 to-green-100 border border-green-200">
                 <span className="text-sm font-semibold text-green-800">
                   Tamamlanan
                 </span>
-                <span className="text-lg font-bold text-green-700">
+                <span className="text-xl font-bold text-green-700">
                   {milestoneAgg.completed}
                 </span>
-              </div>
-
-              <div className="text-xs text-blue-600 opacity-75">
-                {Math.round(
-                  ((milestoneAgg.upcoming + milestoneAgg.overdue) /
-                    Math.max(1, milestoneAgg.total)) *
-                    100
-                )}
-                % kilometre taşı yakın veya gecikmiş
               </div>
             </CardContent>
           </Card>

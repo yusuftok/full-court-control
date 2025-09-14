@@ -316,45 +316,42 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
                 ((ms.upcoming + ms.overdue) / Math.max(1, ms.total)) * 100
               )
               return (
-                <div className="flex-1 flex flex-col justify-between gap-1.5">
+                <div className="flex-1 flex flex-col gap-1.5">
                   {/* Order: Geciken, Yaklaşan, Kalan */}
                   <div className="grid grid-cols-3 gap-2">
-                    <div className="rounded-lg py-2.5 px-2.5 text-center bg-red-50 border border-red-100">
-                      <div className="text-base font-bold text-red-700 leading-5">
+                    <div className="rounded-lg py-3 px-3 text-center bg-red-50 border border-red-100">
+                      <div className="text-xl font-bold text-red-700 leading-5">
                         {ms.overdue}
                       </div>
-                      <div className="text-[12px] text-red-700 leading-4">
+                      <div className="text-xs text-red-700 leading-4">
                         Geciken
                       </div>
                     </div>
-                    <div className="rounded-lg py-2.5 px-2.5 text-center bg-yellow-50 border border-yellow-100">
-                      <div className="text-base font-bold text-yellow-700 leading-5">
+                    <div className="rounded-lg py-3 px-3 text-center bg-yellow-50 border border-yellow-100">
+                      <div className="text-xl font-bold text-yellow-700 leading-5">
                         {ms.upcoming}
                       </div>
-                      <div className="text-[12px] text-yellow-700 leading-4">
+                      <div className="text-xs text-yellow-700 leading-4">
                         Yaklaşan
                       </div>
                     </div>
-                    <div className="rounded-lg py-2.5 px-2.5 text-center bg-gray-50 border border-gray-200">
-                      <div className="text-base font-bold text-gray-700 leading-5">
+                    <div className="rounded-lg py-3 px-3 text-center bg-gray-50 border border-gray-200">
+                      <div className="text-xl font-bold text-gray-700 leading-5">
                         {ms.remaining}
                       </div>
-                      <div className="text-[12px] text-gray-700 leading-4">
+                      <div className="text-xs text-gray-700 leading-4">
                         Kalan
                       </div>
                     </div>
                   </div>
-                  <div className="mt-1">
-                    <div className="rounded-lg py-2 px-2 flex items-center justify-between bg-green-50 border border-green-100">
-                      <div className="text-[14px] font-semibold text-green-700">
+                  <div className="mt-1 mt-auto">
+                    <div className="rounded-lg py-2.5 px-3 flex items-center justify-between bg-green-50 border border-green-100">
+                      <div className="text-sm font-semibold text-green-700">
                         Tamamlanan
                       </div>
-                      <div className="text-base font-bold text-green-700">
+                      <div className="text-xl font-bold text-green-700">
                         {ms.completed}
                       </div>
-                    </div>
-                    <div className="text-[12px] text-blue-700 mt-1">
-                      %{followPct} kilometre taşı yakın veya gecikmiş
                     </div>
                   </div>
                 </div>
