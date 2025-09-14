@@ -837,6 +837,89 @@ export default function ProjectDashboardPage() {
           if (!t.dependsOn.includes(pid)) t.dependsOn.push(pid)
         }
       }
+      // Ensure invariant-compliant examples exist for filters
+      ;(() => {
+        const startMsOf = (x: WbsTask) => new Date(x.startDate).getTime()
+        const dueMsOf = (x: WbsTask) => new Date(x.dueDate).getTime()
+        const fcEndMsOf = (x: WbsTask) =>
+          x.actualDate
+            ? new Date(x.actualDate).getTime()
+            : x.forecastDate
+              ? new Date(x.forecastDate).getTime()
+              : new Date(x.dueDate).getTime()
+
+        // 1) BLOCKED: unfinished task started in past with an unfinished predecessor
+        const blockedIdx = tasks.findIndex(
+          t => !t.actualDate && startMsOf(t) < nowMs
+        )
+        if (blockedIdx >= 0) {
+          let predIdx = -1
+          for (let j = blockedIdx - 1; j >= 0; j--) {
+            const p = tasks[j]
+            if (!p.actualDate || new Date(p.actualDate).getTime() > nowMs) {
+              predIdx = j
+              break
+            }
+          }
+          if (predIdx >= 0) {
+            const pid = tasks[predIdx].id
+            if (!tasks[blockedIdx].dependsOn.includes(pid))
+              tasks[blockedIdx].dependsOn.push(pid)
+          }
+        }
+
+        // 2) BLOCKING: overdue unfinished task with a successor that already started
+        const overIdx = tasks.findIndex(
+          t => !t.actualDate && dueMsOf(t) < nowMs
+        )
+        if (overIdx >= 0) {
+          const succIdx = tasks.findIndex(
+            (s, i) => i !== overIdx && !s.actualDate && startMsOf(s) < nowMs
+          )
+          if (succIdx >= 0) {
+            const aid = tasks[overIdx].id
+            if (!tasks[succIdx].dependsOn.includes(aid))
+              tasks[succIdx].dependsOn.push(aid)
+          }
+        }
+
+        // 3) BLOCKED RISK: future-start task whose predecessor's forecast overlaps its start
+        const futureIdx = tasks.findIndex(
+          t => !t.actualDate && startMsOf(t) > nowMs
+        )
+        if (futureIdx >= 0) {
+          const pIdx = tasks.findIndex(
+            (p, i) => i !== futureIdx && !p.actualDate
+          )
+          if (pIdx >= 0) {
+            const t = tasks[futureIdx]
+            const p = tasks[pIdx]
+            const tStart = startMsOf(t)
+            if (fcEndMsOf(p) <= tStart) {
+              p.forecastDate = new Date(tStart + 2 * 86400000).toISOString()
+            }
+            if (!t.dependsOn.includes(p.id)) t.dependsOn.push(p.id)
+          }
+        }
+
+        // 4) BLOCK RISK: task whose forecast overlaps a future-start successor
+        const candIdx = tasks.findIndex(t => !t.actualDate)
+        const succFutureIdx = tasks.findIndex(
+          (s, i) => i !== candIdx && !s.actualDate && startMsOf(s) > nowMs
+        )
+        if (candIdx >= 0 && succFutureIdx >= 0) {
+          const t = tasks[candIdx]
+          const s = tasks[succFutureIdx]
+          const sStart = startMsOf(s)
+          if (fcEndMsOf(t) <= sStart) {
+            const due = new Date(t.dueDate).getTime()
+            const newFc = Math.max(sStart + 2 * 86400000, due + 86400000)
+            t.forecastDate = new Date(newFc).toISOString()
+            t.slipDays = Math.round((newFc - due) / 86400000)
+          }
+          if (!s.dependsOn.includes(t.id)) s.dependsOn.push(t.id)
+        }
+      })()
       // Sanitize: a finished task shouldn't be blocked by unfinished predecessors
       // Keep only predecessors that are already finished by 'now'
       for (let i = 0; i < tasks.length; i++) {
@@ -980,9 +1063,12 @@ export default function ProjectDashboardPage() {
           const isLeaf = k === ids.length - 1
           let marker = ''
           if (isLeaf) {
-            if (isFocusBranch && id === focusNodeId) marker = '▶ '
-            else if (!isFocusBranch && id === otherNodeId)
-              marker = rel === 'blocking' || rel === 'blockRisk' ? '● ' : '◆ '
+            const isFocusLeaf = isFocusBranch && id === focusNodeId
+            const isOtherLeaf = !isFocusBranch && id === otherNodeId
+            const causeIsOther = rel === 'blocked' || rel === 'blockedRisk'
+            const isCauseLeaf = causeIsOther ? isOtherLeaf : isFocusLeaf
+            const isEffectLeaf = causeIsOther ? isFocusLeaf : isOtherLeaf
+            marker = isCauseLeaf ? '▶ ' : isEffectLeaf ? '● ' : ''
           }
           lines.push(pre + branchGlyph + marker + wbsMaps.toName(id))
         }
@@ -1578,11 +1664,15 @@ export default function ProjectDashboardPage() {
                               (!p.actualDate ||
                                 new Date(p.actualDate).getTime() > nowMs)
                           )
-                        const blockingSuccessors = m.blocks
-                          .map(id => byId.get(id))
-                          .filter(
-                            (s): s is WbsTask => !!s && startMsOf(s) < nowMs
-                          )
+                        const blockingSuccessors =
+                          m.progress >= 100
+                            ? []
+                            : m.blocks
+                                .map(id => byId.get(id))
+                                .filter(
+                                  (s): s is WbsTask =>
+                                    !!s && startMsOf(s) < nowMs
+                                )
                         const blockedRiskPreds = m.dependsOn
                           .map(id => byId.get(id))
                           .filter(
@@ -2394,33 +2484,45 @@ export default function ProjectDashboardPage() {
               {insightCards.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-                      ▶ İncelenen: {insightCards[insightIndex]?.focusName}
-                      {insightCards[insightIndex]?.focusOwner && (
-                        <span className="opacity-70">
-                          ({insightCards[insightIndex]?.focusOwner})
+                    {insightCards[insightIndex]?.rel === 'blocked' ||
+                    insightCards[insightIndex]?.rel === 'blockedRisk' ? (
+                      <>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 border border-gray-200">
+                          ▶ Etkileyen: {insightCards[insightIndex]?.otherName}
+                          {insightCards[insightIndex]?.otherOwner && (
+                            <span className="opacity-70">
+                              ({insightCards[insightIndex]?.otherOwner})
+                            </span>
+                          )}
                         </span>
-                      )}
-                    </span>
-                    {insightCards[insightIndex]?.rel === 'blocking' ||
-                    insightCards[insightIndex]?.rel === 'blockRisk' ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
-                        ● Etkilenen: {insightCards[insightIndex]?.otherName}
-                        {insightCards[insightIndex]?.otherOwner && (
-                          <span className="opacity-70">
-                            ({insightCards[insightIndex]?.otherOwner})
-                          </span>
-                        )}
-                      </span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                          ● İncelenen: {insightCards[insightIndex]?.focusName}
+                          {insightCards[insightIndex]?.focusOwner && (
+                            <span className="opacity-70">
+                              ({insightCards[insightIndex]?.focusOwner})
+                            </span>
+                          )}
+                        </span>
+                      </>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 border border-gray-200">
-                        ◆ Etkileyen: {insightCards[insightIndex]?.otherName}
-                        {insightCards[insightIndex]?.otherOwner && (
-                          <span className="opacity-70">
-                            ({insightCards[insightIndex]?.otherOwner})
-                          </span>
-                        )}
-                      </span>
+                      <>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                          ▶ İncelenen: {insightCards[insightIndex]?.focusName}
+                          {insightCards[insightIndex]?.focusOwner && (
+                            <span className="opacity-70">
+                              ({insightCards[insightIndex]?.focusOwner})
+                            </span>
+                          )}
+                        </span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
+                          ● Etkilenen: {insightCards[insightIndex]?.otherName}
+                          {insightCards[insightIndex]?.otherOwner && (
+                            <span className="opacity-70">
+                              ({insightCards[insightIndex]?.otherOwner})
+                            </span>
+                          )}
+                        </span>
+                      </>
                     )}
                   </div>
                   <div className="text-sm text-muted-foreground">

@@ -30,12 +30,12 @@ export function Tooltip({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false)
   return (
     <TooltipContext.Provider value={{ open, setOpen }}>
-      <div
-        className="relative block w-full"
+      <span
+        className="relative inline-block align-middle"
         // Container does not manage hover; Trigger handles it to support absolute children
       >
         {children}
-      </div>
+      </span>
     </TooltipContext.Provider>
   )
 }
@@ -57,9 +57,9 @@ export function TooltipTrigger({ asChild, children, ...rest }: TriggerProps) {
     )
   }
   return (
-    <div className="block w-full" {...triggerProps}>
+    <span className="inline-block align-middle" {...triggerProps}>
       {children}
-    </div>
+    </span>
   )
 }
 
