@@ -904,10 +904,10 @@ export default function ProjectDashboardPage() {
     return { nodeById, parent, pathTo, toName }
   }, [wbsRoot])
 
-  const asciiBranch = React.useCallback(
-    (aNodeId: string, bNodeId: string) => {
-      const a = wbsMaps.pathTo(aNodeId)
-      const b = wbsMaps.pathTo(bNodeId)
+  const asciiBranchMarked = React.useCallback(
+    (focusNodeId: string, otherNodeId: string, rel: InsightKind) => {
+      const a = wbsMaps.pathTo(focusNodeId)
+      const b = wbsMaps.pathTo(otherNodeId)
       const aIds = a.map(n => n.id)
       const bIds = b.map(n => n.id)
       let i = 0
@@ -926,13 +926,22 @@ export default function ProjectDashboardPage() {
       }
       // branch A
       for (let k = i; k < aIds.length; k++) {
-        lines.push(prefix(k, k === aIds.length - 1) + wbsMaps.toName(aIds[k]))
+        const isFocus = aIds[k] === focusNodeId
+        const name = wbsMaps.toName(aIds[k])
+        const marker = isFocus ? '▶ ' : ''
+        lines.push(prefix(k, k === aIds.length - 1) + marker + name)
       }
       // branch B
       for (let k = i; k < bIds.length; k++) {
         const pre = ' '.repeat(i * 2)
         const branch = k === i ? '├─ ' : '   '.repeat(k - i) + '└─ '
-        lines.push(pre + branch + wbsMaps.toName(bIds[k]))
+        const isOther = bIds[k] === otherNodeId
+        const mark = isOther
+          ? rel === 'blocking' || rel === 'blockRisk'
+            ? '● '
+            : '◆ '
+          : ''
+        lines.push(pre + branch + mark + wbsMaps.toName(bIds[k]))
       }
       return lines.join('\n')
     },
@@ -944,7 +953,14 @@ export default function ProjectDashboardPage() {
   const [insightOpen, setInsightOpen] = React.useState(false)
   const [insightKind, setInsightKind] = React.useState<InsightKind>('blocked')
   const [insightCards, setInsightCards] = React.useState<
-    Array<{ title: string; details?: string; ascii: string }>
+    Array<{
+      title: string
+      details?: string
+      ascii: string
+      focusName: string
+      otherName: string
+      rel: InsightKind
+    }>
   >([])
   const [insightIndex, setInsightIndex] = React.useState(0)
 
@@ -1705,14 +1721,26 @@ export default function ProjectDashboardPage() {
                                               setInsightKind('blocked')
                                               const cards =
                                                 unfinishedPredecessors.map(
-                                                  p => ({
-                                                    title: 'Neden Bloklu?',
-                                                    details: `${wbsMaps.toName(p.id.split('-p')[0])} işi tamamlanmadı`,
-                                                    ascii: asciiBranch(
-                                                      p.id.split('-p')[0],
+                                                  p => {
+                                                    const focus =
                                                       m.id.split('-p')[0]
-                                                    ),
-                                                  })
+                                                    const other =
+                                                      p.id.split('-p')[0]
+                                                    return {
+                                                      title: 'Neden Bloklu?',
+                                                      details: `${wbsMaps.toName(other)} işi tamamlanmadı`,
+                                                      ascii: asciiBranchMarked(
+                                                        focus,
+                                                        other,
+                                                        'blocked'
+                                                      ),
+                                                      focusName:
+                                                        wbsMaps.toName(focus),
+                                                      otherName:
+                                                        wbsMaps.toName(other),
+                                                      rel: 'blocked' as const,
+                                                    }
+                                                  }
                                                 )
                                               setInsightCards(cards)
                                               setInsightIndex(0)
@@ -1738,14 +1766,26 @@ export default function ProjectDashboardPage() {
                                             onClick={() => {
                                               setInsightKind('blocking')
                                               const cards =
-                                                blockingSuccessors.map(s => ({
-                                                  title: 'Neyi Blokluyor?',
-                                                  details: `${wbsMaps.toName(s.id.split('-p')[0])} başlatılamıyor`,
-                                                  ascii: asciiBranch(
-                                                    m.id.split('-p')[0],
+                                                blockingSuccessors.map(s => {
+                                                  const focus =
+                                                    m.id.split('-p')[0]
+                                                  const other =
                                                     s.id.split('-p')[0]
-                                                  ),
-                                                }))
+                                                  return {
+                                                    title: 'Neyi Blokluyor?',
+                                                    details: `${wbsMaps.toName(other)} başlatılamıyor`,
+                                                    ascii: asciiBranchMarked(
+                                                      focus,
+                                                      other,
+                                                      'blocking'
+                                                    ),
+                                                    focusName:
+                                                      wbsMaps.toName(focus),
+                                                    otherName:
+                                                      wbsMaps.toName(other),
+                                                    rel: 'blocking' as const,
+                                                  }
+                                                })
                                               setInsightCards(cards)
                                               setInsightIndex(0)
                                               setInsightOpen(true)
@@ -1770,14 +1810,27 @@ export default function ProjectDashboardPage() {
                                             onClick={() => {
                                               setInsightKind('blockedRisk')
                                               const cards =
-                                                blockedRiskPreds.map(p => ({
-                                                  title: 'Neden Bloklanabilir?',
-                                                  details: `${wbsMaps.toName(p.id.split('-p')[0])} forecast bitişi bu işin planlanan başlangıcını aşıyor`,
-                                                  ascii: asciiBranch(
-                                                    p.id.split('-p')[0],
+                                                blockedRiskPreds.map(p => {
+                                                  const focus =
                                                     m.id.split('-p')[0]
-                                                  ),
-                                                }))
+                                                  const other =
+                                                    p.id.split('-p')[0]
+                                                  return {
+                                                    title:
+                                                      'Neden Bloklanabilir?',
+                                                    details: `${wbsMaps.toName(other)} forecast bitişi bu işin planlanan başlangıcını aşıyor`,
+                                                    ascii: asciiBranchMarked(
+                                                      focus,
+                                                      other,
+                                                      'blockedRisk'
+                                                    ),
+                                                    focusName:
+                                                      wbsMaps.toName(focus),
+                                                    otherName:
+                                                      wbsMaps.toName(other),
+                                                    rel: 'blockedRisk' as const,
+                                                  }
+                                                })
                                               setInsightCards(cards)
                                               setInsightIndex(0)
                                               setInsightOpen(true)
@@ -1802,14 +1855,27 @@ export default function ProjectDashboardPage() {
                                             onClick={() => {
                                               setInsightKind('blockRisk')
                                               const cards = blockRiskSuccs.map(
-                                                s => ({
-                                                  title: 'Neyi Bloklayabilir?',
-                                                  details: `${wbsMaps.toName(s.id.split('-p')[0])} planlanan başlangıcını aşma riski`,
-                                                  ascii: asciiBranch(
-                                                    m.id.split('-p')[0],
+                                                s => {
+                                                  const focus =
+                                                    m.id.split('-p')[0]
+                                                  const other =
                                                     s.id.split('-p')[0]
-                                                  ),
-                                                })
+                                                  return {
+                                                    title:
+                                                      'Neyi Bloklayabilir?',
+                                                    details: `${wbsMaps.toName(other)} planlanan başlangıcını aşma riski`,
+                                                    ascii: asciiBranchMarked(
+                                                      focus,
+                                                      other,
+                                                      'blockRisk'
+                                                    ),
+                                                    focusName:
+                                                      wbsMaps.toName(focus),
+                                                    otherName:
+                                                      wbsMaps.toName(other),
+                                                    rel: 'blockRisk' as const,
+                                                  }
+                                                }
                                               )
                                               setInsightCards(cards)
                                               setInsightIndex(0)
@@ -2166,7 +2232,22 @@ export default function ProjectDashboardPage() {
             </DialogHeader>
             <div className="p-3">
               {insightCards.length > 0 && (
-                <div className="space-y-2">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                      ▶ İncelenen: {insightCards[insightIndex]?.focusName}
+                    </span>
+                    {insightCards[insightIndex]?.rel === 'blocking' ||
+                    insightCards[insightIndex]?.rel === 'blockRisk' ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
+                        ● Etkilenen: {insightCards[insightIndex]?.otherName}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 border border-gray-200">
+                        ◆ Etkileyen: {insightCards[insightIndex]?.otherName}
+                      </span>
+                    )}
+                  </div>
                   <div className="text-sm text-muted-foreground">
                     {insightCards[insightIndex]?.details}
                   </div>

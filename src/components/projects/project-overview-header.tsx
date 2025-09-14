@@ -194,19 +194,19 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
             </div>
             <div className="flex-1 flex flex-col">
               <div className="space-y-2 text-sm text-muted-foreground flex-1">
-                <div className="flex justify-between">
+                <div className="flex items-end justify-between">
                   <span>Harcanan:</span>
                   <span className="font-semibold">
                     ₺{(project.actualCost / 1_000_000).toFixed(1)}M
                   </span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex items-end justify-between">
                   <span>Elde Edilen:</span>
                   <span className="font-semibold">
                     ₺{(project.earnedValue / 1_000_000).toFixed(1)}M
                   </span>
                 </div>
-                <div className="flex justify-between font-medium">
+                <div className="flex items-end justify-between font-medium">
                   <span>Toplam Bütçe:</span>
                   <span className="font-bold text-base">
                     ₺{(project.budget / 1_000_000).toFixed(1)}M
@@ -259,20 +259,20 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
             </div>
             <div className="flex-1 flex flex-col">
               <div className="space-y-2 text-sm text-muted-foreground flex-1">
-                <div className="flex justify-between">
+                <div className="flex items-end justify-between">
                   <span>Elde Edilen:</span>
                   <span className="font-semibold text-sm">
                     ₺{(project.earnedValue / 1_000_000).toFixed(2)}M
                   </span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex items-end justify-between">
                   <span>Planlanan:</span>
                   <span className="font-semibold text-sm">
                     ₺{(project.plannedValue / 1_000_000).toFixed(2)}M
                   </span>
                 </div>
                 {project.endDate && (
-                  <div className="flex justify-between">
+                  <div className="flex items-end justify-between">
                     <span>Hedef Bitiş:</span>
                     <span className="font-medium">
                       {new Date(project.endDate).toLocaleDateString('tr-TR')}
@@ -284,7 +284,7 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
                 <span className="text-amber-600 dark:text-amber-400">
                   Böyle Giderse:
                 </span>
-                <span className="font-semibold text-amber-700 dark:text-amber-300">
+                <span className="font-bold text-base text-amber-700 dark:text-amber-300">
                   {projectedEnd.toLocaleDateString('tr-TR')}
                 </span>
               </div>
@@ -442,7 +442,8 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
                       type="monotone"
                       dataKey="value"
                       stroke="#16a34a"
-                      dot={false}
+                      dot={{ r: 2, stroke: '#16a34a', fill: '#16a34a' }}
+                      activeDot={{ r: 3 }}
                       strokeWidth={2}
                       isAnimationActive={false}
                     />
@@ -490,7 +491,8 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
                       type="monotone"
                       dataKey="value"
                       stroke="#2563eb"
-                      dot={false}
+                      dot={{ r: 2, stroke: '#2563eb', fill: '#2563eb' }}
+                      activeDot={{ r: 3 }}
                       strokeWidth={2}
                       isAnimationActive={false}
                     />
