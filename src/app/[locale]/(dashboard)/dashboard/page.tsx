@@ -364,6 +364,19 @@ export default function DashboardPage() {
     return acc
   }, [])
 
+  // Classify milestone health for badge (İYİ/RİSKLİ/KRİTİK)
+  const msIssuePct = Math.round(
+    ((milestoneAgg.upcoming + milestoneAgg.overdue) /
+      Math.max(1, milestoneAgg.total)) *
+      100
+  )
+  const msBadge =
+    msIssuePct >= 20
+      ? { text: 'KRİTİK', cls: 'bg-red-100 text-red-700' }
+      : msIssuePct >= 10
+        ? { text: 'RİSKLİ', cls: 'bg-orange-100 text-orange-700' }
+        : { text: 'İYİ', cls: 'bg-green-100 text-green-700' }
+
   if (totalProjects === 0) {
     // Empty state for new users
     return (
@@ -971,8 +984,10 @@ export default function DashboardPage() {
                   <Target className="size-5" />
                   Kilometre Taşları
                 </CardTitle>
-                <div className="flex items-center gap-1 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full text-xs font-bold min-w-[80px] justify-center">
-                  ✅ İZLEME
+                <div
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold min-w-[80px] justify-center ${msBadge.cls}`}
+                >
+                  {msBadge.text}
                 </div>
               </div>
             </CardHeader>
