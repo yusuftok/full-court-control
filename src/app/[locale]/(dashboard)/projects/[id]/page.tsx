@@ -11,6 +11,9 @@ import {
   CheckCircle,
   AlertTriangle,
   HardHat,
+  HelpCircle,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -39,6 +42,18 @@ import { mockSubcontractors } from '@/components/projects/data/mock-subcontracto
 import { PERFORMANCE_THRESHOLDS as T } from '@/lib/performance-thresholds'
 import { getDetailedProject, getSimpleProjects } from '@/lib/mock-data'
 import { useTranslations, useLocale } from 'next-intl'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 interface TeamMember {
   id: string
@@ -864,6 +879,75 @@ export default function ProjectDashboardPage() {
     return translated
   }
 
+  // Build WBS lookup helpers for showing path excerpts
+  const wbsMaps = React.useMemo(() => {
+    const nodeById = new Map<string, WbsNode>()
+    const parent = new Map<string, string | null>()
+    const dfs = (n: WbsNode, p: string | null) => {
+      nodeById.set(n.id, n)
+      parent.set(n.id, p)
+      n.children?.forEach(c => dfs(c, n.id))
+    }
+    dfs(wbsRoot, null)
+    const pathTo = (id: string) => {
+      const arr: WbsNode[] = []
+      let cur: string | null | undefined = id
+      while (cur) {
+        const node = nodeById.get(cur)
+        if (!node) break
+        arr.push(node)
+        cur = parent.get(cur) ?? null
+      }
+      return arr.reverse()
+    }
+    const toName = (id: string) => nodeById.get(id)?.name || id
+    return { nodeById, parent, pathTo, toName }
+  }, [wbsRoot])
+
+  const asciiBranch = React.useCallback(
+    (aNodeId: string, bNodeId: string) => {
+      const a = wbsMaps.pathTo(aNodeId)
+      const b = wbsMaps.pathTo(bNodeId)
+      const aIds = a.map(n => n.id)
+      const bIds = b.map(n => n.id)
+      let i = 0
+      while (i < aIds.length && i < bIds.length && aIds[i] === bIds[i]) i++
+      const lines: string[] = []
+      const prefix = (n: number, last: boolean) =>
+        ' '.repeat(n * 2) + (last ? '└─ ' : '├─ ')
+      // common path
+      if (i > 0) {
+        lines.push(wbsMaps.toName(aIds[0]))
+        for (let k = 1; k < i; k++) {
+          lines.push(prefix(k, true) + wbsMaps.toName(aIds[k]))
+        }
+      } else {
+        lines.push(wbsMaps.toName(aIds[0] || bIds[0] || wbsRoot.id))
+      }
+      // branch A
+      for (let k = i; k < aIds.length; k++) {
+        lines.push(prefix(k, k === aIds.length - 1) + wbsMaps.toName(aIds[k]))
+      }
+      // branch B
+      for (let k = i; k < bIds.length; k++) {
+        const pre = ' '.repeat(i * 2)
+        const branch = k === i ? '├─ ' : '   '.repeat(k - i) + '└─ '
+        lines.push(pre + branch + wbsMaps.toName(bIds[k]))
+      }
+      return lines.join('\n')
+    },
+    [wbsMaps]
+  )
+
+  // Insight modal state
+  type InsightKind = 'blocked' | 'blocking' | 'blockedRisk' | 'blockRisk'
+  const [insightOpen, setInsightOpen] = React.useState(false)
+  const [insightKind, setInsightKind] = React.useState<InsightKind>('blocked')
+  const [insightCards, setInsightCards] = React.useState<
+    Array<{ title: string; details?: string; ascii: string }>
+  >([])
+  const [insightIndex, setInsightIndex] = React.useState(0)
+
   type TabKey = 'overview' | 'subs' | 'wbs' | 'issues' | 'evm'
   const [activeTab, setActiveTab] = React.useState<TabKey>(
     (searchParams.get('tab') as TabKey) || 'overview'
@@ -1397,6 +1481,45 @@ export default function ProjectDashboardPage() {
                         return true
                       })
                       return filtered.map(m => {
+                        // Build per-row dependency insights
+                        const byId = new Map(all.map(x => [x.id, x]))
+                        const startMsOf = (t: WbsTask) =>
+                          new Date(t.startDate).getTime()
+                        const fcEndMsOf = (t: WbsTask) =>
+                          t.actualDate
+                            ? new Date(t.actualDate).getTime()
+                            : t.forecastDate
+                              ? new Date(t.forecastDate).getTime()
+                              : new Date(t.dueDate).getTime()
+                        const unfinishedPredecessors = m.dependsOn
+                          .map(id => byId.get(id))
+                          .filter(
+                            (p): p is WbsTask =>
+                              !!p &&
+                              (!p.actualDate ||
+                                new Date(p.actualDate).getTime() > nowMs)
+                          )
+                        const blockingSuccessors = m.blocks
+                          .map(id => byId.get(id))
+                          .filter(
+                            (s): s is WbsTask => !!s && startMsOf(s) < nowMs
+                          )
+                        const blockedRiskPreds = m.dependsOn
+                          .map(id => byId.get(id))
+                          .filter(
+                            (p): p is WbsTask =>
+                              !!p &&
+                              startMsOf(m) > nowMs &&
+                              fcEndMsOf(p) > startMsOf(m)
+                          )
+                        const blockRiskSuccs = m.blocks
+                          .map(id => byId.get(id))
+                          .filter(
+                            (s): s is WbsTask =>
+                              !!s &&
+                              startMsOf(s) > nowMs &&
+                              fcEndMsOf(m) > startMsOf(s)
+                          )
                         const due = new Date(m.dueDate)
                         let fc = m.forecastDate
                           ? new Date(m.forecastDate)
@@ -1570,6 +1693,138 @@ export default function ProjectDashboardPage() {
                                 >
                                   <Calendar className="size-4" />
                                 </div>
+                                {/* Insight actions active only for relevant filters */}
+                                {msState === 'blocked' &&
+                                  unfinishedPredecessors.length > 0 && (
+                                    <div className="mt-1 text-xs">
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <button
+                                            className="underline text-blue-600 hover:text-blue-700"
+                                            onClick={() => {
+                                              setInsightKind('blocked')
+                                              const cards =
+                                                unfinishedPredecessors.map(
+                                                  p => ({
+                                                    title: 'Neden Bloklu?',
+                                                    details: `${wbsMaps.toName(p.id.split('-p')[0])} işi tamamlanmadı`,
+                                                    ascii: asciiBranch(
+                                                      p.id.split('-p')[0],
+                                                      m.id.split('-p')[0]
+                                                    ),
+                                                  })
+                                                )
+                                              setInsightCards(cards)
+                                              setInsightIndex(0)
+                                              setInsightOpen(true)
+                                            }}
+                                          >
+                                            Neden Bloklu?
+                                          </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          Nedenleri gör
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </div>
+                                  )}
+                                {msState === 'blocking' &&
+                                  blockingSuccessors.length > 0 && (
+                                    <div className="mt-1 text-xs">
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <button
+                                            className="underline text-rose-600 hover:text-rose-700"
+                                            onClick={() => {
+                                              setInsightKind('blocking')
+                                              const cards =
+                                                blockingSuccessors.map(s => ({
+                                                  title: 'Neyi Blokluyor?',
+                                                  details: `${wbsMaps.toName(s.id.split('-p')[0])} başlatılamıyor`,
+                                                  ascii: asciiBranch(
+                                                    m.id.split('-p')[0],
+                                                    s.id.split('-p')[0]
+                                                  ),
+                                                }))
+                                              setInsightCards(cards)
+                                              setInsightIndex(0)
+                                              setInsightOpen(true)
+                                            }}
+                                          >
+                                            Neyi Blokluyor?
+                                          </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          Etkilediği işler
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </div>
+                                  )}
+                                {msState === 'blockedRisk' &&
+                                  blockedRiskPreds.length > 0 && (
+                                    <div className="mt-1 text-xs">
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <button
+                                            className="underline text-amber-700 hover:text-amber-800"
+                                            onClick={() => {
+                                              setInsightKind('blockedRisk')
+                                              const cards =
+                                                blockedRiskPreds.map(p => ({
+                                                  title: 'Neden Bloklanabilir?',
+                                                  details: `${wbsMaps.toName(p.id.split('-p')[0])} forecast bitişi bu işin planlanan başlangıcını aşıyor`,
+                                                  ascii: asciiBranch(
+                                                    p.id.split('-p')[0],
+                                                    m.id.split('-p')[0]
+                                                  ),
+                                                }))
+                                              setInsightCards(cards)
+                                              setInsightIndex(0)
+                                              setInsightOpen(true)
+                                            }}
+                                          >
+                                            Neden Bloklanabilir?
+                                          </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          Öngörülen nedenler
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </div>
+                                  )}
+                                {msState === 'blockRisk' &&
+                                  blockRiskSuccs.length > 0 && (
+                                    <div className="mt-1 text-xs">
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <button
+                                            className="underline text-rose-700 hover:text-rose-800"
+                                            onClick={() => {
+                                              setInsightKind('blockRisk')
+                                              const cards = blockRiskSuccs.map(
+                                                s => ({
+                                                  title: 'Neyi Bloklayabilir?',
+                                                  details: `${wbsMaps.toName(s.id.split('-p')[0])} planlanan başlangıcını aşma riski`,
+                                                  ascii: asciiBranch(
+                                                    m.id.split('-p')[0],
+                                                    s.id.split('-p')[0]
+                                                  ),
+                                                })
+                                              )
+                                              setInsightCards(cards)
+                                              setInsightIndex(0)
+                                              setInsightOpen(true)
+                                            }}
+                                          >
+                                            Neyi Bloklayabilir?
+                                          </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          Riskli ardıllar
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </div>
+                                  )}
                                 <div className="min-w-0">
                                   <div className="flex items-center gap-2 min-w-0">
                                     <h4 className="font-medium truncate">
@@ -1899,6 +2154,61 @@ export default function ProjectDashboardPage() {
           </div>
         )}
         {/* --- end tabs content --- */}
+
+        {/* Insight Modal for dependency explorations */}
+        <Dialog open={insightOpen} onOpenChange={setInsightOpen}>
+          <DialogContent className="sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <HelpCircle className="size-4" />
+                {insightCards[insightIndex]?.title}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="p-3">
+              {insightCards.length > 0 && (
+                <div className="space-y-2">
+                  <div className="text-sm text-muted-foreground">
+                    {insightCards[insightIndex]?.details}
+                  </div>
+                  <pre className="font-mono text-xs md:text-sm bg-muted/40 p-3 rounded border overflow-auto whitespace-pre">
+                    {insightCards[insightIndex]?.ascii}
+                  </pre>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <div className="flex items-center justify-between w-full">
+                <button
+                  className="px-2 py-1 text-xs rounded border"
+                  disabled={insightIndex <= 0}
+                  onClick={() => setInsightIndex(i => Math.max(0, i - 1))}
+                >
+                  <span className="inline-flex items-center gap-1">
+                    <ChevronLeft className="size-4" /> Önceki
+                  </span>
+                </button>
+                <div className="text-xs text-muted-foreground">
+                  {insightCards.length > 0
+                    ? `${insightIndex + 1} / ${insightCards.length}`
+                    : '0 / 0'}
+                </div>
+                <button
+                  className="px-2 py-1 text-xs rounded border"
+                  disabled={insightIndex >= insightCards.length - 1}
+                  onClick={() =>
+                    setInsightIndex(i =>
+                      Math.min(insightCards.length - 1, i + 1)
+                    )
+                  }
+                >
+                  <span className="inline-flex items-center gap-1">
+                    Sonraki <ChevronRight className="size-4" />
+                  </span>
+                </button>
+              </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Team Members */}
         <Card className="mb-8">
