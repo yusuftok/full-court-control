@@ -733,6 +733,29 @@ export const MOCK_PROJECTS: DetailedProject[] = [
   },
 ]
 
+// Sanitize mock milestones: unfinished items cannot have a forecast in the past
+;(function sanitizeMockMilestones() {
+  const now = Date.now()
+  const oneDay = 24 * 3600 * 1000
+  for (const p of MOCK_PROJECTS) {
+    if (!Array.isArray(p.upcomingMilestones)) continue
+    for (const m of p.upcomingMilestones) {
+      if (m.status === 'completed') continue
+      if (!m.forecastDate) continue
+      const fc = new Date(m.forecastDate).getTime()
+      if (!Number.isFinite(fc)) continue
+      if (fc < now) {
+        const due = new Date(m.dueDate).getTime()
+        const newFc = Math.max(now + oneDay, isFinite(due) ? due : 0)
+        m.forecastDate = new Date(newFc).toISOString()
+        // Update slipDays if present for consistency (+gecikme/-erken)
+        const slipBase = isFinite(due) ? due : fc
+        m.slipDays = Math.round((newFc - slipBase) / oneDay)
+      }
+    }
+  }
+})()
+
 // ---- Derived series helpers for simple projects ----
 // Seed helpers for deterministic mocks
 function hashStringToSeed(str: string): number {

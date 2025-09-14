@@ -579,6 +579,31 @@ export default function ProjectDashboardPage() {
     [wbsRoot, metricsById, issues]
   )
 
+  // Top-level WBS items (contract boundaries) per subcontractor for hover panel
+  const subcontractorResponsibilities = React.useMemo(() => {
+    type Item = { id: string; name: string }
+    const map = new Map<string, Item[]>()
+    const walk = (node: WbsNode, parentOwner: string | null) => {
+      const owner = analytics.ownership.get(node.id) ?? null
+      const isBoundary = owner && owner !== parentOwner
+      if (isBoundary && owner) {
+        const arr = map.get(owner) ?? []
+        arr.push({ id: node.id, name: node.name || node.id })
+        map.set(owner, arr)
+      }
+      node.children?.forEach(c => walk(c, owner))
+    }
+    walk(wbsRoot, null)
+    const list = Array.from(map.entries()).map(([id, items]) => ({
+      id,
+      name: subsNameMap.get(id) || id,
+      items,
+    }))
+    // Keep stable order: by name
+    list.sort((a, b) => a.name.localeCompare(b.name, 'tr'))
+    return list
+  }, [wbsRoot, analytics.ownership, subsNameMap])
+
   // Configurable WBS depth for tasks shown in the timeline (default: one below top)
   const taskDepth = React.useMemo(() => {
     const qp = searchParams.get('taskDepth')
@@ -812,6 +837,19 @@ export default function ProjectDashboardPage() {
           if (!t.dependsOn.includes(pid)) t.dependsOn.push(pid)
         }
       }
+      // Sanitize: a finished task shouldn't be blocked by unfinished predecessors
+      // Keep only predecessors that are already finished by 'now'
+      for (let i = 0; i < tasks.length; i++) {
+        const t = tasks[i]
+        if (t.progress >= 100) {
+          t.dependsOn = t.dependsOn.filter(pid => {
+            const pj = idIndex.get(pid)
+            if (pj == null) return false
+            const p = tasks[pj]
+            return !!p.actualDate && new Date(p.actualDate).getTime() <= nowMs
+          })
+        }
+      }
       // compute blocks (successors)
       for (let i = 0; i < tasks.length; i++) {
         for (const pid of tasks[i].dependsOn) {
@@ -912,37 +950,53 @@ export default function ProjectDashboardPage() {
       const bIds = b.map(n => n.id)
       let i = 0
       while (i < aIds.length && i < bIds.length && aIds[i] === bIds[i]) i++
+
       const lines: string[] = []
-      const prefix = (n: number, last: boolean) =>
-        ' '.repeat(n * 2) + (last ? '└─ ' : '├─ ')
+
       // common path
       if (i > 0) {
         lines.push(wbsMaps.toName(aIds[0]))
         for (let k = 1; k < i; k++) {
-          lines.push(prefix(k, true) + wbsMaps.toName(aIds[k]))
+          lines.push(' '.repeat(k * 2) + '└─ ' + wbsMaps.toName(aIds[k]))
         }
       } else {
         lines.push(wbsMaps.toName(aIds[0] || bIds[0] || wbsRoot.id))
       }
-      // branch A
-      for (let k = i; k < aIds.length; k++) {
-        const isFocus = aIds[k] === focusNodeId
-        const name = wbsMaps.toName(aIds[k])
-        const marker = isFocus ? '▶ ' : ''
-        lines.push(prefix(k, k === aIds.length - 1) + marker + name)
+
+      const renderBranch = (
+        ids: string[],
+        isFocusBranch: boolean,
+        first: boolean
+      ) => {
+        for (let k = i; k < ids.length; k++) {
+          const pre = ' '.repeat(i * 2)
+          const atSplit = k === i
+          const branchGlyph = atSplit
+            ? first
+              ? '├─ '
+              : '└─ '
+            : '   '.repeat(k - i) + '└─ '
+          const id = ids[k]
+          const isLeaf = k === ids.length - 1
+          let marker = ''
+          if (isLeaf) {
+            if (isFocusBranch && id === focusNodeId) marker = '▶ '
+            else if (!isFocusBranch && id === otherNodeId)
+              marker = rel === 'blocking' || rel === 'blockRisk' ? '● ' : '◆ '
+          }
+          lines.push(pre + branchGlyph + marker + wbsMaps.toName(id))
+        }
       }
-      // branch B
-      for (let k = i; k < bIds.length; k++) {
-        const pre = ' '.repeat(i * 2)
-        const branch = k === i ? '├─ ' : '   '.repeat(k - i) + '└─ '
-        const isOther = bIds[k] === otherNodeId
-        const mark = isOther
-          ? rel === 'blocking' || rel === 'blockRisk'
-            ? '● '
-            : '◆ '
-          : ''
-        lines.push(pre + branch + mark + wbsMaps.toName(bIds[k]))
+
+      const causeIsOther = rel === 'blocked' || rel === 'blockedRisk'
+      if (causeIsOther) {
+        renderBranch(bIds, false, true) // cause first
+        renderBranch(aIds, true, false) // effect second
+      } else {
+        renderBranch(aIds, true, true) // cause first
+        renderBranch(bIds, false, false) // effect second
       }
+
       return lines.join('\n')
     },
     [wbsMaps]
@@ -1069,7 +1123,10 @@ export default function ProjectDashboardPage() {
     <PageContainer>
       <PageContent>
         {/* Modern overview header with KPI card content moved here */}
-        <ProjectOverviewHeader project={simple} />
+        <ProjectOverviewHeader
+          project={simple}
+          subcontractorResponsibilities={subcontractorResponsibilities}
+        />
 
         {/* Tabs */}
         <div className="mb-4 border-b">
@@ -1148,6 +1205,8 @@ export default function ProjectDashboardPage() {
                           ? new Date(t.forecastDate).getTime()
                           : new Date(t.dueDate).getTime()
                     const isBlocked = (t: WbsTask) => {
+                      // Completed tasks cannot be considered blocked
+                      if (t.progress >= 100) return false
                       if (startMsOf(t) >= today.getTime()) return false
                       for (const pid of t.dependsOn) {
                         const p = byId.get(pid)
@@ -1425,6 +1484,7 @@ export default function ProjectDashboardPage() {
                                 ? new Date(t.forecastDate).getTime()
                                 : new Date(t.dueDate).getTime()
                           const isBlocked = (t: WbsTask) => {
+                            if (t.progress >= 100) return false
                             if (startMsOf(t) >= nowMs) return false
                             for (const pid of t.dependsOn) {
                               const p = byId.get(pid)
@@ -1595,6 +1655,16 @@ export default function ProjectDashboardPage() {
                           const plannedDur = Math.max(1, due.getTime() - start)
                           const estDur = plannedDur / (spi || 1)
                           fc = new Date(start + estDur)
+                        }
+                        // Eğer iş tamamlanmamışsa tahmini bitiş bugün(=nowMs) öncesinde olamaz
+                        if (
+                          !m.actualDate &&
+                          (m.progress ?? 0) < 100 &&
+                          fc &&
+                          fc.getTime() < nowMs
+                        ) {
+                          // En azından bugün+1 gün olarak ayarla (daha okunaklı görünüm için)
+                          fc = new Date(nowMs + 24 * 3600 * 1000)
                         }
                         const isCompleted =
                           (m.progress ?? 0) >= 100 ||

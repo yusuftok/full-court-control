@@ -20,6 +20,11 @@ import {
   PERFORMANCE_THRESHOLDS as T,
   levelFrom as levelFromCfg,
 } from '@/lib/performance-thresholds'
+import {
+  Tooltip as HoverTooltip,
+  TooltipContent as HoverTooltipContent,
+  TooltipTrigger as HoverTooltipTrigger,
+} from '@/components/ui/tooltip'
 
 type RangeMode = 'months' | 'weeks'
 
@@ -66,7 +71,19 @@ function buildSeries(current: number, mode: RangeMode) {
   return items
 }
 
-export function ProjectOverviewHeader({ project }: { project: Project }) {
+type SubcontractorTopItems = {
+  id: string
+  name: string
+  items: Array<{ id: string; name: string }>
+}
+
+export function ProjectOverviewHeader({
+  project,
+  subcontractorResponsibilities,
+}: {
+  project: Project
+  subcontractorResponsibilities?: SubcontractorTopItems[]
+}) {
   // CPI = EV / AC (guard against divide-by-zero)
   const cpi =
     project.actualCost > 0 ? project.earnedValue / project.actualCost : 1
@@ -132,7 +149,57 @@ export function ProjectOverviewHeader({ project }: { project: Project }) {
               <span>•</span>
               <span>👷 {project.manager}</span>
               <span>•</span>
-              <span>{subCount} Alt Yüklenici</span>
+              {subcontractorResponsibilities &&
+              subcontractorResponsibilities.length > 0 ? (
+                <HoverTooltip>
+                  <HoverTooltipTrigger asChild>
+                    <span className="cursor-default underline-offset-2 decoration-dotted whitespace-nowrap">
+                      {subCount} Alt Yüklenici
+                    </span>
+                  </HoverTooltipTrigger>
+                  <HoverTooltipContent
+                    className="w-96 p-2 text-xs"
+                    sideOffset={8}
+                  >
+                    <div className="text-[11px] font-semibold text-muted-foreground mb-1">
+                      Alt Yükleniciler & Üst Düzey Sorumluluklar
+                    </div>
+                    <div className="space-y-2 max-h-64 overflow-auto">
+                      {subcontractorResponsibilities.map(sub => (
+                        <div
+                          key={sub.id}
+                          className="border-b last:border-0 pb-2 last:pb-0"
+                        >
+                          <div className="font-medium text-foreground truncate">
+                            {sub.name}
+                          </div>
+                          {sub.items.length > 0 ? (
+                            <div className="mt-1 flex flex-wrap gap-1">
+                              {sub.items.map(item => (
+                                <span
+                                  key={item.id}
+                                  className="inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] bg-muted"
+                                  title={item.name}
+                                >
+                                  {item.name}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="mt-1 text-muted-foreground">
+                              Atanmış üst düzey kalem yok
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </HoverTooltipContent>
+                </HoverTooltip>
+              ) : (
+                <span className="whitespace-nowrap">
+                  {subCount} Alt Yüklenici
+                </span>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
