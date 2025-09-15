@@ -54,7 +54,7 @@ if (tasks.length > 0) {
 - Başlamış ama bitmemiş leaf için “start‑shift” yaklaşımı kullanılır: `EF_f = max(data_date, baseline_finish + (actual_start - baseline_start))`. Mock üretiminde `actual_start ≈ baseline_start` varsayılarak en azından `EF_f ≥ max(data_date, baseline_finish)` sağlanır.
 - Non‑leaf forecast değerleri çocuklardan türetilir: `forecast_finish = max(child.forecast_finish)`. Başlamamış non‑leaf için `forecast_start = min(child.forecast_start)`; bir çocuk başladıysa non‑leaf forecast_start gösterilmez.
 
-Bu kurallar docs/project-detail/WBS-backed-schedule.md ile birebir uyumludur.
+Bu kurallar docs/project-detail/wbs-schedule-and-budget.md ile birebir uyumludur.
 
 ## Kilometre Taşı Özeti (Milestone Summary) İnvariantı
 
@@ -130,3 +130,11 @@ Liste ve sayaçlar, aynı mantıkla hesaplanır:
 
 - Deterministik seeding eklendi; her kategori için en az 2 örnek garanti edilir. Bitmiş işlerin bloklu/bloklayan görünmesi engellendi.
 - Öz‑nedensellik (aynı baz id’nin sebep=sonuç olması) engellendi; seeding ve filtrelerde `base(focus) !== base(other)` kuralı zorunlu hale getirildi. ASCII ağaç ve rozetlerde sebep önce, ikonlar: sebep=▶, etki=●.
+
+## Bütçe Metrikleri (EV/AC/PV) — İnvariantlar
+
+- PV (Planlanan Değer) her düğüm için `data_date`’e göre normalize edilmiş plan ilerlemesi ile orantılıdır (`baseline_start→baseline_finish`).
+- EV (Kazanılan Değer) tamamlanan işte 1×B, başlamamış işte 0, başlamış işte yaklaşık `(data_date - actual_start)/BL_DUR × B` olarak üretilir (0..1 aralığına clamp’li). Burada B düğüm bütçesidir; non‑leaf’ta alt ağaç toplamı kullanılır.
+- AC (Gerçekleşen Maliyet) `EV/CPI` ile türetilir; CPI deterministik küçük bir jitter ile 0.85–1.15 aralığında seçilir (owner seviyesinde doğal sapmalar oluşur).
+- Agregasyon: EV/AC/PV non‑leaf düğümlerde alt ağaç toplamıdır.
+- CPI = EV/AC, SPI = EV/PV; completed non‑leaf’ta `actual_finish` yalnız tüm alt ağaç bitince dolar.

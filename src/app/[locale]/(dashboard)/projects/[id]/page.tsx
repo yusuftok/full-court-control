@@ -26,7 +26,6 @@ import { DataTable, Column } from '@/components/data/data-table'
 import { SubcontractorsTab } from '@/components/projects/subcontractors-tab'
 import { WbsHealthTree } from '@/components/projects/WbsHealthTree'
 import { IssueList } from '@/components/projects/IssueList'
-import { BudgetSchedulePanel } from '@/components/projects/BudgetSchedulePanel'
 import { ProjectOverviewHeader } from '@/components/projects/project-overview-header'
 import {
   buildAnalytics,
@@ -43,6 +42,7 @@ import {
   type ScheduleNode,
 } from '@/lib/wbs-schedule'
 import { mockSubcontractors } from '@/components/projects/data/mock-subcontractors'
+import { generateBudgetMetricsFromWbs } from '@/lib/mock-data'
 import { PERFORMANCE_THRESHOLDS as T } from '@/lib/performance-thresholds'
 import { getDetailedProject, getSimpleProjects } from '@/lib/mock-data'
 import { useTranslations, useLocale } from 'next-intl'
@@ -590,30 +590,14 @@ export default function ProjectDashboardPage() {
   )
 
   const metricsById = React.useMemo(() => {
-    return new Map<string, NodeMetrics>([
-      ['excavation', { ev: 120, ac: 140, pv: 130 }],
-      ['foundation', { ev: 180, ac: 220, pv: 200 }],
-      ['hvac', { ev: 90, ac: 100, pv: 110 }],
-      ['plumbing', { ev: 60, ac: 70, pv: 75 }],
-      ['strong-power', { ev: 80, ac: 85, pv: 90 }],
-      ['weak-power', { ev: 70, ac: 95, pv: 85 }],
-      ['columns', { ev: 150, ac: 155, pv: 170 }],
-      ['slabs', { ev: 110, ac: 130, pv: 140 }],
-      ['fire', { ev: 55, ac: 65, pv: 80 }],
-      ['sprinkler', { ev: 45, ac: 60, pv: 70 }],
-      ['lighting', { ev: 95, ac: 100, pv: 120 }],
-      ['automation', { ev: 70, ac: 90, pv: 95 }],
-      ['plaster', { ev: 40, ac: 55, pv: 60 }],
-      ['plaster-floor1', { ev: 20, ac: 25, pv: 30 }],
-      ['plaster-floor2', { ev: 18, ac: 22, pv: 28 }],
-      ['painting', { ev: 35, ac: 40, pv: 50 }],
-      ['paint-corridors', { ev: 12, ac: 14, pv: 18 }],
-      ['paint-rooms', { ev: 16, ac: 20, pv: 25 }],
-      ['flooring', { ev: 50, ac: 60, pv: 65 }],
-      ['ceramic', { ev: 22, ac: 30, pv: 35 }],
-      ['laminate', { ev: 26, ac: 28, pv: 30 }],
-    ])
-  }, [])
+    const ps = simple?.startDate
+      ? new Date(simple.startDate).getTime()
+      : Date.now()
+    const pe = simple?.endDate
+      ? new Date(simple.endDate).getTime()
+      : ps + 120 * 86400000
+    return generateBudgetMetricsFromWbs(wbsRoot, ps, pe, Date.now())
+  }, [wbsRoot, simple?.startDate, simple?.endDate])
 
   const issues: Issue[] = React.useMemo(
     () => [
@@ -1516,7 +1500,7 @@ export default function ProjectDashboardPage() {
   >([])
   const [insightIndex, setInsightIndex] = React.useState(0)
 
-  type TabKey = 'overview' | 'subs' | 'wbs' | 'issues' | 'evm'
+  type TabKey = 'overview' | 'subs' | 'wbs' | 'issues'
   const [activeTab, setActiveTab] = React.useState<TabKey>(
     (searchParams.get('tab') as TabKey) || 'overview'
   )
@@ -1633,7 +1617,6 @@ export default function ProjectDashboardPage() {
               { id: 'subs', label: 'Taşeronlar' },
               { id: 'wbs', label: 'İş Kırılımı' },
               { id: 'issues', label: 'Sorunlar' },
-              { id: 'evm', label: 'Bütçe & Takvim' },
             ].map(t => (
               <button
                 key={t.id}
@@ -3123,14 +3106,7 @@ export default function ProjectDashboardPage() {
           </div>
         )}
 
-        {activeTab === 'evm' && (
-          <div className="mb-8">
-            <BudgetSchedulePanel
-              rootNodeId={wbsRoot.id}
-              sums={analytics.sums}
-            />
-          </div>
-        )}
+        {/* Bütçe & Takvim sekmesi kaldırıldı */}
         {/* --- end tabs content --- */}
 
         {/* Insight Modal for dependency explorations */}

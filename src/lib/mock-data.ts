@@ -733,6 +733,135 @@ export const MOCK_PROJECTS: DetailedProject[] = [
   },
 ]
 
+// ------------------ Budget metrics generation from WBS ------------------
+import type { WbsNode, NodeMetrics } from '@/lib/project-analytics'
+
+function hashU32(str: string): number {
+  let h = 2166136261 >>> 0
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i)
+    h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24)
+  }
+  return h >>> 0
+}
+
+export type BudgetGenConfig = {
+  baseMinM?: number // minimum base budget for a leaf in millions
+  baseMaxM?: number // maximum base budget for a leaf in millions
+  cpiMin?: number
+  cpiMax?: number
+}
+
+/**
+ * Deterministically generate EV/AC/PV per WBS node based on project start/end and data date.
+ * Keeps numbers realistic so that CPI/SPI at owner level look consistent.
+ */
+export function generateBudgetMetricsFromWbs(
+  root: WbsNode,
+  projectStartMs: number,
+  projectEndMs: number,
+  dataDateMs: number,
+  cfg: BudgetGenConfig = {}
+): Map<string, NodeMetrics> {
+  const baseMinM = cfg.baseMinM ?? 15
+  const baseMaxM = cfg.baseMaxM ?? 120
+  const cpiMin = cfg.cpiMin ?? 0.85
+  const cpiMax = cfg.cpiMax ?? 1.15
+
+  const total = Math.max(1, projectEndMs - projectStartMs)
+  const metrics = new Map<string, NodeMetrics>()
+
+  const leaves: WbsNode[] = []
+  const walk = (n: WbsNode) => {
+    if (!n.children || n.children.length === 0) leaves.push(n)
+    else n.children.forEach(walk)
+  }
+  walk(root)
+
+  // First pass: leaves — derive baseline windows and base budgets deterministically
+  const leafTmp = new Map<
+    string,
+    {
+      s: number
+      f: number
+      B: number
+      status: 'completed' | 'in-progress' | 'not-started'
+    }
+  >()
+  let idx = 0
+  for (const l of leaves) {
+    const h = hashU32(l.id)
+    const offBase = (h % 60) / 100 // 0..0.59
+    const offJitter = ((h >> 5) % 9) / 100 // 0..0.08
+    const offRatio = Math.min(0.85, offBase + offJitter)
+    const durBase = 0.18 + ((h >> 3) % 25) / 100 // 0.18..0.43
+    const durShrink = Math.max(0.55, 1 - (idx % 3) * 0.15)
+    const durRatio = Math.min(0.65, durBase * durShrink)
+    const s = projectStartMs + Math.floor(total * offRatio)
+    const f = Math.min(projectEndMs, s + Math.floor(total * durRatio))
+    const baseM = baseMinM + (h % (baseMaxM - baseMinM + 1))
+    const B = baseM * 1_000_000
+    const pat = h % 6
+    const status =
+      pat <= 1 ? 'completed' : pat <= 3 ? 'in-progress' : 'not-started'
+    leafTmp.set(l.id, { s, f, B, status })
+    idx++
+  }
+
+  // Second pass: compute EV/PV/AC per leaf then roll up
+  const nodeEv = new Map<string, number>()
+  const nodeAc = new Map<string, number>()
+  const nodePv = new Map<string, number>()
+
+  const clamp01 = (x: number) => Math.max(0, Math.min(1, x))
+
+  for (const l of leaves) {
+    const t = leafTmp.get(l.id)!
+    const blDur = Math.max(1, t.f - t.s)
+    const plan = clamp01((dataDateMs - t.s) / blDur)
+    const pv = t.B * plan
+    let ev = 0
+    if (t.status === 'completed') ev = t.B
+    else if (t.status === 'in-progress')
+      ev = t.B * clamp01((dataDateMs - t.s) / blDur)
+    else ev = 0
+
+    const h = hashU32('cpi-' + l.id)
+    const cpi = cpiMin + ((h % 1000) / 1000) * (cpiMax - cpiMin)
+    // Avoid zero AC; when EV is 0, assume küçük bir maliyet gerçekleşmiş (~0.1*PV)
+    const ac = ev > 0 ? ev / cpi : (pv * 0.1) / Math.max(0.9, cpi)
+
+    nodeEv.set(l.id, ev)
+    nodeAc.set(l.id, ac)
+    nodePv.set(l.id, pv)
+  }
+
+  // Roll up recursively
+  const roll = (n: WbsNode): { ev: number; ac: number; pv: number } => {
+    if (!n.children || n.children.length === 0) {
+      const ev = nodeEv.get(n.id) || 0
+      const ac = nodeAc.get(n.id) || 0
+      const pv = nodePv.get(n.id) || 0
+      metrics.set(n.id, { ev, ac, pv })
+      return { ev, ac, pv }
+    }
+    let ev = 0,
+      ac = 0,
+      pv = 0
+    for (const c of n.children) {
+      const r = roll(c)
+      ev += r.ev
+      ac += r.ac
+      pv += r.pv
+    }
+    metrics.set(n.id, { ev, ac, pv })
+    return { ev, ac, pv }
+  }
+  roll(root)
+
+  return metrics
+}
+
 // Sanitize mock milestones: unfinished items cannot have a forecast in the past
 ;(function sanitizeMockMilestones() {
   const now = Date.now()

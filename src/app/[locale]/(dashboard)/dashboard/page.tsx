@@ -185,13 +185,11 @@ export default function DashboardPage() {
 
   const handleCreateProject = () => {
     setIsCreatingProject(true)
-    // Simulate project creation flow
+    // Simulate project creation flow (no native alerts)
     setTimeout(() => {
-      alert(
-        '🚀 Yeni Proje Oluşturma\n\n📋 Proje adı girin\n📅 Başlangıç tarihi seçin\n👷 Ekip yöneticisi atayın\n💰 Bütçe belirleyin\n\n✅ Bu modal yakında aktif olacak!'
-      )
       setIsCreatingProject(false)
-    }, 1000)
+      // TODO: open real create-project modal when implemented
+    }, 300)
   }
 
   // Filter projects based on selected filter
@@ -438,11 +436,7 @@ export default function DashboardPage() {
               statusTheme === 'KRİTİK' &&
                 'border-l-red-400 from-red-50/50 hover:shadow-red-200/50 ring-2 ring-red-500/80'
             )}
-            onClick={() =>
-              alert(
-                `🏗️ Genel Görünüm Detayı (Rubrik)\n\n📊 Risk Metrikları:\n• K (Kritik): %${k.toFixed(1)}\n• R (Riskli): %${r.toFixed(1)}\n• KTR (Toplam): %${ktr.toFixed(1)}\n\n💰 Bütçe Bilgileri:\n• Aktif Bütçe: ${(activeBudget / 1000000).toFixed(1)}M TL\n• Aktif Alan: ${mockActiveArea.toLocaleString()} m²\n• Aktif Proje: ${activeProjects} adet\n\n📋 Rubrik Durumu: ${statusTheme}\n${statusTheme === 'İYİ' ? '✅ Tüm risk oranları eşiklerin altında - Durumu iyi!' : statusTheme === 'RİSKLİ' ? '⚠️ Risk oranları eşik seviyelerinde - Yakın takip öneriliyor!' : '🚨 Risk oranları kritik eşikleri aştı - Acil müdahale gerekli!'}\n\n📌 Eşikler: Kritik≥15%, Riskli≥30%, Toplam≥20% → KRİTİK`
-              )
-            }
+            // No native alerts
           >
             {/* Shimmer Effect for RISKLI and KRITIK states */}
             {statusTheme !== 'İYİ' && (
@@ -629,11 +623,7 @@ export default function DashboardPage() {
           {/* Kritik Projeler Widget - Same structure as Genel Görünüm */}
           <Card
             className="cursor-pointer floating-card group scale-smooth container-responsive border-l-4 border-l-red-400 bg-gradient-to-br from-red-50/50 to-transparent hover:shadow-red-200/50 transition-all duration-300 relative overflow-hidden ring-2 ring-red-500/80 flex flex-col"
-            onClick={() =>
-              alert(
-                `🚨 Kritik Projeler Detayı\n\n• Kritik Proje Sayısı: ${criticalProjectsCount} adet\n• Bütçe Payı: %${budgetSharePercentage}\n• Bütçe Performansı: %${costPerformance}\n• Takvim Performansı: %${schedulePerformance}\n\n🚨 ${criticalProjectsList.map(p => p.name).join(', ')}\n\n🔥 Acil müdahale gerekli!`
-              )
-            }
+            // No native alerts
           >
             {/* Shimmer Effect for Critical State */}
             <div className="absolute inset-0 -translate-x-full animate-shimmer opacity-70">

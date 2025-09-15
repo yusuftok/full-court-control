@@ -9,6 +9,7 @@ interface CircularProgressProps {
   backgroundColor?: string
   showText?: boolean
   label?: string
+  labelInside?: boolean
   animate?: boolean
   className?: string
 }
@@ -21,6 +22,7 @@ export function CircularProgress({
   backgroundColor = 'rgb(226 232 240)',
   showText = true,
   label,
+  labelInside = false,
   animate = true,
   className,
 }: CircularProgressProps) {
@@ -65,13 +67,20 @@ export function CircularProgress({
         </svg>
         {showText && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-xs font-bold" style={{ color }}>
-              {percentage}%
-            </span>
+            <div className="flex flex-col items-center leading-tight">
+              <span className="text-xs font-bold" style={{ color }}>
+                {percentage}%
+              </span>
+              {label && labelInside && (
+                <span className="text-[9px] text-muted-foreground">
+                  {label}
+                </span>
+              )}
+            </div>
           </div>
         )}
       </div>
-      {label && (
+      {label && !labelInside && (
         <span className="text-xs text-muted-foreground font-medium">
           {label}
         </span>

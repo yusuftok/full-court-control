@@ -92,9 +92,10 @@ export function ProjectOverviewHeader({
   const spi =
     project.earnedValue > 0 ? project.earnedValue / project.plannedValue : 0
   const perfLevel = levelFromCfg(0.6 * cpi + 0.4 * spi, 'COMBINED')
-  const subCount =
-    project.subcontractorIds?.length ??
-    Object.values(project.subcontractors || {}).filter(Boolean).length
+  const subCount = subcontractorResponsibilities
+    ? subcontractorResponsibilities.length
+    : (project.subcontractorIds?.length ??
+      Object.values(project.subcontractors || {}).filter(Boolean).length)
 
   // EAC ≈ BAC / CPI. If CPI < 1, EAC >= BAC olması beklenir.
   const eac = cpi > 0 ? project.budget / cpi : project.budget
