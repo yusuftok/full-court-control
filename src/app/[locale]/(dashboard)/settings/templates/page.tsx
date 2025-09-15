@@ -117,7 +117,7 @@ export default function DivisionTemplatesPage() {
 
   const handleCreateTemplateSubmit = () => {
     if (!templateForm.name.trim() || !templateForm.description.trim()) {
-      alert('⚠️ Lütfen şablon adı ve açıklamasını girin')
+      // No native alerts
       return
     }
 
@@ -141,9 +141,7 @@ export default function DivisionTemplatesPage() {
       renovation: '🔨 Bravo! Renovasyon şablonunuz hazır durumda!',
     }
 
-    alert(
-      `✨ ${categoryMessages[templateForm.category as keyof typeof categoryMessages]}\n\n📋 Şablon Adı: ${templateForm.name}\n🎯 Kategori: ${templateForm.category}\n\n🚀 Şimdi bölümlerinizi düzenleyebilirsiniz!`
-    )
+    // No native alerts
 
     // Add to templates list and set for editing
     setTemplates(prev => [...prev, newTemplate])
@@ -174,9 +172,7 @@ export default function DivisionTemplatesPage() {
           : `💪 Başlangıç için harika! ${totalNodes} bölümle temel atıldı!`
 
     // In real app, this would save to backend
-    alert(
-      `✅ ${editingTemplate.name} şablonu güncellendi!\n\n${completenessMessage}\n\n🎯 • Değişiklikler kaydedildi\n🚀 • Şablon kullanıma hazır\n📈 • Projelerinizde hemen kullanabilirsiniz`
-    )
+    // No native alerts
 
     // Update the selected template with changes
     setSelectedTemplate(editingTemplate)
@@ -548,9 +544,7 @@ export default function DivisionTemplatesPage() {
           ? '⚡ Tam zamanında! Planlamayı güçlendirecek!'
           : '🎯 İyi düşünülmüş! Son aşama organizasyonu!'
 
-    alert(
-      `🎉 Şablon Başarıyla Uygulandı!\n\n🏗️ Proje: ${project.name}\n📋 Şablon: ${selectedTemplate.name}\n\n${impactMessage}\n\n📊 İstatistikler:\n• ${selectedTemplate.divisions.length} ana bölüm eklendi\n• Toplam ${totalNodes} iş kalemi organize edildi\n• Proje %${project.progress} tamamlanmış durumda\n\n🎯 İş planlamanız artık çok daha organize!`
-    )
+    // No native alerts
 
     setIsApplyToProjectOpen(false)
     setSelectedTemplate(null)

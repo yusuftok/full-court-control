@@ -755,9 +755,7 @@ export default function DashboardPage() {
               )
               const riskyProjectsList = riskyProjects.map(p => p.name)
 
-              alert(
-                `🟡 Riskli Projeler Detayı\n\n• Riskli Proje Sayısı: ${riskyProjectsCount} adet\n• Bütçe Payı: %${budgetSharePercentage}\n• Bütçe Performansı: %${costPerformance}\n• Takvim Performansı: %${schedulePerformance}\n\n🟡 ${riskyProjectsList.join(', ')}\n\n⚠️ Yakın takip öneriliyor!`
-              )
+              // No native alerts
             }}
           >
             {/* Shimmer Effect for Risk State */}
@@ -960,11 +958,7 @@ export default function DashboardPage() {
           {/* Kilometre Taşları Widget */}
           <Card
             className="cursor-pointer floating-card group scale-smooth container-responsive border-l-4 border-l-blue-400 bg-gradient-to-br from-blue-50/50 to-transparent hover:shadow-blue-200/50 transition-all duration-300 flex flex-col"
-            onClick={() =>
-              alert(
-                `🎯 Kilometre Taşları\n\nTamamlanan: ${milestoneAgg.completed}\nYaklaşan (≤14g): ${milestoneAgg.upcoming}\nGeciken: ${milestoneAgg.overdue}\nKalan: ${milestoneAgg.remaining}\n\n📊 Toplam: ${milestoneAgg.completed + milestoneAgg.upcoming + milestoneAgg.overdue + milestoneAgg.remaining}`
-              )
-            }
+            onClick={() => {}}
           >
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
@@ -1014,9 +1008,7 @@ export default function DashboardPage() {
                     className="py-5 px-4 rounded-lg border border-red-200 bg-gradient-to-br from-red-50 to-red-100 cursor-pointer hover:scale-105 transition-transform"
                     onClick={e => {
                       e.stopPropagation()
-                      alert(
-                        `🔴 Geciken Kilometre Taşları: ${milestoneAgg.overdue}`
-                      )
+                      // No native alerts
                     }}
                   >
                     <div className="text-2xl font-bold text-red-700">
@@ -1028,9 +1020,7 @@ export default function DashboardPage() {
                     className="py-5 px-4 rounded-lg border border-yellow-200 bg-gradient-to-br from-yellow-50 to-yellow-100 cursor-pointer hover:scale-105 transition-transform"
                     onClick={e => {
                       e.stopPropagation()
-                      alert(
-                        `🟡 Yaklaşan Kilometre Taşları: ${milestoneAgg.upcoming}`
-                      )
+                      // No native alerts
                     }}
                   >
                     <div className="text-2xl font-bold text-yellow-700">
@@ -1042,9 +1032,7 @@ export default function DashboardPage() {
                     className="py-5 px-4 rounded-lg border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 cursor-pointer hover:scale-105 transition-transform"
                     onClick={e => {
                       e.stopPropagation()
-                      alert(
-                        `📋 Kalan Kilometre Taşları: ${milestoneAgg.remaining}`
-                      )
+                      // No native alerts
                     }}
                   >
                     <div className="text-2xl font-bold text-gray-700">
@@ -1346,11 +1334,7 @@ export default function DashboardPage() {
               {/* Approval Requests Button */}
               <Button
                 className="w-full justify-start group modern-hover glass-button h-14 relative overflow-hidden border-0 bg-gradient-to-r from-orange-50/50 to-transparent hover:from-orange-100/70"
-                onClick={() =>
-                  alert(
-                    '⚠️ Onay İstekleri\n\n• 3 acil onay bekliyor\n• Malzeme satın alma\n• Taşeron sözleşmeleri\n• Proje değişiklikleri\n\n🚨 Hemen kontrol edin!'
-                  )
-                }
+                onClick={() => {}}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative flex items-center w-full">
@@ -1379,11 +1363,7 @@ export default function DashboardPage() {
               {/* Work Item Definition Button */}
               <Button
                 className="w-full justify-start group modern-hover glass-button h-14 relative overflow-hidden border-0 bg-gradient-to-r from-purple-50/50 to-transparent hover:from-purple-100/70"
-                onClick={() =>
-                  alert(
-                    '📝 Yeni İş Maddesi Tanımla\n\n• İş kapsamı belirleme\n• Kaynak gereksinimleri\n• Tahmini süre ve maliyet\n• Taşeron atama\n\n✅ İş madde editörü yakında aktif!'
-                  )
-                }
+                onClick={() => {}}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative flex items-center w-full">
@@ -1407,11 +1387,7 @@ export default function DashboardPage() {
               {/* Plan Creation Button */}
               <Button
                 className="w-full justify-start group modern-hover glass-button h-14 relative overflow-hidden border-0 bg-gradient-to-r from-blue-50/50 to-transparent hover:from-blue-100/70"
-                onClick={() =>
-                  alert(
-                    '🏗️ Yeni Proje Tanımla\n\n• Proje kapsamı\n• Temel bilgiler\n• Lokasyon ve detaylar\n\n✅ Proje oluşturma editörü yakında aktif!'
-                  )
-                }
+                onClick={() => {}}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative flex items-center w-full">
@@ -1435,11 +1411,7 @@ export default function DashboardPage() {
               {/* Team Member Addition Button */}
               <Button
                 className="w-full justify-start group modern-hover glass-button h-14 relative overflow-hidden border-0 bg-gradient-to-r from-green-50/50 to-transparent hover:from-green-100/70"
-                onClick={() =>
-                  alert(
-                    '👷 Ekip Üyesi Alma\n\n• Pozisyon seçimi\n• Yetkinlik kontrolü\n• İK onay süreci\n\n✅ İnsan kaynakları modülü geliştiriliyor!'
-                  )
-                }
+                onClick={() => {}}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="relative flex items-center w-full">

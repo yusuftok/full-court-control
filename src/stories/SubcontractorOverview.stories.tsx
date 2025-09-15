@@ -14,6 +14,7 @@ const mkAgg = (combined: number, cpi: number, spi: number): OwnerAggregate => ({
   ev: 100,
   ac: 120,
   pv: 110,
+  bac: 150,
   combined,
   cpi,
   spi,

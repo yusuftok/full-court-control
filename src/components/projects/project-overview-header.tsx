@@ -81,10 +81,12 @@ export function ProjectOverviewHeader({
   project,
   subcontractorResponsibilities,
   projectedFinishBySchedule,
+  wbsBac,
 }: {
   project: Project
   subcontractorResponsibilities?: SubcontractorTopItems[]
   projectedFinishBySchedule?: Date
+  wbsBac?: number
 }) {
   // CPI = EV / AC (guard against divide-by-zero)
   const cpi =
@@ -97,14 +99,21 @@ export function ProjectOverviewHeader({
     : (project.subcontractorIds?.length ??
       Object.values(project.subcontractors || {}).filter(Boolean).length)
 
-  // EAC ≈ BAC / CPI. If CPI < 1, EAC >= BAC olması beklenir.
-  const eac = cpi > 0 ? project.budget / cpi : project.budget
+  // EAC ≈ BAC / CPI. BAC kaynağı: varsa WBS toplam BAC, yoksa project.budget
+  const bac = typeof wbsBac === 'number' ? wbsBac : project.budget
+  const eac = cpi > 0 ? bac / cpi : bac
   const projectedEnd = (() => {
-    const s =
+    // SPI-temelli tarih: planlı süreyi (end-start) SPI ile ölçekle
+    const spiLocal =
       project.earnedValue > 0 ? project.earnedValue / project.plannedValue : 1
-    const totalDays = project.totalPlannedDays || 0
-    const projDays = s > 0 ? Math.round(totalDays / s) : totalDays
-    const d = new Date(project.startDate)
+    const start = new Date(project.startDate)
+    const end = project.endDate ? new Date(project.endDate) : undefined
+    const plannedDays = end
+      ? Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000))
+      : project.totalPlannedDays || 0
+    const projDays =
+      spiLocal > 0 ? Math.round(plannedDays / spiLocal) : plannedDays
+    const d = new Date(start)
     d.setDate(d.getDate() + projDays)
     return d
   })()
@@ -279,7 +288,7 @@ export function ProjectOverviewHeader({
                 <div className="flex items-end justify-between font-medium min-h-[24px]">
                   <span>Toplam Bütçe:</span>
                   <span className="font-bold text-base">
-                    ₺{(project.budget / 1_000_000).toFixed(1)}M
+                    ₺{(bac / 1_000_000).toFixed(1)}M
                   </span>
                 </div>
               </div>

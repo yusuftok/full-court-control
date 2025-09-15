@@ -857,11 +857,7 @@ export default function ProjectDivisionsPage() {
                     size="sm"
                     variant="outline"
                     className="modern-button group border-2 border-primary/20 hover:border-primary/40 hover:scale-105"
-                    onClick={() =>
-                      alert(
-                        '📊 Yapı Dışa Aktarma\n\n📋 CSV formatı\n📊 Excel raporu\n🖼️ Görsel hiyerarşi\n\n✅ Dışa aktarma özelliği yakında!'
-                      )
-                    }
+                    // No native alerts
                   >
                     <FileText className="size-3 mr-1 group-hover:scale-110 transition-transform" />
                     Yapıyı Dışa Aktar

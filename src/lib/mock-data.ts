@@ -812,6 +812,7 @@ export function generateBudgetMetricsFromWbs(
   const nodeEv = new Map<string, number>()
   const nodeAc = new Map<string, number>()
   const nodePv = new Map<string, number>()
+  const nodeBac = new Map<string, number>()
 
   const clamp01 = (x: number) => Math.max(0, Math.min(1, x))
 
@@ -820,6 +821,7 @@ export function generateBudgetMetricsFromWbs(
     const blDur = Math.max(1, t.f - t.s)
     const plan = clamp01((dataDateMs - t.s) / blDur)
     const pv = t.B * plan
+    const bac = t.B
     let ev = 0
     if (t.status === 'completed') ev = t.B
     else if (t.status === 'in-progress')
@@ -834,28 +836,34 @@ export function generateBudgetMetricsFromWbs(
     nodeEv.set(l.id, ev)
     nodeAc.set(l.id, ac)
     nodePv.set(l.id, pv)
+    nodeBac.set(l.id, bac)
   }
 
   // Roll up recursively
-  const roll = (n: WbsNode): { ev: number; ac: number; pv: number } => {
+  const roll = (
+    n: WbsNode
+  ): { ev: number; ac: number; pv: number; bac: number } => {
     if (!n.children || n.children.length === 0) {
       const ev = nodeEv.get(n.id) || 0
       const ac = nodeAc.get(n.id) || 0
       const pv = nodePv.get(n.id) || 0
-      metrics.set(n.id, { ev, ac, pv })
-      return { ev, ac, pv }
+      const bac = nodeBac.get(n.id) || 0
+      metrics.set(n.id, { ev, ac, pv, bac })
+      return { ev, ac, pv, bac }
     }
     let ev = 0,
       ac = 0,
-      pv = 0
+      pv = 0,
+      bac = 0
     for (const c of n.children) {
       const r = roll(c)
       ev += r.ev
       ac += r.ac
       pv += r.pv
+      bac += r.bac
     }
-    metrics.set(n.id, { ev, ac, pv })
-    return { ev, ac, pv }
+    metrics.set(n.id, { ev, ac, pv, bac })
+    return { ev, ac, pv, bac }
   }
   roll(root)
 

@@ -10,13 +10,15 @@ export interface WbsNode {
 export interface NodeMetrics {
   ev?: number // Earned Value
   ac?: number // Actual Cost
-  pv?: number // Planned Value
+  pv?: number // Planned Value (to date)
+  bac?: number // Budget at Completion (planlanan toplam bütçe)
 }
 
 export interface NodeSums {
   ev: number
   ac: number
   pv: number
+  bac: number
 }
 
 export type OwnershipMap = Map<string, SubcontractorId | null>
@@ -61,15 +63,17 @@ export function rollupNodeSums(
     let ev = m.ev ?? 0
     let ac = m.ac ?? 0
     let pv = m.pv ?? 0
+    let bac = m.bac ?? 0
     if (node.children) {
       for (const c of node.children) {
         const cs = dfs(c)
         ev += cs.ev
         ac += cs.ac
         pv += cs.pv
+        bac += cs.bac
       }
     }
-    const out: NodeSums = { ev, ac, pv }
+    const out: NodeSums = { ev, ac, pv, bac }
     sums.set(node.id, out)
     return out
   }
@@ -122,11 +126,12 @@ export function aggregateByOwner(
     if (!owner) continue
     const s = sums.get(nodeId)
     if (!s) continue
-    const prev = tmp.get(owner) || { ev: 0, ac: 0, pv: 0 }
+    const prev = tmp.get(owner) || { ev: 0, ac: 0, pv: 0, bac: 0 }
     tmp.set(owner, {
       ev: prev.ev + s.ev,
       ac: prev.ac + s.ac,
       pv: prev.pv + s.pv,
+      bac: prev.bac + s.bac,
     })
   }
   const out = new Map<SubcontractorId, OwnerAggregate>()
@@ -152,11 +157,12 @@ export function aggregateByOwnerContractLevel(
     if (owner && owner !== parentOwner) {
       const s = sums.get(node.id)
       if (s) {
-        const prev = tmp.get(owner) || { ev: 0, ac: 0, pv: 0 }
+        const prev = tmp.get(owner) || { ev: 0, ac: 0, pv: 0, bac: 0 }
         tmp.set(owner, {
           ev: prev.ev + s.ev,
           ac: prev.ac + s.ac,
           pv: prev.pv + s.pv,
+          bac: prev.bac + s.bac,
         })
       }
     }
