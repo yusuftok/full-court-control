@@ -144,9 +144,7 @@ describe('DataTable Component', () => {
         },
       ]
 
-      render(
-        <DataTable data={sampleData} columns={columnsWithClassName} />
-      )
+      render(<DataTable data={sampleData} columns={columnsWithClassName} />)
 
       const nameHeader = screen.getByText('Name').closest('th')
       const emailHeader = screen.getByText('Email').closest('th')
@@ -354,11 +352,7 @@ describe('DataTable Component', () => {
 
     it('sortable headers have proper styling', () => {
       render(
-        <DataTable
-          data={sampleData}
-          columns={sampleColumns}
-          onSort={vi.fn()}
-        />
+        <DataTable data={sampleData} columns={sampleColumns} onSort={vi.fn()} />
       )
 
       const nameHeader = screen.getByText('Name').closest('th')

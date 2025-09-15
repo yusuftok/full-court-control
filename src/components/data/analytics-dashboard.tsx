@@ -284,11 +284,18 @@ export function AnalyticsDashboard({
     staleTime: 5000, // Consider data fresh for 5 seconds
   })
 
-  const handleExportCSV = (dataType: string, chartData: any[]) => {
+  const handleExportCSV = (
+    dataType: string,
+    chartData: Array<Record<string, unknown>>
+  ) => {
     if (!chartData.length) return
 
     const headers = Object.keys(chartData[0]).join(',')
-    const rows = chartData.map(row => Object.values(row).join(','))
+    const rows = chartData.map(row =>
+      Object.values(row)
+        .map(v => String(v))
+        .join(',')
+    )
     const csv = [headers, ...rows].join('\n')
 
     const blob = new Blob([csv], { type: 'text/csv' })

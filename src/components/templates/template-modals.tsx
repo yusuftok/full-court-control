@@ -23,10 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  DivisionTemplate,
-  TemplateFormData,
-} from './template-types'
+import { DivisionTemplate, TemplateFormData } from './template-types'
 import { mockProjects } from './template-data'
 
 interface CreateTemplateModalProps {
@@ -97,7 +94,11 @@ export function CreateTemplateModal({
               onChange={e =>
                 onTemplateFormChange({
                   ...templateForm,
-                  category: e.target.value as 'residential' | 'commercial' | 'infrastructure' | 'renovation',
+                  category: e.target.value as
+                    | 'residential'
+                    | 'commercial'
+                    | 'infrastructure'
+                    | 'renovation',
                 })
               }
             >

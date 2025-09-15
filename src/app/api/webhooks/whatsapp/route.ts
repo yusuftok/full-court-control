@@ -47,6 +47,26 @@ interface WhatsAppWebhookPayload {
   }>
 }
 
+type Attachment =
+  | {
+      type: 'image'
+      id: string
+      mimeType: string
+    }
+  | {
+      type: 'document'
+      id: string
+      filename: string
+      mimeType: string
+    }
+
+interface MessageStatus {
+  id: string
+  status: 'sent' | 'delivered' | 'read' | 'failed'
+  timestamp: string
+  recipient_id: string
+}
+
 // Verify webhook token (WhatsApp requires this for security)
 const WEBHOOK_VERIFY_TOKEN =
   process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || 'your-verify-token'
@@ -122,7 +142,7 @@ async function processIncomingMessage(
   try {
     // Parse message content based on type
     let messageContent: string = ''
-    const attachments: any[] = []
+    const attachments: Attachment[] = []
 
     switch (message.type) {
       case 'text':
@@ -165,7 +185,7 @@ async function processIncomingMessage(
 async function processMessageCommands(
   from: string,
   content: string,
-  attachments: any[]
+  attachments: Attachment[]
 ) {
   const lowerContent = content.toLowerCase().trim()
 
@@ -197,7 +217,7 @@ async function processMessageCommands(
 async function createTaskFromMessage(
   from: string,
   taskName: string,
-  attachments: any[]
+  attachments: Attachment[]
 ) {
   // This would integrate with your task management system
   const task = {
@@ -236,7 +256,7 @@ async function processPriorityUpdate(from: string, priorityContent: string) {
 async function createNoteFromMessage(
   from: string,
   content: string,
-  attachments: any[]
+  attachments: Attachment[]
 ) {
   const note = {
     id: `whatsapp-note-${Date.now()}`,
@@ -250,7 +270,7 @@ async function createNoteFromMessage(
   // Save to your notes/communications system
 }
 
-async function processMessageStatus(status: any) {
+async function processMessageStatus(status: MessageStatus) {
   console.log('Message status update:', status)
   // Update delivery status in your system
 }

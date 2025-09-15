@@ -97,7 +97,7 @@ export function LoadingState({
   // Rotate messages every 2 seconds when loading
   React.useEffect(() => {
     if (!isLoading) return
-    
+
     const interval = setInterval(() => {
       setCurrentMessageIndex(prev => (prev + 1) % messages.length)
       setShowTools(prev => !prev)
@@ -116,9 +116,7 @@ export function LoadingState({
         )}
       >
         <div className="relative">
-          <div className="text-4xl">
-            {currentMessage.emoji}
-          </div>
+          <div className="text-4xl">{currentMessage.emoji}</div>
           {showTools && (
             <div className="absolute -top-2 -right-2 text-lg animate-float-tools">
               🔨
@@ -161,9 +159,7 @@ export function ConstructionCrew({
 
   return (
     <div className="flex items-center gap-3 animate-spring-in">
-      <div className="text-2xl">
-        {workers[currentWorker]}
-      </div>
+      <div className="text-2xl">{workers[currentWorker]}</div>
       <div className="flex flex-col gap-1">
         <span className="text-sm font-medium">{message}</span>
         <div className="flex gap-1">

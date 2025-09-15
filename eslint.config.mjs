@@ -32,6 +32,12 @@ const eslintConfig = [{
     ecmaVersion: 2024,
     sourceType: 'module',
   },
+}, {
+  files: ['**/*.{test,spec}.{ts,tsx,js,jsx}'],
+  rules: {
+    // Allow explicit any in tests to keep mocks simple
+    '@typescript-eslint/no-explicit-any': 'off',
+  },
 }, ...storybook.configs["flat/recommended"]]
 
 export default eslintConfig

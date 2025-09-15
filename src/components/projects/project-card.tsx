@@ -1,4 +1,7 @@
+'use client'
+
 import * as React from 'react'
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -141,7 +144,8 @@ function HealthIndicator({ project }: { project: Project }) {
 // Main project card component
 interface ProjectCardProps {
   project: Project
-  onClick: (project: Project) => void
+  onClick?: (project: Project) => void
+  href?: string
   index?: number
   className?: string
 }
@@ -149,6 +153,7 @@ interface ProjectCardProps {
 export function ProjectCard({
   project,
   onClick,
+  href,
   index = 0,
   className,
 }: ProjectCardProps) {
@@ -207,7 +212,7 @@ export function ProjectCard({
     return 'bg-gradient-to-br from-red-50 to-rose-50 border-red-200/60 text-red-800'
   }
 
-  return (
+  const card = (
     <Card
       className={cn(
         'cursor-pointer floating-card !px-0 group container-responsive h-[520px] flex flex-col',
@@ -219,7 +224,7 @@ export function ProjectCard({
         className
       )}
       style={{ animationDelay: `${index * 50}ms` }}
-      onClick={() => onClick(project)}
+      onClick={onClick ? () => onClick(project) : undefined}
     >
       <CardHeader className="pb-2 px-2">
         <div className="flex items-start justify-between">
@@ -311,15 +316,7 @@ export function ProjectCard({
                   'CPI'
                 )
               )}
-              onClick={() => {
-                const cpi =
-                  project.earnedValue > 0
-                    ? project.earnedValue / project.actualCost
-                    : 0
-                alert(
-                  `💰 Bütçe Durumu Detayı\n\n📊 CPI: ${cpi.toFixed(2)}\n💸 Harcanan (Bugüne): ₺${(project.actualCost / 1000000).toFixed(1)}M\n📅 Planlanan (Bugüne): ₺${(project.plannedBudgetToDate / 1000000).toFixed(1)}M\n🎯 Toplam Bütçe: ₺${(project.budget / 1000000).toFixed(1)}M\n📈 Kazanılan Değer: ₺${(project.earnedValue / 1000000).toFixed(1)}M`
-                )
-              }}
+              // Alerts removed as requested
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-caption">Bütçe Performansı</span>
@@ -401,15 +398,7 @@ export function ProjectCard({
                   'SPI'
                 )
               )}
-              onClick={() => {
-                const spi =
-                  project.earnedValue > 0
-                    ? project.earnedValue / project.plannedValue
-                    : 0
-                alert(
-                  `⏰ Takvim Performansı\n\nSPI: ${spi.toFixed(2)}\nKalan: ${project.daysRemaining ? `${project.daysRemaining} gün` : 'Tamamlandı'}\nKazanılan Değer: ₺${(project.earnedValue / 1000000).toFixed(1)}M\nPlanlanan Değer: ₺${(project.plannedValue / 1000000).toFixed(1)}M\nBaşlangıç: ${new Date(project.startDate).toLocaleDateString('tr-TR')}`
-                )
-              }}
+              // Alerts removed as requested
             >
               <div className="flex items-center justify-between">
                 <span className="text-caption">Takvim Performansı</span>
@@ -527,4 +516,11 @@ export function ProjectCard({
       </CardContent>
     </Card>
   )
+  if (href)
+    return (
+      <Link href={href} className="block">
+        {card}
+      </Link>
+    )
+  return card
 }

@@ -1,94 +1,132 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Flag System Test</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
-        .test-card { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #0066cc; }
-        .test-step { margin: 10px 0; padding: 10px; background: #f9f9f9; border-radius: 4px; }
-        .pass { border-left-color: #00aa00; }
-        .fail { border-left-color: #cc0000; }
-        button { padding: 10px 20px; margin: 5px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background: #0052a3; }
-        .log { background: #1e1e1e; color: #00ff00; padding: 15px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .test-card {
+        background: white;
+        padding: 20px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border-left: 4px solid #0066cc;
+      }
+      .test-step {
+        margin: 10px 0;
+        padding: 10px;
+        background: #f9f9f9;
+        border-radius: 4px;
+      }
+      .pass {
+        border-left-color: #00aa00;
+      }
+      .fail {
+        border-left-color: #cc0000;
+      }
+      button {
+        padding: 10px 20px;
+        margin: 5px;
+        background: #0066cc;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #0052a3;
+      }
+      .log {
+        background: #1e1e1e;
+        color: #00ff00;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        max-height: 300px;
+        overflow-y: auto;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>🧪 Project Creation Flow - Flag System Test</h1>
-    
+
     <div class="test-card">
-        <h3>Test Instructions</h3>
-        <div class="test-step">
-            1. Click "Start Test" to open the project creation page
-            2. Navigate through the project creation flow
-            3. Check console logs for flag system behavior
-        </div>
-        <button onclick="startTest()">Start Test</button>
-        <button onclick="openProjectCreation()">Go to Project Creation</button>
+      <h3>Test Instructions</h3>
+      <div class="test-step">
+        1. Click "Start Test" to open the project creation page 2. Navigate
+        through the project creation flow 3. Check console logs for flag system
+        behavior
+      </div>
+      <button onclick="startTest()">Start Test</button>
+      <button onclick="openProjectCreation()">Go to Project Creation</button>
     </div>
 
     <div class="test-card">
-        <h3>Expected Results</h3>
-        <div class="test-step">
-            <strong>Template Selection Step:</strong>
-            <ul>
-                <li>✅ Template nodes should show all buttons (edit, delete, add)</li>
-                <li>✅ Selecting a template should populate division structure</li>
-                <li>✅ Tree should be editable (treeEditMode = 'template')</li>
-            </ul>
-        </div>
-        <div class="test-step">
-            <strong>Division Setup Step:</strong>
-            <ul>
-                <li>✅ Ghost nodes should show + button only (canAddChild = true)</li>
-                <li>✅ Instance nodes should show all buttons (edit, delete, add)</li>
-                <li>✅ Template tree should be read-only on left side</li>
-                <li>✅ Instance tree should be fully interactive on right side</li>
-            </ul>
-        </div>
+      <h3>Expected Results</h3>
+      <div class="test-step">
+        <strong>Template Selection Step:</strong>
+        <ul>
+          <li>✅ Template nodes should show all buttons (edit, delete, add)</li>
+          <li>✅ Selecting a template should populate division structure</li>
+          <li>✅ Tree should be editable (treeEditMode = 'template')</li>
+        </ul>
+      </div>
+      <div class="test-step">
+        <strong>Division Setup Step:</strong>
+        <ul>
+          <li>✅ Ghost nodes should show + button only (canAddChild = true)</li>
+          <li>✅ Instance nodes should show all buttons (edit, delete, add)</li>
+          <li>✅ Template tree should be read-only on left side</li>
+          <li>✅ Instance tree should be fully interactive on right side</li>
+        </ul>
+      </div>
     </div>
 
     <div class="test-card">
-        <h3>Console Logs</h3>
-        <div id="console-logs" class="log">Console logs will appear here...</div>
+      <h3>Console Logs</h3>
+      <div id="console-logs" class="log">Console logs will appear here...</div>
     </div>
 
     <script>
-        // Capture console logs
-        const originalLog = console.log;
-        const logDiv = document.getElementById('console-logs');
-        
-        console.log = function(...args) {
-            originalLog.apply(console, args);
-            logDiv.textContent += args.join(' ') + '\n';
-            logDiv.scrollTop = logDiv.scrollHeight;
-        };
+      // Capture console logs
+      const originalLog = console.log
+      const logDiv = document.getElementById('console-logs')
 
-        function startTest() {
-            console.log('🧪 Starting Flag System Test...');
-            console.log('Time:', new Date().toLocaleTimeString());
-            console.log('Target URL: http://localhost:3000/projects/new');
-            console.log('');
-            console.log('Test Steps:');
-            console.log('1. Navigate to project creation');
-            console.log('2. Fill basic info and proceed to template selection');
-            console.log('3. Select a template and check tree behavior');
-            console.log('4. Proceed to division setup and test flag system');
-            console.log('');
-            
-            openProjectCreation();
-        }
+      console.log = function (...args) {
+        originalLog.apply(console, args)
+        logDiv.textContent += args.join(' ') + '\n'
+        logDiv.scrollTop = logDiv.scrollHeight
+      }
 
-        function openProjectCreation() {
-            console.log('🚀 Opening project creation page...');
-            window.open('http://localhost:3000/projects/new', '_blank');
-        }
+      function startTest() {
+        console.log('🧪 Starting Flag System Test...')
+        console.log('Time:', new Date().toLocaleTimeString())
+        console.log('Target URL: http://localhost:3000/projects/new')
+        console.log('')
+        console.log('Test Steps:')
+        console.log('1. Navigate to project creation')
+        console.log('2. Fill basic info and proceed to template selection')
+        console.log('3. Select a template and check tree behavior')
+        console.log('4. Proceed to division setup and test flag system')
+        console.log('')
 
-        // Log initial state
-        console.log('Flag System Test Page Loaded');
-        console.log('Ready to test project creation flow');
+        openProjectCreation()
+      }
+
+      function openProjectCreation() {
+        console.log('🚀 Opening project creation page...')
+        window.open('http://localhost:3000/projects/new', '_blank')
+      }
+
+      // Log initial state
+      console.log('Flag System Test Page Loaded')
+      console.log('Ready to test project creation flow')
     </script>
-</body>
+  </body>
 </html>

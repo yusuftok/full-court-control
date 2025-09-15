@@ -218,7 +218,7 @@ describe('OTPInput Component', () => {
 
       const firstInput = screen.getAllByRole('textbox')[0]
       firstInput.focus()
-      
+
       act(() => {
         fireEvent.keyDown(firstInput, { key: 'Backspace', code: 'Backspace' })
       })
@@ -233,7 +233,7 @@ describe('OTPInput Component', () => {
 
       const inputs = screen.getAllByRole('textbox')
       inputs[1].focus()
-      
+
       act(() => {
         fireEvent.keyDown(inputs[1], { key: 'Backspace', code: 'Backspace' })
       })
@@ -249,7 +249,7 @@ describe('OTPInput Component', () => {
 
       const firstInput = screen.getAllByRole('textbox')[0]
       firstInput.focus()
-      
+
       act(() => {
         fireEvent.keyDown(firstInput, { key: 'Backspace', code: 'Backspace' })
       })
@@ -264,7 +264,7 @@ describe('OTPInput Component', () => {
 
       const inputs = screen.getAllByRole('textbox')
       inputs[1].focus()
-      
+
       act(() => {
         fireEvent.keyDown(inputs[1], { key: 'ArrowLeft', code: 'ArrowLeft' })
       })
@@ -277,7 +277,7 @@ describe('OTPInput Component', () => {
 
       const inputs = screen.getAllByRole('textbox')
       inputs[0].focus()
-      
+
       act(() => {
         fireEvent.keyDown(inputs[0], { key: 'ArrowRight', code: 'ArrowRight' })
       })

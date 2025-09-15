@@ -268,7 +268,8 @@ describe('Header Component', () => {
 
       // Both should be in the left side container
       const leftContainer = mobileMenuButton.parentElement
-      const searchContainer = searchInput.parentElement?.parentElement?.parentElement
+      const searchContainer =
+        searchInput.parentElement?.parentElement?.parentElement
       if (searchContainer) {
         expect(leftContainer).toContainElement(searchContainer)
       }

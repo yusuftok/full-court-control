@@ -19,17 +19,9 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import {
-  useSortable,
-} from '@dnd-kit/sortable'
+import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import {
-  ChevronDown,
-  ChevronRight,
-  Plus,
-  Trash2,
-  Edit,
-} from 'lucide-react'
+import { ChevronDown, ChevronRight, Plus, Trash2, Edit } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -125,9 +117,7 @@ function SortableTreeNode({
           className={cn(
             'group flex items-center gap-2 p-2 rounded-lg border transition-all duration-200',
             'construction-hover hover:bg-muted/50 hover:border-primary/20',
-            isDragging
-              ? 'opacity-50'
-              : '',
+            isDragging ? 'opacity-50' : '',
             'hover:shadow-sm'
           )}
           {...attributes}

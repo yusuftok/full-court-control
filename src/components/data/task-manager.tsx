@@ -94,15 +94,21 @@ function EditableField({
     [handleSave, onCancel, multiline]
   )
 
-  const InputComponent = multiline ? 'textarea' : 'input'
+  const InputComponent = (multiline
+    ? 'textarea'
+    : 'input') as unknown as React.ElementType
   const ref = multiline ? textareaRef : inputRef
 
   return (
     <div className="flex items-center gap-1">
       <InputComponent
-        ref={ref as any}
+        ref={
+          ref as unknown as React.Ref<HTMLInputElement | HTMLTextAreaElement>
+        }
         value={editValue}
-        onChange={e => setEditValue(e.target.value)}
+        onChange={(
+          e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        ) => setEditValue(e.target.value)}
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
         className={cn(

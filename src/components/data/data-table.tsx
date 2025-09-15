@@ -160,17 +160,17 @@ export function DataTable<T>({
 }
 
 // Skeleton loader for loading state
-interface DataTableSkeletonProps {
-  columns: Column<any>[]
+interface DataTableSkeletonProps<T> {
+  columns: Column<T>[]
   rows?: number
   className?: string
 }
 
-export function DataTableSkeleton({
+export function DataTableSkeleton<T>({
   columns,
   rows = 5,
   className,
-}: DataTableSkeletonProps) {
+}: DataTableSkeletonProps<T>) {
   return (
     <div className={cn('w-full', className)}>
       <div className="rounded-md border">

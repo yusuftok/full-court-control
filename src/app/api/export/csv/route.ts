@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Readable } from 'stream'
 
 // Types for export data
 interface ExportOptions {
   type: 'tasks' | 'users' | 'projects' | 'analytics'
-  filters?: Record<string, any>
+  filters?: {
+    status?: Task['status'] | Task['status'][]
+    priority?: Task['priority'] | Task['priority'][]
+    assignedTo?: string
+    [key: string]: unknown
+  }
   columns?: string[]
   dateRange?: {
     start: string
@@ -57,11 +61,14 @@ export async function GET(request: NextRequest) {
       (searchParams.get('format') as ExportOptions['format']) || 'csv'
 
     // Parse filters if provided
-    let filters: Record<string, any> = {}
+    let filters: ExportOptions['filters'] = {}
     const filtersParam = searchParams.get('filters')
     if (filtersParam) {
       try {
-        filters = JSON.parse(decodeURIComponent(filtersParam))
+        const parsed = JSON.parse(decodeURIComponent(filtersParam))
+        if (parsed && typeof parsed === 'object') {
+          filters = parsed as ExportOptions['filters']
+        }
       } catch (e) {
         return NextResponse.json(
           { error: 'Invalid filters format' },
@@ -151,7 +158,7 @@ async function createExportStream(
 
 async function streamCSV(
   controller: ReadableStreamDefaultController,
-  data: any[],
+  data: unknown[],
   columns?: string[],
   dataType?: string
 ) {
@@ -163,7 +170,8 @@ async function streamCSV(
   }
 
   // Determine columns to export
-  const allColumns = Object.keys(data[0])
+  const firstRow = data[0] as Record<string, unknown>
+  const allColumns = Object.keys(firstRow)
   const exportColumns = columns || allColumns
 
   // Write header
@@ -177,7 +185,8 @@ async function streamCSV(
 
     const csvChunk =
       chunk
-        .map(row =>
+        .map(item => {
+          const row = item as Record<string, unknown>
           exportColumns
             .map(col => {
               const value = row[col]
@@ -201,7 +210,7 @@ async function streamCSV(
               return stringValue
             })
             .join(',')
-        )
+        })
         .join('\n') + '\n'
 
     controller.enqueue(encoder.encode(csvChunk))
@@ -213,9 +222,9 @@ async function streamCSV(
 
 async function fetchDataForExport(
   type: ExportOptions['type'],
-  filters?: Record<string, any>,
+  filters?: ExportOptions['filters'],
   dateRange?: ExportOptions['dateRange']
-): Promise<any[]> {
+): Promise<unknown[]> {
   // In a real application, this would query your database
   // For demo purposes, we'll generate mock data
 
@@ -233,8 +242,14 @@ async function fetchDataForExport(
   }
 }
 
+type TaskFilters = {
+  status?: Task['status'] | Task['status'][]
+  priority?: Task['priority'] | Task['priority'][]
+  assignedTo?: string
+}
+
 async function fetchTasksData(
-  filters?: Record<string, any>,
+  filters?: TaskFilters,
   dateRange?: ExportOptions['dateRange']
 ): Promise<Task[]> {
   // Mock task data generation
@@ -250,12 +265,12 @@ async function fetchTasksData(
       id: `task-${i}`,
       name: `Task ${i}`,
       description: `This is task number ${i} with some description`,
-      status: ['pending', 'in-progress', 'completed', 'archived'][
+      status: (
+        ['pending', 'in-progress', 'completed', 'archived'] as Task['status'][]
+      )[Math.floor(Math.random() * 4)],
+      priority: (['low', 'medium', 'high', 'urgent'] as Task['priority'][])[
         Math.floor(Math.random() * 4)
-      ] as any,
-      priority: ['low', 'medium', 'high', 'urgent'][
-        Math.floor(Math.random() * 4)
-      ] as any,
+      ],
       assignedTo: `user-${Math.floor(Math.random() * 10) + 1}`,
       dueDate: new Date(
         createdAt.getTime() + Math.random() * 14 * 24 * 60 * 60 * 1000
@@ -310,7 +325,7 @@ async function fetchTasksData(
 }
 
 async function fetchUsersData(
-  filters?: Record<string, any>,
+  filters?: ExportOptions['filters'],
   dateRange?: ExportOptions['dateRange']
 ): Promise<User[]> {
   // Mock user data
@@ -338,7 +353,7 @@ async function fetchUsersData(
 }
 
 async function fetchProjectsData(
-  filters?: Record<string, any>,
+  filters?: ExportOptions['filters'],
   dateRange?: ExportOptions['dateRange']
 ): Promise<Project[]> {
   // Mock project data
@@ -371,7 +386,7 @@ async function fetchProjectsData(
 }
 
 async function fetchAnalyticsData(
-  filters?: Record<string, any>,
+  filters?: ExportOptions['filters'],
   dateRange?: ExportOptions['dateRange']
 ) {
   // Mock analytics data

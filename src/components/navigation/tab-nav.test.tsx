@@ -38,7 +38,7 @@ const TestIcon = Object.assign(
   ),
   {
     $$typeof: Symbol.for('react.forward_ref'),
-    displayName: 'TestIcon'
+    displayName: 'TestIcon',
   }
 )
 
