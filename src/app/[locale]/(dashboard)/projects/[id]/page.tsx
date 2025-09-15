@@ -24,7 +24,7 @@ import { Input } from '@/components/ui/input'
 // tooltips/progress components not used here
 import { PageContainer, PageContent } from '@/components/layout/page-container'
 import { DataTable, Column } from '@/components/data/data-table'
-import { SubcontractorOverview } from '@/components/projects/SubcontractorOverview'
+import { SubcontractorsTab } from '@/components/projects/subcontractors-tab'
 import { WbsHealthTree } from '@/components/projects/WbsHealthTree'
 import { IssueList } from '@/components/projects/IssueList'
 import { BudgetSchedulePanel } from '@/components/projects/BudgetSchedulePanel'
@@ -38,6 +38,11 @@ import {
   type OwnerIssueSummary,
   type SubcontractorId,
 } from '@/lib/project-analytics'
+import {
+  computeFsForecast,
+  computeScheduleWithAgg,
+  type ScheduleNode,
+} from '@/lib/wbs-schedule'
 import { mockSubcontractors } from '@/components/projects/data/mock-subcontractors'
 import { PERFORMANCE_THRESHOLDS as T } from '@/lib/performance-thresholds'
 import { getDetailedProject, getSimpleProjects } from '@/lib/mock-data'
@@ -399,13 +404,13 @@ const teamColumns: Column<TeamMember>[] = [
   {
     id: 'hoursWorked',
     header: 'Saat',
-    accessor: row => `${row.hoursWorked}h`,
+    accessor: (row: TeamMember) => `${row.hoursWorked}h`,
     sortable: true,
   },
   {
     id: 'status',
     header: 'Durum',
-    accessor: row => (
+    accessor: (row: TeamMember) => (
       <span
         className={cn(
           'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
@@ -468,16 +473,31 @@ export default function ProjectDashboardPage() {
               id: 'foundation',
               name: 'Temel',
               assignedSubcontractorId: 'sub-construction-1',
+              children: [
+                { id: 'foundation-formwork', name: 'Temel Kalıp' },
+                { id: 'foundation-rebar', name: 'Temel Donatı' },
+                { id: 'foundation-concrete', name: 'Temel Beton' },
+              ],
             },
             {
               id: 'columns',
               name: 'Kolonlar',
               assignedSubcontractorId: 'sub-construction-1',
+              children: [
+                { id: 'columns-rebar', name: 'Kolon Donatı' },
+                { id: 'columns-formwork', name: 'Kolon Kalıp' },
+                { id: 'columns-concrete', name: 'Kolon Beton' },
+              ],
             },
             {
               id: 'slabs',
               name: 'Döşemeler',
               assignedSubcontractorId: 'sub-construction-1',
+              children: [
+                { id: 'slab-formwork', name: 'Döşeme Kalıp' },
+                { id: 'slab-rebar', name: 'Döşeme Donatı' },
+                { id: 'slab-concrete', name: 'Döşeme Beton' },
+              ],
             },
           ],
         },
@@ -486,8 +506,24 @@ export default function ProjectDashboardPage() {
           name: 'Mekanik',
           assignedSubcontractorId: 'sub-mechanical-1',
           children: [
-            { id: 'hvac', name: 'HVAC' },
-            { id: 'plumbing', name: 'Sıhhi Tesisat' },
+            {
+              id: 'hvac',
+              name: 'HVAC',
+              children: [
+                { id: 'hvac-ducting', name: 'Ducting' },
+                { id: 'hvac-ahu', name: 'AHU Montaj' },
+                { id: 'hvac-insulation', name: 'İzolasyon' },
+              ],
+            },
+            {
+              id: 'plumbing',
+              name: 'Sıhhi Tesisat',
+              children: [
+                { id: 'plumb-rough', name: 'Rough-in' },
+                { id: 'plumb-fixtures', name: 'Armatür Montaj' },
+                { id: 'plumb-test', name: 'Basınç Testi' },
+              ],
+            },
             { id: 'fire', name: 'Yangın' },
             { id: 'sprinkler', name: 'Sprinkler' },
           ],
@@ -497,8 +533,23 @@ export default function ProjectDashboardPage() {
           name: 'Elektrik',
           assignedSubcontractorId: 'sub-electrical-1',
           children: [
-            { id: 'strong-power', name: 'Güçlü Akım' },
-            { id: 'weak-power', name: 'Zayıf Akım' },
+            {
+              id: 'strong-power',
+              name: 'Güçlü Akım',
+              children: [
+                { id: 'sp-main-panel', name: 'Ana Pano' },
+                { id: 'sp-floor-panels', name: 'Kat Panoları' },
+                { id: 'sp-cable-trays', name: 'Kablo Kanalları' },
+              ],
+            },
+            {
+              id: 'weak-power',
+              name: 'Zayıf Akım',
+              children: [
+                { id: 'wp-data', name: 'Veri Kablolama' },
+                { id: 'wp-security', name: 'Güvenlik Sistemleri' },
+              ],
+            },
             { id: 'lighting', name: 'Aydınlatma' },
             { id: 'automation', name: 'Otomasyon' },
           ],
@@ -610,11 +661,6 @@ export default function ProjectDashboardPage() {
     const v = qp ? Number(qp) : 2
     return Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 2
   }, [searchParams])
-  const tasksMax = React.useMemo(() => {
-    const qp = searchParams.get('tasksMax')
-    const v = qp ? Number(qp) : 18
-    return Number.isFinite(v) ? Math.max(1, Math.floor(v)) : 18
-  }, [searchParams])
   const taskParts = React.useMemo(() => {
     const qp = searchParams.get('taskParts')
     const v = qp ? Number(qp) : 2
@@ -640,7 +686,8 @@ export default function ProjectDashboardPage() {
   }
 
   // Optional "today" override via query param to simulate different views
-  const todayOverride = searchParams.get('today')
+  const todayOverride =
+    searchParams.get('today') || searchParams.get('dataDate')
   const nowMs = React.useMemo(() => {
     if (!todayOverride) return Date.now()
     const d = new Date(todayOverride)
@@ -656,17 +703,8 @@ export default function ProjectDashboardPage() {
         ? new Date(simple.startDate).getTime()
         : 0
       const rawEnd = simple?.endDate ? new Date(simple.endDate).getTime() : 0
-      let start = rawStart
-      let end = rawEnd
-      if (rawEnd > rawStart) {
-        const span = rawEnd - rawStart
-        const realPct = (nowMs - rawStart) / span
-        const desired = 0.55
-        if (realPct < 0.35 || realPct > 0.75) {
-          start = Math.floor(nowMs - desired * span)
-          end = start + span
-        }
-      }
+      const start = rawStart
+      const end = rawEnd
       const total = end > start ? end - start : 1
       // Collect nodes at the exact requested depth to avoid heterogenous depths
       const nodes: Array<{ id: string; name: string; depth: number }> = []
@@ -681,9 +719,9 @@ export default function ProjectDashboardPage() {
       const startTimes: number[] = []
       const endTimes: number[] = []
       // Expand each node into several sub-parts to increase variety
-      for (let ni = 0; ni < nodes.length && tasks.length < tasksMax; ni++) {
+      for (let ni = 0; ni < nodes.length; ni++) {
         const l = nodes[ni]
-        for (let p = 0; p < taskParts && tasks.length < tasksMax; p++) {
+        for (let p = 0; p < taskParts; p++) {
           const idx = tasks.length
           const seed = Array.from(l.id).reduce(
             (a, c) => (a * 33 + c.charCodeAt(0)) >>> 0,
@@ -739,6 +777,13 @@ export default function ProjectDashboardPage() {
           if (!actual && forecast && forecast < nowMs + 24 * 3600 * 1000) {
             forecast = nowMs + 24 * 3600 * 1000
           }
+          // WBS-backed schedule rule (FS-only, allow_early_start=false):
+          // Başlamamış leaf için forecast başlangıcı baseline'dan erken olamaz.
+          // Biz finish'i işliyoruz; bu durumda finish de baseline'dan erken olmamalı.
+          const notStarted = s > nowMs && !actual
+          if (notStarted && forecast && forecast < e) {
+            forecast = e
+          }
           const fc = forecast ?? actual ?? e
           const taskId = `${l.id}-p${p}`
           tasks.push({
@@ -761,6 +806,15 @@ export default function ProjectDashboardPage() {
           })
           startTimes.push(s)
           endTimes.push(e)
+        }
+      }
+      // Sanity: rare cases where start might drift after due; clamp start before due
+      for (let i = 0; i < tasks.length; i++) {
+        const sMs = new Date(tasks[i].startDate).getTime()
+        const dMs = new Date(tasks[i].dueDate).getTime()
+        if (sMs > dMs) {
+          const safe = Math.max(start, dMs - Math.floor(total * 0.08)) // ~%8 proje süresi
+          tasks[i].startDate = new Date(safe).toISOString()
         }
       }
       // Ensure at least one unfinished task exists for active projects
@@ -802,6 +856,19 @@ export default function ProjectDashboardPage() {
         t.slipDays = Math.round((fcMs - dueMs) / 86400000)
         t.progress = 0
       }
+      // Ensure at least one task starts exactly at project start (visual anchor)
+      if (tasks.length > 0) {
+        // Choose the globally earliest start, regardless of completion state
+        let anchorIdx = 0
+        for (let i = 1; i < startTimes.length; i++) {
+          if (startTimes[i] < startTimes[anchorIdx]) anchorIdx = i
+        }
+        if (startTimes[anchorIdx] !== start) {
+          tasks[anchorIdx].startDate = new Date(start).toISOString()
+          startTimes[anchorIdx] = start
+        }
+      }
+
       // Ensure at least one task forecasts exactly project end for visual variety
       if (tasks.length > 0) {
         let lastIdx = -1
@@ -822,6 +889,8 @@ export default function ProjectDashboardPage() {
       const idIndex = new Map<string, number>()
       tasks.forEach((t, i) => idIndex.set(t.id, i))
       const baseOf = (id: string) => id.split('-p')[0]
+      // Track base-node predecessor→successor pairs to avoid duplicate relations across phases
+      const pairSeen = new Set<string>()
       // helper: detect if adding edge a(dependsOn)->b creates a cycle
       const reaches = (fromId: string, targetId: string): boolean => {
         const seen = new Set<string>()
@@ -851,8 +920,12 @@ export default function ProjectDashboardPage() {
         for (let k = 0; k < Math.min(want, preds.length); k++) {
           const pj = preds[(i + k) % preds.length]
           const pid = tasks[pj].id
-          if (!t.dependsOn.includes(pid) && !reaches(pid, t.id))
+          const key = `${baseOf(pid)}->${baseOf(t.id)}`
+          if (pairSeen.has(key)) continue
+          if (!t.dependsOn.includes(pid) && !reaches(pid, t.id)) {
             t.dependsOn.push(pid)
+            pairSeen.add(key)
+          }
         }
       }
       // Ensure invariant-compliant, deterministic examples per category for filters
@@ -897,11 +970,15 @@ export default function ProjectDashboardPage() {
           }
           if (pj >= 0) {
             const pid = tasks[pj].id
+            const key = `${baseOf(pid)}->${baseOf(tasks[bi].id)}`
             if (
+              !pairSeen.has(key) &&
               !tasks[bi].dependsOn.includes(pid) &&
               !reaches(pid, tasks[bi].id)
-            )
+            ) {
               tasks[bi].dependsOn.push(pid)
+              pairSeen.add(key)
+            }
           }
         }
 
@@ -913,11 +990,15 @@ export default function ProjectDashboardPage() {
           )
           if (succ) {
             const aid = tasks[ai].id
+            const key = `${baseOf(aid)}->${baseOf(tasks[succ.i].id)}`
             if (
+              !pairSeen.has(key) &&
               !tasks[succ.i].dependsOn.includes(aid) &&
               !reaches(aid, tasks[succ.i].id)
-            )
+            ) {
               tasks[succ.i].dependsOn.push(aid)
+              pairSeen.add(key)
+            }
           }
         }
 
@@ -934,8 +1015,15 @@ export default function ProjectDashboardPage() {
             if (fcEndMsOf(p) <= tStart) {
               p.forecastDate = new Date(tStart + 2 * 86400000).toISOString()
             }
-            if (!t.dependsOn.includes(p.id) && !reaches(p.id, t.id))
+            const key = `${baseOf(p.id)}->${baseOf(t.id)}`
+            if (
+              !pairSeen.has(key) &&
+              !t.dependsOn.includes(p.id) &&
+              !reaches(p.id, t.id)
+            ) {
               t.dependsOn.push(p.id)
+              pairSeen.add(key)
+            }
           }
         }
 
@@ -954,8 +1042,15 @@ export default function ProjectDashboardPage() {
             t.forecastDate = new Date(newFc).toISOString()
             t.slipDays = Math.round((newFc - due) / 86400000)
           }
-          if (!s.dependsOn.includes(t.id) && !reaches(t.id, s.id))
+          const key = `${baseOf(t.id)}->${baseOf(s.id)}`
+          if (
+            !pairSeen.has(key) &&
+            !s.dependsOn.includes(t.id) &&
+            !reaches(t.id, s.id)
+          ) {
             s.dependsOn.push(t.id)
+            pairSeen.add(key)
+          }
         }
       })()
       // Sanitize: a finished task shouldn't be blocked by unfinished predecessors
@@ -982,6 +1077,122 @@ export default function ProjectDashboardPage() {
           }
         }
       }
+      // Apply FS-only forecast calculator (WBS-backed schedule rules)
+      try {
+        const fsInputs = tasks.map(t => {
+          const bs = new Date(t.startDate).getTime()
+          const bf = new Date(t.dueDate).getTime()
+          const started = bs < nowMs && !t.actualDate
+          const actualStart = started ? bs : undefined
+          const actualFinish = t.actualDate
+            ? new Date(t.actualDate).getTime()
+            : undefined
+          const baseId = t.id.split('-p')[0]
+          const met = metricsById.get(baseId)
+          const spiHint =
+            met && met.pv && met.pv > 0 ? (met.ev || 0) / met.pv : undefined
+          return {
+            id: t.id,
+            baselineStart: bs,
+            baselineFinish: bf,
+            actualStart,
+            actualFinish,
+            spiHint,
+            predecessors: (t.dependsOn || []).map(id => ({
+              taskId: id,
+              lagDays: 0,
+            })),
+          }
+        })
+        const fsRes = computeFsForecast(fsInputs, {
+          dataDate: nowMs,
+          allowEarlyStart: false,
+        })
+        for (const t of tasks) {
+          if (!t.actualDate) {
+            const r = fsRes.get(t.id)
+            if (r?.forecastFinish) {
+              t.forecastDate = new Date(r.forecastFinish).toISOString()
+              const dueMs = new Date(t.dueDate).getTime()
+              t.slipDays = Math.round(
+                ((r.forecastFinish as number) - dueMs) / 86400000
+              )
+            }
+          } else {
+            // Completed: keep actual as-is
+          }
+        }
+      } catch {}
+      // Spread clustered forecasts across the remaining timeline using SPI-biased jitter
+      try {
+        const baseOf = (id: string) => id.split('-p')[0]
+        const spanFuture = Math.max(30 * 86400000, end - nowMs - 5 * 86400000)
+        for (const t of tasks) {
+          if (t.actualDate) continue
+          const fcMs = t.forecastDate
+            ? new Date(t.forecastDate).getTime()
+            : new Date(t.dueDate).getTime()
+          // If forecast is within ~14 gün of today, push it into the future window with SPI bias
+          if (fcMs <= nowMs + 14 * 86400000) {
+            const met = metricsById.get(baseOf(t.id))
+            const spiHint =
+              met && met.pv && met.pv > 0 ? (met.ev || 0) / met.pv : 1
+            const u =
+              ((Array.from(t.id).reduce(
+                (a, c) => (a * 33 + c.charCodeAt(0)) >>> 0,
+                0
+              ) %
+                1000) +
+                1) /
+              1000
+            // Bias: spi<1 -> geçe doğru (daha büyük), spi>1 -> bugüne yakın (daha küçük)
+            const exp = Math.min(2.2, Math.max(0.5, 1.4 - (spiHint - 1)))
+            const biased = Math.pow(u, exp)
+            const newFc = Math.min(
+              end - 2 * 86400000,
+              nowMs + 7 * 86400000 + Math.round(biased * spanFuture)
+            )
+            const finalFc = Math.max(newFc, new Date(t.dueDate).getTime())
+            t.forecastDate = new Date(finalFc).toISOString()
+            const dueMs = new Date(t.dueDate).getTime()
+            t.slipDays = Math.round((finalFc - dueMs) / 86400000)
+          }
+        }
+      } catch {}
+      // Ensure at least one task finishes exactly at project end (right edge)
+      try {
+        if (tasks.length > 0 && end > start) {
+          let bestIdx = -1
+          let bestFinish = -Infinity
+          for (let i = 0; i < tasks.length; i++) {
+            const t = tasks[i]
+            const fin = t.actualDate
+              ? new Date(t.actualDate).getTime()
+              : t.forecastDate
+                ? new Date(t.forecastDate).getTime()
+                : new Date(t.dueDate).getTime()
+            if (fin > bestFinish) {
+              bestFinish = fin
+              bestIdx = i
+            }
+          }
+          if (bestIdx >= 0 && bestFinish < end) {
+            tasks[bestIdx].forecastDate = new Date(end).toISOString()
+            const dueMs = new Date(tasks[bestIdx].dueDate).getTime()
+            tasks[bestIdx].slipDays = Math.round((end - dueMs) / 86400000)
+          }
+        }
+      } catch {}
+      // Sort for display: earliest start first (stable tie‑breakers)
+      tasks.sort((a, b) => {
+        const as = new Date(a.startDate).getTime()
+        const bs = new Date(b.startDate).getTime()
+        if (as !== bs) return as - bs
+        const ad = new Date(a.dueDate).getTime()
+        const bd = new Date(b.dueDate).getTime()
+        if (ad !== bd) return ad - bd
+        return a.name.localeCompare(b.name)
+      })
       return tasks
     },
     [
@@ -992,10 +1203,45 @@ export default function ProjectDashboardPage() {
       simple?.startDate,
       wbsRoot,
       taskParts,
-      tasksMax,
       nowMs,
     ]
   )
+
+  // Aggregate project-level forecast finish using FS schedule on current depth tasks
+  const projectForecastFinishBySchedule = React.useMemo(() => {
+    try {
+      const tasks = getWbsTasks(taskDepth)
+      const root: ScheduleNode = {
+        id: 'root-fs',
+        children: tasks.map(t => ({
+          id: t.id,
+          baselineStart: new Date(t.startDate).getTime(),
+          baselineFinish: new Date(t.dueDate).getTime(),
+          actualStart:
+            new Date(t.startDate).getTime() < nowMs && !t.actualDate
+              ? new Date(t.startDate).getTime()
+              : undefined,
+          actualFinish: t.actualDate
+            ? new Date(t.actualDate).getTime()
+            : undefined,
+          predecessors: (t.dependsOn || []).map(id => ({
+            taskId: id,
+            lagDays: 0,
+          })),
+        })),
+      }
+      const agg = computeScheduleWithAgg(root, {
+        dataDate: nowMs,
+        allowEarlyStart: false,
+      })
+      const rootAgg = agg.get('root-fs')
+      return rootAgg?.forecastFinish
+        ? new Date(rootAgg.forecastFinish)
+        : undefined
+    } catch {
+      return undefined
+    }
+  }, [getWbsTasks, taskDepth, nowMs])
 
   const subcontractorOverviewData = React.useMemo(() => {
     const arr: Array<{
@@ -1014,6 +1260,50 @@ export default function ProjectDashboardPage() {
     }
     return arr.sort((a, b) => a.aggregate.combined - b.aggregate.combined)
   }, [analytics.ownerAgg, analytics.ownerIssue, subsNameMap])
+
+  const subcontractorsRows = React.useMemo(() => {
+    const scopeById = new Map<string, Array<{ id: string; name: string }>>()
+    subcontractorResponsibilities.forEach(item => {
+      scopeById.set(item.id, item.items)
+    })
+    // Owner'a göre plan başlangıç/bitiş penceresini WBS görevlerinden çıkar
+    const windows = new Map<string, { start: number; end: number }>()
+    try {
+      const tasks = getWbsTasks(taskDepth)
+      for (const t of tasks) {
+        if (!t.owner) continue
+        const s = new Date(t.startDate).getTime()
+        const e = new Date(t.dueDate).getTime()
+        const cur = windows.get(t.owner)
+        if (!cur) windows.set(t.owner, { start: s, end: e })
+        else {
+          cur.start = Math.min(cur.start, s)
+          cur.end = Math.max(cur.end, e)
+        }
+      }
+    } catch {}
+
+    return subcontractorOverviewData.map(x => ({
+      id: x.id,
+      name: x.name,
+      aggregate: x.aggregate,
+      issues: x.issues,
+      responsibilities: scopeById.get(x.id) || [],
+      // Fallback progress from SPI; if you have a dedicated progress %, inject it here.
+      progressPct: Math.round(Math.max(0, Math.min(1, x.aggregate.spi)) * 100),
+      plannedStart: windows.get(x.id)?.start
+        ? new Date(windows.get(x.id)!.start).toISOString()
+        : undefined,
+      plannedEnd: windows.get(x.id)?.end
+        ? new Date(windows.get(x.id)!.end).toISOString()
+        : undefined,
+    }))
+  }, [
+    subcontractorOverviewData,
+    subcontractorResponsibilities,
+    getWbsTasks,
+    taskDepth,
+  ])
 
   const ownerLabel = (raw?: string) => {
     if (!raw) return undefined
@@ -1060,11 +1350,32 @@ export default function ProjectDashboardPage() {
       return arr.reverse()
     }
     const toName = (id: string) => nodeById.get(id)?.name || id
-    return { nodeById, parent, pathTo, toName }
+    const firstLeafUnder = (id: string): string | null => {
+      const start = nodeById.get(id)
+      if (!start) return null
+      // If already leaf
+      if (!start.children || start.children.length === 0) return null
+      let cur: WbsNode | undefined = start.children[0]
+      while (cur && cur.children && cur.children.length > 0) {
+        cur = cur.children[0]
+      }
+      return cur ? cur.id : null
+    }
+    return { nodeById, parent, pathTo, toName, firstLeafUnder }
   }, [wbsRoot])
 
   const asciiBranchMarked = React.useCallback(
-    (focusNodeId: string, otherNodeId: string, rel: InsightKind) => {
+    (
+      focusNodeId: string,
+      otherNodeId: string,
+      rel: InsightKind,
+      opts?: {
+        causeLeafId?: string
+        effectLeafId?: string
+        causeLabel?: string
+        effectLabel?: string
+      }
+    ) => {
       const a = wbsMaps.pathTo(focusNodeId)
       const b = wbsMaps.pathTo(otherNodeId)
       const aIds = a.map(n => n.id)
@@ -1089,9 +1400,10 @@ export default function ProjectDashboardPage() {
         isFocusBranch: boolean,
         first: boolean
       ) => {
-        for (let k = i; k < ids.length; k++) {
+        const splitIndex = i === 0 ? 1 : i
+        for (let k = splitIndex; k < ids.length; k++) {
           const pre = ' '.repeat(i * 2)
-          const atSplit = k === i
+          const atSplit = k === splitIndex
           const branchGlyph = atSplit
             ? first
               ? '├─ '
@@ -1109,6 +1421,38 @@ export default function ProjectDashboardPage() {
             marker = isCauseLeaf ? '▶ ' : isEffectLeaf ? '● ' : ''
           }
           lines.push(pre + branchGlyph + marker + wbsMaps.toName(id))
+          // If this leaf corresponds to the actual dependency endpoints, render down to them
+          if (isLeaf) {
+            const wantCauseOnThisBranch =
+              rel === 'blocked' || rel === 'blockedRisk'
+                ? !isFocusBranch
+                : isFocusBranch
+            const wantEffectOnThisBranch = !wantCauseOnThisBranch
+            const deeperId = wantCauseOnThisBranch
+              ? opts?.causeLeafId
+              : opts?.effectLeafId
+            const deeperLabel = wantCauseOnThisBranch
+              ? opts?.causeLabel
+              : opts?.effectLabel
+            if (deeperId || deeperLabel) {
+              let label = deeperId
+                ? wbsMaps.toName(deeperId)
+                : String(deeperLabel)
+              const parentLabel = wbsMaps.toName(id)
+              if (label && parentLabel && label.trim() === parentLabel.trim()) {
+                // Avoid showing identical child name; clarify as a lower-level task
+                label = label.includes('•') ? label : `${label} • Faz 1`
+              }
+              const depMarker = wantCauseOnThisBranch ? '▶ ' : '● '
+              lines.push(
+                pre +
+                  '   '.repeat(Math.max(1, ids.length - i)) +
+                  '└─ ' +
+                  depMarker +
+                  label
+              )
+            }
+          }
         }
       }
 
@@ -1140,6 +1484,10 @@ export default function ProjectDashboardPage() {
       rel: InsightKind
       focusOwner?: string | null
       otherOwner?: string | null
+      causeLabel?: string
+      effectLabel?: string
+      focusLabel?: string
+      otherLabel?: string
     }>
   >([])
   const [insightIndex, setInsightIndex] = React.useState(0)
@@ -1250,13 +1598,14 @@ export default function ProjectDashboardPage() {
         <ProjectOverviewHeader
           project={simple}
           subcontractorResponsibilities={subcontractorResponsibilities}
+          projectedFinishBySchedule={projectForecastFinishBySchedule}
         />
 
         {/* Tabs */}
         <div className="mb-4 border-b">
           <div className="flex gap-4">
             {[
-              { id: 'overview', label: 'Genel Bakış' },
+              { id: 'overview', label: 'Proje İlerlemesi' },
               { id: 'subs', label: 'Taşeronlar' },
               { id: 'wbs', label: 'İş Kırılımı' },
               { id: 'issues', label: 'Sorunlar' },
@@ -1566,6 +1915,37 @@ export default function ProjectDashboardPage() {
                         style={{ left: `${pct}%` }}
                       >
                         <div className="h-full border-l-2 border-dashed border-sky-600/50" />
+                        <div className="absolute top-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded bg-sky-600/10 text-sky-800 border border-sky-600/30 text-[10px] whitespace-nowrap">
+                          Bugün ·{' '}
+                          {new Date(today).toLocaleDateString('tr-TR', {
+                            day: '2-digit',
+                            month: 'short',
+                          })}
+                        </div>
+                      </div>
+                    )
+                  })()}
+                  {/* Global project end line at the far right */}
+                  {(() => {
+                    const hasRange = !!(simple?.startDate && simple?.endDate)
+                    if (!hasRange) return null
+                    return (
+                      <div
+                        aria-hidden
+                        className="absolute inset-y-0 pointer-events-none z-30"
+                        style={{ left: `100%` }}
+                      >
+                        <div className="h-full border-l-2 border-dashed border-rose-600/50" />
+                        <div className="absolute top-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded bg-rose-600/10 text-rose-800 border border-rose-600/30 text-[10px] whitespace-nowrap">
+                          Proje Bitiş ·{' '}
+                          {new Date(simple!.endDate!).toLocaleDateString(
+                            'tr-TR',
+                            {
+                              day: '2-digit',
+                              month: 'short',
+                            }
+                          )}
+                        </div>
                       </div>
                     )
                   })()}
@@ -1682,6 +2062,17 @@ export default function ProjectDashboardPage() {
                           return spiMs >= T.SPI.risky && spiMs < T.SPI.good
                         }
                         return true
+                      })
+                      // Sort by earliest start first
+                      filtered.sort((a, b) => {
+                        const sa = new Date(a.startDate).getTime()
+                        const sb = new Date(b.startDate).getTime()
+                        if (sa !== sb) return sa - sb
+                        // same start → tie-break by due date, then name for stability
+                        const da = new Date(a.dueDate).getTime()
+                        const db = new Date(b.dueDate).getTime()
+                        if (da !== db) return da - db
+                        return a.name.localeCompare(b.name, 'tr')
                       })
                       return filtered.map(m => {
                         // Build per-row dependency insights
@@ -1812,9 +2203,12 @@ export default function ProjectDashboardPage() {
                           (m.progress ?? 0) >= 100 ||
                           m.status === 'completed' ||
                           !!m.actualDate
+                        const actual: Date | undefined = m.actualDate
+                          ? new Date(m.actualDate)
+                          : undefined
                         const fcEff: Date | undefined = isCompleted
                           ? m.actualDate
-                            ? new Date(m.actualDate)
+                            ? actual
                             : (fc as Date | undefined)
                           : (fc as Date | undefined)
                         const fcPct =
@@ -1833,19 +2227,36 @@ export default function ProjectDashboardPage() {
                         const drift = Math.round(
                           (baseDate.getTime() - due.getTime()) / 86400000
                         )
+                        // Task window relative to project timeline
+                        const taskStartPct = (() => {
+                          if (!(start && end && end > start)) return 0
+                          const s = new Date(m.startDate).getTime()
+                          return Math.min(
+                            100,
+                            Math.max(0, ((s - start) / (end - start)) * 100)
+                          )
+                        })()
                         // label positions: push to exact edges when very close to 0%/100%
-                        const planLabelPct =
+                        const planPctLabel =
                           duePct > 99.2
                             ? 100
                             : duePct < 0.8
                               ? 0
                               : Math.min(97, Math.max(3, duePct))
-                        const fcLabelPct =
+                        const fcPctLabel =
                           fcPct > 99.2
                             ? 100
                             : fcPct < 0.8
                               ? 0
                               : Math.min(97, Math.max(3, fcPct))
+                        const taskWindowEndPct = Math.max(
+                          planPctLabel,
+                          fcPctLabel
+                        )
+                        const progressAbsPct = Math.max(
+                          0,
+                          Math.min(planPctLabel, fcPctLabel) - taskStartPct
+                        )
                         // today overlay for overdue visualization
                         const todayPct = (() => {
                           if (!(start && end && end > start)) return duePct
@@ -1858,17 +2269,23 @@ export default function ProjectDashboardPage() {
                         // color for forecast marker handled via drift check inline
                         // Consider markers visually "close" when within ~2.5% of width
                         const markersClose =
-                          Math.abs(fcLabelPct - planLabelPct) < 2.5
+                          Math.abs(fcPctLabel - planPctLabel) < 2.5
                         const planAnchor =
-                          planLabelPct > 92
+                          planPctLabel > 92
                             ? 'right'
-                            : planLabelPct < 8
+                            : planPctLabel < 8
                               ? 'left'
                               : 'center'
                         const fcAnchor =
-                          fcLabelPct > 92
+                          fcPctLabel > 92
                             ? 'right'
-                            : fcLabelPct < 8
+                            : fcPctLabel < 8
+                              ? 'left'
+                              : 'center'
+                        const startAnchor =
+                          taskStartPct > 92
+                            ? 'right'
+                            : taskStartPct < 8
                               ? 'left'
                               : 'center'
                         // Milestone-specific SPI using start→due vs start→forecast durations
@@ -1890,10 +2307,15 @@ export default function ProjectDashboardPage() {
                               : 'bg-red-600'
                         // Future/Delta rendering between Plan and Forecast (only future part)
                         const isLate = fcPct > duePct
-                        const dashedStart = Math.max(planLabelPct, todayPct)
+                        const dashedStart = Math.max(planPctLabel, todayPct)
                         const dashedSegWidth = Math.max(
                           0,
-                          fcLabelPct - dashedStart
+                          fcPctLabel - dashedStart
+                        )
+                        // Solid continuation between plan→today for unfinished (avoid grey gap)
+                        const overdueSolidWidth = Math.max(
+                          0,
+                          todayPct - planPctLabel
                         )
                         // Tooltip positioning: if markers are far, show Plan above and Forecast below; if close, only Forecast shows combined tooltip below
                         const planTipPos = !markersClose
@@ -1909,6 +2331,16 @@ export default function ProjectDashboardPage() {
                           top: '100%',
                           marginTop: 8,
                         } as React.CSSProperties
+                        const startTipPos = {
+                          bottom: '100%',
+                          marginBottom: 8,
+                        } as React.CSSProperties
+                        const isSameDay = (a: Date, b: Date) =>
+                          a.toDateString() === b.toDateString()
+                        const hidePlanMarker = (() => {
+                          const fcDate = actual ?? (fcEff as Date | undefined)
+                          return !!fcDate && isSameDay(due, fcDate)
+                        })()
                         return (
                           <div
                             key={m.id}
@@ -1957,6 +2389,10 @@ export default function ProjectDashboardPage() {
                                                     rel: 'blocked'
                                                     focusOwner: string | null
                                                     otherOwner: string | null
+                                                    causeLabel?: string
+                                                    effectLabel?: string
+                                                    focusLabel?: string
+                                                    otherLabel?: string
                                                   }>
                                                   for (const p of unfinishedPredecessors) {
                                                     const other =
@@ -1980,7 +2416,20 @@ export default function ProjectDashboardPage() {
                                                       ascii: asciiBranchMarked(
                                                         focus,
                                                         other,
-                                                        'blocked'
+                                                        'blocked',
+                                                        {
+                                                          // blocked: cause is other (predecessor), effect is focus
+                                                          causeLabel: p.name,
+                                                          effectLabel: m.name,
+                                                          causeLeafId:
+                                                            wbsMaps.firstLeafUnder(
+                                                              other
+                                                            ) || undefined,
+                                                          effectLeafId:
+                                                            wbsMaps.firstLeafUnder(
+                                                              focus
+                                                            ) || undefined,
+                                                        }
                                                       ),
                                                       focusName:
                                                         wbsMaps.toName(focus),
@@ -1997,6 +2446,10 @@ export default function ProjectDashboardPage() {
                                                             oOwner
                                                           ) || oOwner
                                                         : null,
+                                                      causeLabel: p.name,
+                                                      effectLabel: m.name,
+                                                      focusLabel: m.name,
+                                                      otherLabel: p.name,
                                                     })
                                                   }
                                                   if (cards.length > 0) {
@@ -2036,6 +2489,10 @@ export default function ProjectDashboardPage() {
                                                     rel: 'blocking'
                                                     focusOwner: string | null
                                                     otherOwner: string | null
+                                                    causeLabel?: string
+                                                    effectLabel?: string
+                                                    focusLabel?: string
+                                                    otherLabel?: string
                                                   }>
                                                   for (const s of blockingSuccessors) {
                                                     const other =
@@ -2059,7 +2516,19 @@ export default function ProjectDashboardPage() {
                                                       ascii: asciiBranchMarked(
                                                         focus,
                                                         other,
-                                                        'blocking'
+                                                        'blocking',
+                                                        {
+                                                          causeLabel: m.name,
+                                                          effectLabel: s.name,
+                                                          causeLeafId:
+                                                            wbsMaps.firstLeafUnder(
+                                                              focus
+                                                            ) || undefined,
+                                                          effectLeafId:
+                                                            wbsMaps.firstLeafUnder(
+                                                              other
+                                                            ) || undefined,
+                                                        }
                                                       ),
                                                       focusName:
                                                         wbsMaps.toName(focus),
@@ -2076,6 +2545,10 @@ export default function ProjectDashboardPage() {
                                                             oOwner
                                                           ) || oOwner
                                                         : null,
+                                                      causeLabel: m.name,
+                                                      effectLabel: s.name,
+                                                      focusLabel: m.name,
+                                                      otherLabel: s.name,
                                                     })
                                                   }
                                                   if (cards.length > 0) {
@@ -2115,6 +2588,10 @@ export default function ProjectDashboardPage() {
                                                     rel: 'blockedRisk'
                                                     focusOwner: string | null
                                                     otherOwner: string | null
+                                                    causeLabel?: string
+                                                    effectLabel?: string
+                                                    focusLabel?: string
+                                                    otherLabel?: string
                                                   }>
                                                   for (const p of blockedRiskPreds) {
                                                     const other =
@@ -2139,7 +2616,20 @@ export default function ProjectDashboardPage() {
                                                       ascii: asciiBranchMarked(
                                                         focus,
                                                         other,
-                                                        'blockedRisk'
+                                                        'blockedRisk',
+                                                        {
+                                                          // blockedRisk: cause is other (pred), effect is focus
+                                                          causeLabel: p.name,
+                                                          effectLabel: m.name,
+                                                          causeLeafId:
+                                                            wbsMaps.firstLeafUnder(
+                                                              other
+                                                            ) || undefined,
+                                                          effectLeafId:
+                                                            wbsMaps.firstLeafUnder(
+                                                              focus
+                                                            ) || undefined,
+                                                        }
                                                       ),
                                                       focusName:
                                                         wbsMaps.toName(focus),
@@ -2156,6 +2646,8 @@ export default function ProjectDashboardPage() {
                                                             oOwner
                                                           ) || oOwner
                                                         : null,
+                                                      causeLabel: p.name,
+                                                      effectLabel: m.name,
                                                     })
                                                   }
                                                   if (cards.length > 0) {
@@ -2195,6 +2687,10 @@ export default function ProjectDashboardPage() {
                                                     rel: 'blockRisk'
                                                     focusOwner: string | null
                                                     otherOwner: string | null
+                                                    causeLabel?: string
+                                                    effectLabel?: string
+                                                    focusLabel?: string
+                                                    otherLabel?: string
                                                   }>
                                                   for (const s of blockRiskSuccs) {
                                                     const other =
@@ -2219,7 +2715,20 @@ export default function ProjectDashboardPage() {
                                                       ascii: asciiBranchMarked(
                                                         focus,
                                                         other,
-                                                        'blockRisk'
+                                                        'blockRisk',
+                                                        {
+                                                          // blockRisk: cause is focus, effect is other
+                                                          causeLabel: m.name,
+                                                          effectLabel: s.name,
+                                                          causeLeafId:
+                                                            wbsMaps.firstLeafUnder(
+                                                              focus
+                                                            ) || undefined,
+                                                          effectLeafId:
+                                                            wbsMaps.firstLeafUnder(
+                                                              other
+                                                            ) || undefined,
+                                                        }
                                                       ),
                                                       focusName:
                                                         wbsMaps.toName(focus),
@@ -2236,6 +2745,8 @@ export default function ProjectDashboardPage() {
                                                             oOwner
                                                           ) || oOwner
                                                         : null,
+                                                      causeLabel: m.name,
+                                                      effectLabel: s.name,
                                                     })
                                                   }
                                                   if (cards.length > 0) {
@@ -2263,7 +2774,7 @@ export default function ProjectDashboardPage() {
                                     )}
                                 </div>
                               </div>
-                              <div className="text-right">
+                              <div className="text-right pr-24">
                                 <div
                                   className={cn(
                                     'text-sm font-semibold',
@@ -2286,23 +2797,37 @@ export default function ProjectDashboardPage() {
                                 <div className="relative h-2 w-full">
                                   {/* track background + clipped fills */}
                                   <div className="absolute inset-0 rounded-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
-                                    {/* Progress fill: completed→actual, in‑progress→plan (no gap before dashed) */}
+                                    {/* Progress fill: completed→actual, in‑progress→min(plan,fc) — colored by SPI category */}
                                     <div
                                       className={cn(
-                                        'h-full rounded-full',
+                                        'absolute inset-y-0 rounded-full',
                                         spiBaseColor
                                       )}
                                       style={{
-                                        width: `${isCompleted ? fcPct : Math.min(planLabelPct, fcLabelPct)}%`,
+                                        left: `${taskStartPct}%`,
+                                        width: `${isCompleted ? Math.max(0, fcPctLabel - taskStartPct) : progressAbsPct}%`,
                                       }}
                                     />
-                                    {/* Plan↔Forecast difference (from plan to forecast) */}
+                                    {/* Continue color between plan→today when overdue */}
+                                    {!isCompleted && overdueSolidWidth > 0 && (
+                                      <div
+                                        className={cn(
+                                          'absolute inset-y-0 rounded-none',
+                                          spiBaseColor
+                                        )}
+                                        style={{
+                                          left: `${planPctLabel}%`,
+                                          width: `${overdueSolidWidth}%`,
+                                        }}
+                                      />
+                                    )}
+                                    {/* Plan↔Forecast difference (future-only, dashed between today→forecast) */}
                                     {!isCompleted && dashedSegWidth > 0 && (
                                       <div
                                         className="absolute inset-y-0 left-0 z-10"
                                         style={{
-                                          left: `${planLabelPct}%`,
-                                          width: `${Math.max(0, fcLabelPct - planLabelPct)}%`,
+                                          left: `${dashedStart}%`,
+                                          width: `${Math.max(0, fcPctLabel - dashedStart)}%`,
                                           // Denser colored portion: thicker color band, thinner gap
                                           backgroundImage: isLate
                                             ? 'repeating-linear-gradient(135deg, rgba(239,68,68,0.9) 0, rgba(239,68,68,0.9) 12px, rgba(239,68,68,0.0) 12px, rgba(239,68,68,0.0) 16px)'
@@ -2312,28 +2837,60 @@ export default function ProjectDashboardPage() {
                                     )}
                                   </div>
                                   {/* Removed per-bar today line; using global dashed line */}
-                                  {/* Plan marker */}
+                                  {/* Start marker */}
                                   <div
                                     className="absolute"
                                     style={{
-                                      left: `calc(${planLabelPct}% - 6px)`,
-                                      top: markersClose ? -10 : -6,
+                                      left: `calc(${taskStartPct}% - 6px)`,
+                                      top: -6,
                                     }}
                                   >
-                                    {/* Avoid nested default group collisions; name the inner group */}
                                     <div
                                       className="relative group/marker z-50"
                                       onMouseEnter={() =>
-                                        setHoveredMs(
-                                          markersClose
-                                            ? `combo:${m.id}`
-                                            : `plan:${m.id}`
-                                        )
+                                        setHoveredMs(`start:${m.id}`)
                                       }
                                       onMouseLeave={() => setHoveredMs(null)}
+                                      aria-label="Başlangıç"
                                     >
-                                      <div className="size-3.5 rounded-full bg-gray-300 border border-gray-500 shadow-md ring-2 ring-white dark:ring-gray-900" />
-                                      {!markersClose && (
+                                      <div className="size-3.5 rounded-full bg-gray-200 border border-gray-500 shadow-md ring-2 ring-white dark:ring-gray-900" />
+                                      <div
+                                        className={cn(
+                                          'absolute z-50 px-2 py-1 rounded-md border bg-popover text-popover-foreground text-xs shadow pointer-events-none whitespace-nowrap',
+                                          hoveredMs === `start:${m.id}`
+                                            ? 'opacity-100'
+                                            : 'opacity-0',
+                                          startAnchor === 'center' &&
+                                            'left-1/2 -translate-x-1/2',
+                                          startAnchor === 'left' && 'left-0',
+                                          startAnchor === 'right' && 'right-0'
+                                        )}
+                                        style={startTipPos}
+                                      >
+                                        Başlangıç:{' '}
+                                        {new Date(
+                                          m.startDate
+                                        ).toLocaleDateString('tr-TR')}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  {/* Plan marker (hidden if equals forecast/actual same gün) */}
+                                  {!hidePlanMarker && (
+                                    <div
+                                      className="absolute"
+                                      style={{
+                                        left: `calc(${planPctLabel}% - 6px)`,
+                                        top: markersClose ? -10 : -6,
+                                      }}
+                                    >
+                                      <div
+                                        className="relative group/marker z-50"
+                                        onMouseEnter={() =>
+                                          setHoveredMs(`plan:${m.id}`)
+                                        }
+                                        onMouseLeave={() => setHoveredMs(null)}
+                                      >
+                                        <div className="size-3.5 rounded-full bg-gray-300 border border-gray-500 shadow-md ring-2 ring-white dark:ring-gray-900" />
                                         <div
                                           className={cn(
                                             'absolute z-50 px-2 py-1 rounded-md border bg-popover text-popover-foreground text-xs shadow pointer-events-none whitespace-nowrap',
@@ -2347,18 +2904,18 @@ export default function ProjectDashboardPage() {
                                           )}
                                           style={planTipPos}
                                         >
-                                          Plan:{' '}
+                                          Planlanan Bitiş:{' '}
                                           {due.toLocaleDateString('tr-TR')}
                                         </div>
-                                      )}
+                                      </div>
                                     </div>
-                                  </div>
+                                  )}
                                   {/* Forecast marker */}
                                   {fc && (
                                     <div
                                       className="absolute"
                                       style={{
-                                        left: `calc(${fcLabelPct}% - 6px)`,
+                                        left: `calc(${fcPctLabel}% - 6px)`,
                                         top: markersClose ? undefined : -6,
                                         bottom: markersClose ? -10 : undefined,
                                       }}
@@ -2366,11 +2923,7 @@ export default function ProjectDashboardPage() {
                                       <div
                                         className="relative group/marker z-50"
                                         onMouseEnter={() =>
-                                          setHoveredMs(
-                                            markersClose
-                                              ? `combo:${m.id}`
-                                              : `fc:${m.id}`
-                                          )
+                                          setHoveredMs(`fc:${m.id}`)
                                         }
                                         onMouseLeave={() => setHoveredMs(null)}
                                       >
@@ -2397,29 +2950,16 @@ export default function ProjectDashboardPage() {
                                           )}
                                           style={fcTipPos}
                                         >
-                                          {markersClose ? (
+                                          {isCompleted ? (
                                             <span>
-                                              Plan:{' '}
-                                              {due.toLocaleDateString('tr-TR')}{' '}
-                                              •{' '}
-                                              {isCompleted
-                                                ? 'Gerçek'
-                                                : 'Tahmin'}
-                                              :{' '}
-                                              {(fc as Date).toLocaleDateString(
-                                                'tr-TR'
-                                              )}
-                                            </span>
-                                          ) : isCompleted ? (
-                                            <span>
-                                              Gerçek:{' '}
+                                              Gerçekleşen Bitiş:{' '}
                                               {(fc as Date).toLocaleDateString(
                                                 'tr-TR'
                                               )}
                                             </span>
                                           ) : (
                                             <span>
-                                              Tahmin:{' '}
+                                              Öngörülen Bitiş:{' '}
                                               {(fc as Date).toLocaleDateString(
                                                 'tr-TR'
                                               )}
@@ -2494,8 +3034,8 @@ export default function ProjectDashboardPage() {
 
         {activeTab === 'subs' && (
           <div className="mb-8">
-            <SubcontractorOverview
-              data={subcontractorOverviewData}
+            <SubcontractorsTab
+              rows={subcontractorsRows}
               onSelect={id => {
                 setSelectedOwner(id)
                 setActiveTab('wbs')
@@ -2590,7 +3130,9 @@ export default function ProjectDashboardPage() {
                     insightCards[insightIndex]?.rel === 'blockedRisk' ? (
                       <>
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 border border-gray-200">
-                          ▶ Etkileyen: {insightCards[insightIndex]?.otherName}
+                          ▶ Etkileyen:{' '}
+                          {insightCards[insightIndex]?.otherLabel ||
+                            insightCards[insightIndex]?.otherName}
                           {insightCards[insightIndex]?.otherOwner && (
                             <span className="opacity-70">
                               ({insightCards[insightIndex]?.otherOwner})
@@ -2598,7 +3140,9 @@ export default function ProjectDashboardPage() {
                           )}
                         </span>
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-                          ● İncelenen: {insightCards[insightIndex]?.focusName}
+                          ● İncelenen:{' '}
+                          {insightCards[insightIndex]?.focusLabel ||
+                            insightCards[insightIndex]?.focusName}
                           {insightCards[insightIndex]?.focusOwner && (
                             <span className="opacity-70">
                               ({insightCards[insightIndex]?.focusOwner})
@@ -2609,7 +3153,9 @@ export default function ProjectDashboardPage() {
                     ) : (
                       <>
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-                          ▶ İncelenen: {insightCards[insightIndex]?.focusName}
+                          ▶ İncelenen:{' '}
+                          {insightCards[insightIndex]?.focusLabel ||
+                            insightCards[insightIndex]?.focusName}
                           {insightCards[insightIndex]?.focusOwner && (
                             <span className="opacity-70">
                               ({insightCards[insightIndex]?.focusOwner})
@@ -2617,7 +3163,9 @@ export default function ProjectDashboardPage() {
                           )}
                         </span>
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
-                          ● Etkilenen: {insightCards[insightIndex]?.otherName}
+                          ● Etkilenen:{' '}
+                          {insightCards[insightIndex]?.otherLabel ||
+                            insightCards[insightIndex]?.otherName}
                           {insightCards[insightIndex]?.otherOwner && (
                             <span className="opacity-70">
                               ({insightCards[insightIndex]?.otherOwner})
@@ -2633,6 +3181,12 @@ export default function ProjectDashboardPage() {
                   <pre className="font-mono text-xs md:text-sm bg-muted/40 p-3 rounded border overflow-auto whitespace-pre">
                     {insightCards[insightIndex]?.ascii}
                   </pre>
+                  {insightCards[insightIndex]?.causeLabel && (
+                    <div className="text-xs text-muted-foreground">
+                      Bağımlılık: {insightCards[insightIndex]?.causeLabel} →{' '}
+                      {insightCards[insightIndex]?.effectLabel}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -30,7 +30,7 @@ import {
 } from '@/components/projects/project-card'
 import { getSimpleProjects } from '@/lib/mock-data'
 import type { Project as SimpleProject } from '@/components/projects/types/project-types'
-import { useRouter } from 'next/navigation'
+// Navigation via links to avoid router context issues
 import { PERFORMANCE_THRESHOLDS as T } from '@/lib/performance-thresholds'
 import { useLocale } from 'next-intl'
 
@@ -174,15 +174,13 @@ const mockProjects: CardProject[] = [
 export default function DashboardPage() {
   const [isCreatingProject, setIsCreatingProject] = React.useState(false)
   const [projectFilter, setProjectFilter] = React.useState('all')
-  const router = useRouter()
   const locale = useLocale()
 
   const breadcrumbItems: Array<{ label: string; href: string }> = []
 
-  const handleProjectClick = (project: CardProject) => {
-    // Navigate to localized project details page with rich WBS demo params
-    const params = new URLSearchParams({ taskDepth: '2', tasksMax: '18' })
-    router.push(`/${locale}/projects/${project.id}?${params.toString()}`)
+  const projectHref = (project: CardProject) => {
+    const params = new URLSearchParams({ taskDepth: '2' })
+    return `/${locale}/projects/${project.id}?${params.toString()}`
   }
 
   const handleCreateProject = () => {
@@ -1114,13 +1112,12 @@ export default function DashboardPage() {
                 </ToggleGroupItem>
               </ToggleGroup>
             </div>
-            <Button
-              variant="outline"
-              className="modern-button group"
-              onClick={() => router.push(`/${locale}/projects`)}
+            <a
+              href={`/${locale}/projects`}
+              className="modern-button group inline-flex items-center justify-center rounded-md border px-4 py-2"
             >
               Tüm Projeleri Gör
-            </Button>
+            </a>
           </div>
 
           <div className="grid-responsive spacing-relaxed animate-stagger">
@@ -1130,7 +1127,7 @@ export default function DashboardPage() {
                 <ProjectCard
                   key={project.id}
                   project={project}
-                  onClick={handleProjectClick}
+                  href={projectHref(project)}
                   index={index}
                 />
               ))}

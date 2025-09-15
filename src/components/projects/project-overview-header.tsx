@@ -80,9 +80,11 @@ type SubcontractorTopItems = {
 export function ProjectOverviewHeader({
   project,
   subcontractorResponsibilities,
+  projectedFinishBySchedule,
 }: {
   project: Project
   subcontractorResponsibilities?: SubcontractorTopItems[]
+  projectedFinishBySchedule?: Date
 }) {
   // CPI = EV / AC (guard against divide-by-zero)
   const cpi =
@@ -106,6 +108,7 @@ export function ProjectOverviewHeader({
     d.setDate(d.getDate() + projDays)
     return d
   })()
+  const projectedEndEffective = projectedFinishBySchedule || projectedEnd
 
   const [range, setRange] = React.useState<RangeMode>('months')
   const [cpiSeries, setCpiSeries] = React.useState(
@@ -352,7 +355,7 @@ export function ProjectOverviewHeader({
                   Böyle Giderse:
                 </span>
                 <span className="font-bold text-base text-amber-700 dark:text-amber-300">
-                  {projectedEnd.toLocaleDateString('tr-TR')}
+                  {projectedEndEffective.toLocaleDateString('tr-TR')}
                 </span>
               </div>
             </div>

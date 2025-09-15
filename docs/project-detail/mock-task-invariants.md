@@ -12,7 +12,7 @@ Bu doküman, proje detay sayfasındaki İş Maddeleri (WBS tabanlı görevler) i
 - `dependsOn`: bir işin öncüllerinin kimlikleri.
 - `blocks`: bir işin ardıllarının kimlikleri (otomatik türetilir).
 
-## Mantıksal Invariantlar
+## Mantıksal Invariantlar (WBS‑Backed Schedule ile uyumlu)
 
 1) Bitmiş bir iş, Bloklanan olamaz.
 2) Bitmiş bir iş, Bloklayan olamaz.
@@ -25,9 +25,36 @@ Bu doküman, proje detay sayfasındaki İş Maddeleri (WBS tabanlı görevler) i
    - Bu kural hem veri üretiminde hem de görselleştirmede (rozet sırası, ASCII ağaç) uygulanır.
 8) Dairesel bağımlılık yok: `dependsOn` ilişkileri bir DAG (Directed Acyclic Graph) oluşturur.
    - Yeni bir bağ eklenmeden önce `wouldCreateCycle(A depends B)` kontrolü yapılır; `B`'den `A`'ya mevcut bir yol varsa ekleme iptal edilir.
-   - Bu kontrol seed sırasında tüm kategoriler için uygulanır.
+   - İstisna – Görünürde Döngü: İnceleme her zaman belirli bir kırılım derinliğinde yapıldığından, aynı iş kaleminin daha derin kırılımındaki alt kalemleri arasında (veya iki kardeş iş kaleminin daha derindeki alt kalemleri arasında) mantıklı bir öncül‑artçıl ilişkisi bulunabilir. Bu, bulunduğumuz seviyede bakıldığında “A ↔ B” gibi döngü havası verebilir. Seed, gerçek graf üzerinde döngü kurmaz; ancak Insight penceresinde kök→yaprak yolu ve bir alt seviye örnek düğüm gösterilerek kullanıcıya gerçek bağımlılığın daha aşağı seviyede olduğu açıklanır.
 
 Bu kurallar hem sayaçlarda hem de liste filtrelerinde birebir uygulanır.
+
+9) Proje başlangıcında en az bir görev başlar: Mock üretiminde, oluşturulan görevler arasında en erken başlama tarihi proje başlangıcı (`project.startDate`) olacak şekilde en az bir görev zorunlu kılınır. Bu, zaman çizelgesinde görsel bir referans/anchor sağlar ve “başlangıçla beraber başlayan” iş örneği her projede garanti edilir.
+
+İlgili uygulama: `getWbsTasks` içinde görevler üretildikten sonra en erken başlayan görev belirlenir ve `startDate` değeri proje başlangıcına ayarlanır:
+
+```ts
+// Ensure at least one task starts exactly at project start (visual anchor)
+if (tasks.length > 0) {
+  let minIdx = 0
+  for (let i = 1; i < startTimes.length; i++) {
+    if (startTimes[i] < startTimes[minIdx]) minIdx = i
+  }
+  if (startTimes[minIdx] !== start) {
+    tasks[minIdx].startDate = new Date(start).toISOString()
+    startTimes[minIdx] = start
+  }
+}
+```
+
+9) WBS‑Backed Schedule uyumu:
+
+- Bağımlılık türü FS (Finish‑to‑Start) ve yalnız **leaf** düğümler arasında tanımlanır; non‑leaf düzeyinde bağımlılıklar türetilir.
+- Forecast, raporlama tarihine (data_date) göre hesaplanır; başlamamış leaf için `allow_early_start=false` politikası gereği forecast başlangıcı baseline’dan erken, dolayısıyla forecast bitişi baseline bitişinden erken olamaz.
+- Başlamış ama bitmemiş leaf için “start‑shift” yaklaşımı kullanılır: `EF_f = max(data_date, baseline_finish + (actual_start - baseline_start))`. Mock üretiminde `actual_start ≈ baseline_start` varsayılarak en azından `EF_f ≥ max(data_date, baseline_finish)` sağlanır.
+- Non‑leaf forecast değerleri çocuklardan türetilir: `forecast_finish = max(child.forecast_finish)`. Başlamamış non‑leaf için `forecast_start = min(child.forecast_start)`; bir çocuk başladıysa non‑leaf forecast_start gösterilmez.
+
+Bu kurallar docs/project-detail/WBS-backed-schedule.md ile birebir uyumludur.
 
 ## Kilometre Taşı Özeti (Milestone Summary) İnvariantı
 
@@ -44,7 +71,7 @@ Amaç: Proje genelindeki kilometre taşlarının özet sayıları (toplam, tamam
 
 Bu yaklaşım sayesinde "Yaklaşan" eşiği, projenin toplam süresinin %10’u olarak normalize edilir; kısa projelerde 14 gün çok geniş/uzun projelerde çok dar kalma sorunları önlenir.
 
-## Deterministik Mock Üretimi
+## Deterministik Mock Üretimi (leaf‑tabanlı FS bağımlılıklarla)
 
 İlgili kod: `src/app/[locale]/(dashboard)/projects/[id]/page.tsx` içinde `getWbsTasks` fonksiyonu. Görevler üretildikten sonra aşağıdaki deterministik seeding bloğu çalışır:
 
@@ -64,13 +91,27 @@ Bu yaklaşım sayesinde "Yaklaşan" eşiği, projenin toplam süresinin %10’u 
 
 - Bloklanan (WANT.blocked): Başlamış ve bitmemiş ilk `N` görev için, en yakın önceki bitmemiş ve farklı baz id’ye sahip görev öncül (`dependsOn`) olarak atanır.
 - Bloklayan (WANT.blocking): Gecikmiş ve bitmemiş ilk `N` görev için, farklı baz id’ye sahip, başlatılmış bir bitmemiş görev ardıl seçilir ve o ardılın `dependsOn` listesine bu gecikmiş görev eklenir.
-- Bloklanma Riski (WANT.blockedRisk): Gelecekte başlayacak ilk `N` görev için, farklı baz id’ye sahip bir bitmemiş öncül seçilir; gerekirse bu öncülün `forecastDate` değeri, ilgili görevin başlangıcını aşacak şekilde ileri alınır ve `dependsOn` atanır.
+- Bloklanma Riski (WANT.blockedRisk): Gelecekte başlayacak ilk `N` görev için, farklı baz id’ye sahip bir bitmemiş öncül seçilir; gerekirse bu öncülün forecast bitişi ardılın planlanan/forecast başlangıcını aşacak şekilde ileri alınır ve `dependsOn` atanır (FS kuralı).
 - Bloklama Riski (WANT.blockRisk): Bir bitmemiş görev ile farklı baz id’ye sahip, gelecekte başlayacak bir ardıl eşleştirilir; gerekirse ilk görevin `forecastDate` değeri ardılın başlangıcını aşacak şekilde ileri alınır ve ardılın `dependsOn` listesine bu görev eklenir.
   - Her ekleme öncesi dairesellik kontrolü yapılır; döngü ihtimali varsa o aday atlanır.
 
+### Görünürde Döngülerin Ele Alınışı ve Derinlikli Render
+
+- Seed, aynı baz düğüm çiftleri arasında tekrarlı ilişkileri üretmez (ör. `Kolonlar→Temel` bir kez). Bu, faz/alt parça çokluluğundan doğan çift kopyalarını da engeller.
+- Bununla birlikte kullanıcı seviyesinde aynı iki iş kalemi için hem “neden bloklu?” hem “neyi blokluyor?” kartları görülebilir. Bu durum, graf üzerinde gerçek bir döngü olmadığı halde, alt seviyelerdeki farklı alt kalemler arasında iki yönlü mantıklı akışlar bulunduğunu anlatır.
+- Insight penceresinde, ilgili iki dalın kökten yaprağa yolu çizilir ve gerçek bağımlılığın oluştuğu düğümlere kadar render edilir:
+  - Dal sonlarında sebep için `▶`, etki için `●` işaretleri bulunur.
+  - Gerçek bağa karşılık gelen düğümler (faz/alt kalem adı gibi) dalın altında ek satır olarak gösterilir.
+  - ASCII çıktısının altında ayrıca özet bir satır yer alır: `Bağımlılık: <sebep> → <etki>`.
+
+Uygulama notu: `asciiBranchMarked(focus, other, rel, { causeLabel, effectLabel })` imzası kullanılır; bu etiketler, gerçek bağın kurulduğu görev/faz adlarıdır.
+
+Uygulama notu: `asciiBranchMarked` çıktısı, mevcut seviyedeki düğümlerin çocuklarından bir yaprak düğümü de (varsa) ek satır olarak render eder. Bu sayede kullanıcıya “gerçek bağ daha aşağıda” bilgisi verilir.
+
 Notlar:
 - `blocks` ilişkileri, `dependsOn` kurulumundan sonra otomatik türetilir.
-- Gerekli olduğunda `forecastDate` ayarlanır ve `slipDays` yeniden hesaplanır. Hiçbir durumda bitmiş işlerden "bloklanan" veya "bloklayan" örneği üretilmez.
+- Gerekli olduğunda forecast ayarlanır ve `slipDays` yeniden hesaplanır. Hiçbir durumda bitmiş işlerden "bloklanan" veya "bloklayan" örneği üretilmez.
+- Başlamamış leaf için forecast, baseline’dan erken olmayacak şekilde clamp edilir (allow_early_start=false varsayımı).
 
 ## Filtrelerin Uygulanması
 
