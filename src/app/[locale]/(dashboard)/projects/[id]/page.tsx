@@ -871,7 +871,7 @@ export default function ProjectDashboardPage() {
       // Build simple deterministic dependencies within the same depth
       const idIndex = new Map<string, number>()
       tasks.forEach((t, i) => idIndex.set(t.id, i))
-      const baseOf = (id: string) => id.split('-p')[0]
+      const baseOf = baseTaskId
       // Track base-node predecessor→successor pairs to avoid duplicate relations across phases
       const pairSeen = new Set<string>()
       // helper: detect if adding edge a(dependsOn)->b creates a cycle
@@ -1070,7 +1070,7 @@ export default function ProjectDashboardPage() {
           const actualFinish = t.actualDate
             ? new Date(t.actualDate).getTime()
             : undefined
-          const baseId = t.id.split('-p')[0]
+          const baseId = baseTaskId(t.id)
           const met = metricsById.get(baseId)
           const spiHint =
             met && met.pv && met.pv > 0 ? (met.ev || 0) / met.pv : undefined
@@ -1108,7 +1108,7 @@ export default function ProjectDashboardPage() {
       } catch {}
       // Spread clustered forecasts across the remaining timeline using SPI-biased jitter
       try {
-        const baseOf = (id: string) => id.split('-p')[0]
+        const baseOf = baseTaskId
         const spanFuture = Math.max(30 * 86400000, end - nowMs - 5 * 86400000)
         for (const t of tasks) {
           if (t.actualDate) continue
@@ -1373,6 +1373,53 @@ export default function ProjectDashboardPage() {
     return { nodeById, parent, pathTo, toName, firstLeafUnder }
   }, [wbsRoot])
 
+  const baseTaskId = React.useCallback(
+    (id: string) => id.replace(/-p\d+$/, ''),
+    []
+  )
+
+  const taskPathLabels = React.useCallback(
+    (taskId: string): { short: string; full: string } => {
+      const baseId = baseTaskId(taskId)
+      let path = wbsMaps.pathTo(baseId)
+      if (path.length > 1 && path[0].id === wbsRoot.id) {
+        path = path.slice(1)
+      }
+      let names = path.map(node => node.name || wbsMaps.toName(node.id))
+      if (names.length === 0) {
+        names = [wbsMaps.toName(baseId)]
+      }
+      const full = names.join(' › ')
+      let short = full
+      if (names.length > 3) {
+        short = [...names.slice(0, 2), '...', ...names.slice(-2)].join(' › ')
+      }
+      return { short, full }
+    },
+    [baseTaskId, wbsMaps, wbsRoot.id]
+  )
+
+  const asciiPath = React.useCallback(
+    (taskId: string): string => {
+      const baseId = baseTaskId(taskId)
+      const path = wbsMaps.pathTo(baseId)
+      if (path.length === 0) return wbsMaps.toName(baseId)
+      const lines: string[] = []
+      path.forEach((node, idx) => {
+        const label = wbsMaps.toName(node.id)
+        if (idx === 0) {
+          lines.push(label)
+          return
+        }
+        const glyph = idx === path.length - 1 ? '└─ ' : '├─ '
+        const indent = '  '.repeat(idx - 1)
+        lines.push(`${indent}${glyph}${label}`)
+      })
+      return lines.join('\n')
+    },
+    [baseTaskId, wbsMaps]
+  )
+
   const asciiBranchMarked = React.useCallback(
     (
       focusNodeId: string,
@@ -1548,6 +1595,7 @@ export default function ProjectDashboardPage() {
   })
   // Single-tooltip policy: track which marker is hovered
   const [hoveredMs, setHoveredMs] = React.useState<string | null>(null)
+  const [hoveredCardId, setHoveredCardId] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     const sp = new URLSearchParams(searchParams.toString())
@@ -2125,19 +2173,21 @@ export default function ProjectDashboardPage() {
                               startMsOf(s) > nowMs &&
                               fcEndMsOf(m) > startMsOf(s)
                           )
-                        const baseFocusId = m.id.split('-p')[0]
+                        const baseFocusId = baseTaskId(m.id)
+                        const labels = taskPathLabels(m.id)
+                        const ascii = asciiPath(m.id)
                         const hasUnfinishedPredOther =
                           unfinishedPredecessors.some(
-                            p => baseFocusId !== p.id.split('-p')[0]
+                            p => baseFocusId !== baseTaskId(p.id)
                           )
                         const hasBlockingSuccOther = blockingSuccessors.some(
-                          s => baseFocusId !== s.id.split('-p')[0]
+                          s => baseFocusId !== baseTaskId(s.id)
                         )
                         const hasBlockedRiskPredOther = blockedRiskPreds.some(
-                          p => baseFocusId !== p.id.split('-p')[0]
+                          p => baseFocusId !== baseTaskId(p.id)
                         )
                         const hasBlockRiskSuccOther = blockRiskSuccs.some(
-                          s => baseFocusId !== s.id.split('-p')[0]
+                          s => baseFocusId !== baseTaskId(s.id)
                         )
                         const due = new Date(m.dueDate)
                         let fc = m.forecastDate
@@ -2347,435 +2397,408 @@ export default function ProjectDashboardPage() {
                         return (
                           <div
                             key={m.id}
-                            className="p-3 rounded-lg bg-muted/40 border"
+                            className="relative p-3 rounded-lg bg-muted/40 border"
+                            style={{
+                              zIndex: hoveredCardId === m.id ? 600 : undefined,
+                            }}
+                            onMouseEnter={() => setHoveredCardId(m.id)}
+                            onMouseLeave={() =>
+                              setHoveredCardId(prev =>
+                                prev === m.id ? null : prev
+                              )
+                            }
                           >
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex items-center gap-2 min-w-0">
-                                <div
-                                  className={cn(
-                                    'size-8 rounded-full flex items-center justify-center',
-                                    colorClasses
-                                  )}
-                                >
-                                  <Calendar className="size-4" />
-                                </div>
-                                {/* Insight actions active only for relevant filters (moved inline after owner) */}
-                                <div className="min-w-0">
-                                  <div className="flex items-center gap-2 min-w-0">
-                                    <h4 className="font-medium truncate">
-                                      {m.name}
-                                    </h4>
-                                    {/* Removed per-task 'Kritik' label for clarity */}
-                                    {m.owner && (
-                                      <span className="px-1.5 py-0.5 text-[11px] rounded bg-secondary text-foreground/80">
-                                        {ownerLabel(m.owner)}
-                                      </span>
-                                    )}
-                                    {msState === 'blocked' &&
-                                      hasUnfinishedPredOther && (
-                                        <div className="text-xs shrink-0">
-                                          <Tooltip>
-                                            <TooltipTrigger asChild>
-                                              <button
-                                                className="underline text-blue-600 hover:text-blue-700"
-                                                onClick={() => {
-                                                  // record cards and open insight dialog
-                                                  const focus =
-                                                    m.id.split('-p')[0]
-                                                  const seen = new Set<string>()
-                                                  const cards = [] as Array<{
-                                                    title: string
-                                                    details: string
-                                                    ascii: string
-                                                    focusName: string
-                                                    otherName: string
-                                                    rel: 'blocked'
-                                                    focusOwner: string | null
-                                                    otherOwner: string | null
-                                                    causeLabel?: string
-                                                    effectLabel?: string
-                                                    focusLabel?: string
-                                                    otherLabel?: string
-                                                  }>
-                                                  for (const p of unfinishedPredecessors) {
-                                                    const other =
-                                                      p.id.split('-p')[0]
-                                                    if (other === focus)
-                                                      continue
-                                                    if (seen.has(other))
-                                                      continue
-                                                    seen.add(other)
-                                                    const fOwner =
-                                                      analytics.ownership.get(
-                                                        focus
-                                                      )
-                                                    const oOwner =
-                                                      analytics.ownership.get(
-                                                        other
-                                                      )
-                                                    cards.push({
-                                                      title: 'Neden Bloklu?',
-                                                      details: `${wbsMaps.toName(other)} işi tamamlanmadı`,
-                                                      ascii: asciiBranchMarked(
-                                                        focus,
-                                                        other,
-                                                        'blocked',
-                                                        {
-                                                          // blocked: cause is other (predecessor), effect is focus
-                                                          causeLabel: p.name,
-                                                          effectLabel: m.name,
-                                                          causeLeafId:
-                                                            wbsMaps.firstLeafUnder(
-                                                              other
-                                                            ) || undefined,
-                                                          effectLeafId:
-                                                            wbsMaps.firstLeafUnder(
-                                                              focus
-                                                            ) || undefined,
-                                                        }
-                                                      ),
-                                                      focusName:
-                                                        wbsMaps.toName(focus),
-                                                      otherName:
-                                                        wbsMaps.toName(other),
-                                                      rel: 'blocked',
-                                                      focusOwner: fOwner
-                                                        ? subsNameMap.get(
-                                                            fOwner
-                                                          ) || fOwner
-                                                        : null,
-                                                      otherOwner: oOwner
-                                                        ? subsNameMap.get(
-                                                            oOwner
-                                                          ) || oOwner
-                                                        : null,
-                                                      causeLabel: p.name,
-                                                      effectLabel: m.name,
-                                                      focusLabel: m.name,
-                                                      otherLabel: p.name,
-                                                    })
-                                                  }
-                                                  if (cards.length > 0) {
-                                                    setInsightCards(cards)
-                                                    setInsightIndex(0)
-                                                    setInsightOpen(true)
-                                                  }
-                                                }}
-                                              >
-                                                Neden Bloklu?
-                                              </button>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                              Nedenleri gör
-                                            </TooltipContent>
-                                          </Tooltip>
-                                        </div>
-                                      )}
-                                    {msState === 'blocking' &&
-                                      hasBlockingSuccOther && (
-                                        <div className="text-xs shrink-0">
-                                          <Tooltip>
-                                            <TooltipTrigger asChild>
-                                              <button
-                                                className="underline text-rose-600 hover:text-rose-700"
-                                                onClick={() => {
-                                                  // record cards and open insight dialog
-                                                  const focus =
-                                                    m.id.split('-p')[0]
-                                                  const seen = new Set<string>()
-                                                  const cards = [] as Array<{
-                                                    title: string
-                                                    details: string
-                                                    ascii: string
-                                                    focusName: string
-                                                    otherName: string
-                                                    rel: 'blocking'
-                                                    focusOwner: string | null
-                                                    otherOwner: string | null
-                                                    causeLabel?: string
-                                                    effectLabel?: string
-                                                    focusLabel?: string
-                                                    otherLabel?: string
-                                                  }>
-                                                  for (const s of blockingSuccessors) {
-                                                    const other =
-                                                      s.id.split('-p')[0]
-                                                    if (other === focus)
-                                                      continue
-                                                    if (seen.has(other))
-                                                      continue
-                                                    seen.add(other)
-                                                    const fOwner =
-                                                      analytics.ownership.get(
-                                                        focus
-                                                      )
-                                                    const oOwner =
-                                                      analytics.ownership.get(
-                                                        other
-                                                      )
-                                                    cards.push({
-                                                      title: 'Neyi Blokluyor?',
-                                                      details: `${wbsMaps.toName(other)} başlatılamıyor`,
-                                                      ascii: asciiBranchMarked(
-                                                        focus,
-                                                        other,
-                                                        'blocking',
-                                                        {
-                                                          causeLabel: m.name,
-                                                          effectLabel: s.name,
-                                                          causeLeafId:
-                                                            wbsMaps.firstLeafUnder(
-                                                              focus
-                                                            ) || undefined,
-                                                          effectLeafId:
-                                                            wbsMaps.firstLeafUnder(
-                                                              other
-                                                            ) || undefined,
-                                                        }
-                                                      ),
-                                                      focusName:
-                                                        wbsMaps.toName(focus),
-                                                      otherName:
-                                                        wbsMaps.toName(other),
-                                                      rel: 'blocking',
-                                                      focusOwner: fOwner
-                                                        ? subsNameMap.get(
-                                                            fOwner
-                                                          ) || fOwner
-                                                        : null,
-                                                      otherOwner: oOwner
-                                                        ? subsNameMap.get(
-                                                            oOwner
-                                                          ) || oOwner
-                                                        : null,
-                                                      causeLabel: m.name,
-                                                      effectLabel: s.name,
-                                                      focusLabel: m.name,
-                                                      otherLabel: s.name,
-                                                    })
-                                                  }
-                                                  if (cards.length > 0) {
-                                                    setInsightCards(cards)
-                                                    setInsightIndex(0)
-                                                    setInsightOpen(true)
-                                                  }
-                                                }}
-                                              >
-                                                Neyi Blokluyor?
-                                              </button>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                              Etkilediği işler
-                                            </TooltipContent>
-                                          </Tooltip>
-                                        </div>
-                                      )}
-                                    {msState === 'blockedRisk' &&
-                                      hasBlockedRiskPredOther && (
-                                        <div className="text-xs shrink-0">
-                                          <Tooltip>
-                                            <TooltipTrigger asChild>
-                                              <button
-                                                className="underline text-amber-700 hover:text-amber-800"
-                                                onClick={() => {
-                                                  // record cards and open insight dialog
-                                                  const focus =
-                                                    m.id.split('-p')[0]
-                                                  const seen = new Set<string>()
-                                                  const cards = [] as Array<{
-                                                    title: string
-                                                    details: string
-                                                    ascii: string
-                                                    focusName: string
-                                                    otherName: string
-                                                    rel: 'blockedRisk'
-                                                    focusOwner: string | null
-                                                    otherOwner: string | null
-                                                    causeLabel?: string
-                                                    effectLabel?: string
-                                                    focusLabel?: string
-                                                    otherLabel?: string
-                                                  }>
-                                                  for (const p of blockedRiskPreds) {
-                                                    const other =
-                                                      p.id.split('-p')[0]
-                                                    if (other === focus)
-                                                      continue
-                                                    if (seen.has(other))
-                                                      continue
-                                                    seen.add(other)
-                                                    const fOwner =
-                                                      analytics.ownership.get(
-                                                        focus
-                                                      )
-                                                    const oOwner =
-                                                      analytics.ownership.get(
-                                                        other
-                                                      )
-                                                    cards.push({
-                                                      title:
-                                                        'Neden Bloklanabilir?',
-                                                      details: `${wbsMaps.toName(other)} forecast bitişi bu işin planlanan başlangıcını aşıyor`,
-                                                      ascii: asciiBranchMarked(
-                                                        focus,
-                                                        other,
-                                                        'blockedRisk',
-                                                        {
-                                                          // blockedRisk: cause is other (pred), effect is focus
-                                                          causeLabel: p.name,
-                                                          effectLabel: m.name,
-                                                          causeLeafId:
-                                                            wbsMaps.firstLeafUnder(
-                                                              other
-                                                            ) || undefined,
-                                                          effectLeafId:
-                                                            wbsMaps.firstLeafUnder(
-                                                              focus
-                                                            ) || undefined,
-                                                        }
-                                                      ),
-                                                      focusName:
-                                                        wbsMaps.toName(focus),
-                                                      otherName:
-                                                        wbsMaps.toName(other),
-                                                      rel: 'blockedRisk',
-                                                      focusOwner: fOwner
-                                                        ? subsNameMap.get(
-                                                            fOwner
-                                                          ) || fOwner
-                                                        : null,
-                                                      otherOwner: oOwner
-                                                        ? subsNameMap.get(
-                                                            oOwner
-                                                          ) || oOwner
-                                                        : null,
-                                                      causeLabel: p.name,
-                                                      effectLabel: m.name,
-                                                    })
-                                                  }
-                                                  if (cards.length > 0) {
-                                                    setInsightCards(cards)
-                                                    setInsightIndex(0)
-                                                    setInsightOpen(true)
-                                                  }
-                                                }}
-                                              >
-                                                Neden Bloklanabilir?
-                                              </button>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                              Öngörülen nedenler
-                                            </TooltipContent>
-                                          </Tooltip>
-                                        </div>
-                                      )}
-                                    {msState === 'blockRisk' &&
-                                      hasBlockRiskSuccOther && (
-                                        <div className="text-xs shrink-0">
-                                          <Tooltip>
-                                            <TooltipTrigger asChild>
-                                              <button
-                                                className="underline text-rose-700 hover:text-rose-800"
-                                                onClick={() => {
-                                                  // record cards and open insight dialog
-                                                  const focus =
-                                                    m.id.split('-p')[0]
-                                                  const seen = new Set<string>()
-                                                  const cards = [] as Array<{
-                                                    title: string
-                                                    details: string
-                                                    ascii: string
-                                                    focusName: string
-                                                    otherName: string
-                                                    rel: 'blockRisk'
-                                                    focusOwner: string | null
-                                                    otherOwner: string | null
-                                                    causeLabel?: string
-                                                    effectLabel?: string
-                                                    focusLabel?: string
-                                                    otherLabel?: string
-                                                  }>
-                                                  for (const s of blockRiskSuccs) {
-                                                    const other =
-                                                      s.id.split('-p')[0]
-                                                    if (other === focus)
-                                                      continue
-                                                    if (seen.has(other))
-                                                      continue
-                                                    seen.add(other)
-                                                    const fOwner =
-                                                      analytics.ownership.get(
-                                                        focus
-                                                      )
-                                                    const oOwner =
-                                                      analytics.ownership.get(
-                                                        other
-                                                      )
-                                                    cards.push({
-                                                      title:
-                                                        'Neyi Bloklayabilir?',
-                                                      details: `${wbsMaps.toName(other)} planlanan başlangıcını aşma riski`,
-                                                      ascii: asciiBranchMarked(
-                                                        focus,
-                                                        other,
-                                                        'blockRisk',
-                                                        {
-                                                          // blockRisk: cause is focus, effect is other
-                                                          causeLabel: m.name,
-                                                          effectLabel: s.name,
-                                                          causeLeafId:
-                                                            wbsMaps.firstLeafUnder(
-                                                              focus
-                                                            ) || undefined,
-                                                          effectLeafId:
-                                                            wbsMaps.firstLeafUnder(
-                                                              other
-                                                            ) || undefined,
-                                                        }
-                                                      ),
-                                                      focusName:
-                                                        wbsMaps.toName(focus),
-                                                      otherName:
-                                                        wbsMaps.toName(other),
-                                                      rel: 'blockRisk',
-                                                      focusOwner: fOwner
-                                                        ? subsNameMap.get(
-                                                            fOwner
-                                                          ) || fOwner
-                                                        : null,
-                                                      otherOwner: oOwner
-                                                        ? subsNameMap.get(
-                                                            oOwner
-                                                          ) || oOwner
-                                                        : null,
-                                                      causeLabel: m.name,
-                                                      effectLabel: s.name,
-                                                    })
-                                                  }
-                                                  if (cards.length > 0) {
-                                                    setInsightCards(cards)
-                                                    setInsightIndex(0)
-                                                    setInsightOpen(true)
-                                                  }
-                                                }}
-                                              >
-                                                Neyi Bloklayabilir?
-                                              </button>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                              Riskli ardıllar
-                                            </TooltipContent>
-                                          </Tooltip>
-                                        </div>
-                                      )}
-                                  </div>
-                                  {typeof m.blockers === 'number' &&
-                                    m.blockers > 0 && (
-                                      <div className="text-xs text-muted-foreground">
-                                        Engelleyici: {m.blockers}
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div
+                                      className="flex items-center gap-2 min-w-0 cursor-default"
+                                      aria-label={labels.full}
+                                    >
+                                      <div
+                                        className={cn(
+                                          'size-8 rounded-full flex items-center justify-center',
+                                          colorClasses
+                                        )}
+                                      >
+                                        <Calendar className="size-4" />
                                       </div>
-                                    )}
-                                </div>
+                                      <h4 className="font-medium flex-1 min-w-0">
+                                        <span className="block max-w-full truncate">
+                                          {labels.short}
+                                        </span>
+                                      </h4>
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent
+                                    className="max-w-[520px] p-0 z-50"
+                                    sideOffset={8}
+                                  >
+                                    <pre className="font-mono text-xs whitespace-pre bg-transparent p-2">
+                                      {ascii}
+                                    </pre>
+                                  </TooltipContent>
+                                </Tooltip>
+                                {m.owner && (
+                                  <span className="px-1.5 py-0.5 text-[11px] rounded bg-secondary text-foreground/80">
+                                    {ownerLabel(m.owner)}
+                                  </span>
+                                )}
+                                {msState === 'blocked' &&
+                                  hasUnfinishedPredOther && (
+                                    <div className="text-xs shrink-0">
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <button
+                                            className="underline text-blue-600 hover:text-blue-700"
+                                            onClick={() => {
+                                              const focus = baseTaskId(m.id)
+                                              const seen = new Set<string>()
+                                              const cards = [] as Array<{
+                                                title: string
+                                                details: string
+                                                ascii: string
+                                                focusName: string
+                                                otherName: string
+                                                rel: 'blocked'
+                                                focusOwner: string | null
+                                                otherOwner: string | null
+                                                causeLabel?: string
+                                                effectLabel?: string
+                                                focusLabel?: string
+                                                otherLabel?: string
+                                              }>
+                                              for (const p of unfinishedPredecessors) {
+                                                const other = baseTaskId(p.id)
+                                                if (other === focus) continue
+                                                if (seen.has(other)) continue
+                                                seen.add(other)
+                                                const fOwner =
+                                                  analytics.ownership.get(focus)
+                                                const oOwner =
+                                                  analytics.ownership.get(other)
+                                                cards.push({
+                                                  title: 'Neden Bloklu?',
+                                                  details: `${wbsMaps.toName(other)} işi tamamlanmadı`,
+                                                  ascii: asciiBranchMarked(
+                                                    focus,
+                                                    other,
+                                                    'blocked',
+                                                    {
+                                                      causeLabel: p.name,
+                                                      effectLabel: m.name,
+                                                      causeLeafId:
+                                                        wbsMaps.firstLeafUnder(
+                                                          other
+                                                        ) || undefined,
+                                                      effectLeafId:
+                                                        wbsMaps.firstLeafUnder(
+                                                          focus
+                                                        ) || undefined,
+                                                    }
+                                                  ),
+                                                  focusName:
+                                                    wbsMaps.toName(focus),
+                                                  otherName:
+                                                    wbsMaps.toName(other),
+                                                  rel: 'blocked',
+                                                  focusOwner: fOwner
+                                                    ? subsNameMap.get(fOwner) ||
+                                                      fOwner
+                                                    : null,
+                                                  otherOwner: oOwner
+                                                    ? subsNameMap.get(oOwner) ||
+                                                      oOwner
+                                                    : null,
+                                                  causeLabel: p.name,
+                                                  effectLabel: m.name,
+                                                  focusLabel: m.name,
+                                                  otherLabel: p.name,
+                                                })
+                                              }
+                                              if (cards.length > 0) {
+                                                setInsightCards(cards)
+                                                setInsightIndex(0)
+                                                setInsightOpen(true)
+                                              }
+                                            }}
+                                          >
+                                            Neden Bloklu?
+                                          </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          Nedenleri gör
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </div>
+                                  )}
+                                {msState === 'blocking' &&
+                                  hasBlockingSuccOther && (
+                                    <div className="text-xs shrink-0">
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <button
+                                            className="underline text-rose-600 hover:text-rose-700"
+                                            onClick={() => {
+                                              const focus = baseTaskId(m.id)
+                                              const seen = new Set<string>()
+                                              const cards = [] as Array<{
+                                                title: string
+                                                details: string
+                                                ascii: string
+                                                focusName: string
+                                                otherName: string
+                                                rel: 'blocking'
+                                                focusOwner: string | null
+                                                otherOwner: string | null
+                                                causeLabel?: string
+                                                effectLabel?: string
+                                                focusLabel?: string
+                                                otherLabel?: string
+                                              }>
+                                              for (const s of blockingSuccessors) {
+                                                const other = baseTaskId(s.id)
+                                                if (other === focus) continue
+                                                if (seen.has(other)) continue
+                                                seen.add(other)
+                                                const fOwner =
+                                                  analytics.ownership.get(focus)
+                                                const oOwner =
+                                                  analytics.ownership.get(other)
+                                                cards.push({
+                                                  title: 'Neyi Blokluyor?',
+                                                  details: `${wbsMaps.toName(other)} başlatılamıyor`,
+                                                  ascii: asciiBranchMarked(
+                                                    focus,
+                                                    other,
+                                                    'blocking',
+                                                    {
+                                                      causeLabel: m.name,
+                                                      effectLabel: s.name,
+                                                      causeLeafId:
+                                                        wbsMaps.firstLeafUnder(
+                                                          focus
+                                                        ) || undefined,
+                                                      effectLeafId:
+                                                        wbsMaps.firstLeafUnder(
+                                                          other
+                                                        ) || undefined,
+                                                    }
+                                                  ),
+                                                  focusName:
+                                                    wbsMaps.toName(focus),
+                                                  otherName:
+                                                    wbsMaps.toName(other),
+                                                  rel: 'blocking',
+                                                  focusOwner: fOwner
+                                                    ? subsNameMap.get(fOwner) ||
+                                                      fOwner
+                                                    : null,
+                                                  otherOwner: oOwner
+                                                    ? subsNameMap.get(oOwner) ||
+                                                      oOwner
+                                                    : null,
+                                                  causeLabel: m.name,
+                                                  effectLabel: s.name,
+                                                  focusLabel: m.name,
+                                                  otherLabel: s.name,
+                                                })
+                                              }
+                                              if (cards.length > 0) {
+                                                setInsightCards(cards)
+                                                setInsightIndex(0)
+                                                setInsightOpen(true)
+                                              }
+                                            }}
+                                          >
+                                            Neyi Blokluyor?
+                                          </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          Etkilediği işler
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </div>
+                                  )}
+                                {msState === 'blockedRisk' &&
+                                  hasBlockedRiskPredOther && (
+                                    <div className="text-xs shrink-0">
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <button
+                                            className="underline text-amber-700 hover:text-amber-800"
+                                            onClick={() => {
+                                              const focus = baseTaskId(m.id)
+                                              const seen = new Set<string>()
+                                              const cards = [] as Array<{
+                                                title: string
+                                                details: string
+                                                ascii: string
+                                                focusName: string
+                                                otherName: string
+                                                rel: 'blockedRisk'
+                                                focusOwner: string | null
+                                                otherOwner: string | null
+                                                causeLabel?: string
+                                                effectLabel?: string
+                                                focusLabel?: string
+                                                otherLabel?: string
+                                              }>
+                                              for (const p of blockedRiskPreds) {
+                                                const other = baseTaskId(p.id)
+                                                if (other === focus) continue
+                                                if (seen.has(other)) continue
+                                                seen.add(other)
+                                                const fOwner =
+                                                  analytics.ownership.get(focus)
+                                                const oOwner =
+                                                  analytics.ownership.get(other)
+                                                cards.push({
+                                                  title: 'Neden Bloklanabilir?',
+                                                  details: `${wbsMaps.toName(other)} forecast bitişi bu işin planlanan başlangıcını aşıyor`,
+                                                  ascii: asciiBranchMarked(
+                                                    focus,
+                                                    other,
+                                                    'blockedRisk',
+                                                    {
+                                                      causeLabel: p.name,
+                                                      effectLabel: m.name,
+                                                      causeLeafId:
+                                                        wbsMaps.firstLeafUnder(
+                                                          other
+                                                        ) || undefined,
+                                                      effectLeafId:
+                                                        wbsMaps.firstLeafUnder(
+                                                          focus
+                                                        ) || undefined,
+                                                    }
+                                                  ),
+                                                  focusName:
+                                                    wbsMaps.toName(focus),
+                                                  otherName:
+                                                    wbsMaps.toName(other),
+                                                  rel: 'blockedRisk',
+                                                  focusOwner: fOwner
+                                                    ? subsNameMap.get(fOwner) ||
+                                                      fOwner
+                                                    : null,
+                                                  otherOwner: oOwner
+                                                    ? subsNameMap.get(oOwner) ||
+                                                      oOwner
+                                                    : null,
+                                                  causeLabel: p.name,
+                                                  effectLabel: m.name,
+                                                })
+                                              }
+                                              if (cards.length > 0) {
+                                                setInsightCards(cards)
+                                                setInsightIndex(0)
+                                                setInsightOpen(true)
+                                              }
+                                            }}
+                                          >
+                                            Neden Bloklanabilir?
+                                          </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          Öngörülen nedenler
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </div>
+                                  )}
+                                {msState === 'blockRisk' &&
+                                  hasBlockRiskSuccOther && (
+                                    <div className="text-xs shrink-0">
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <button
+                                            className="underline text-rose-700 hover:text-rose-800"
+                                            onClick={() => {
+                                              const focus = baseTaskId(m.id)
+                                              const seen = new Set<string>()
+                                              const cards = [] as Array<{
+                                                title: string
+                                                details: string
+                                                ascii: string
+                                                focusName: string
+                                                otherName: string
+                                                rel: 'blockRisk'
+                                                focusOwner: string | null
+                                                otherOwner: string | null
+                                                causeLabel?: string
+                                                effectLabel?: string
+                                                focusLabel?: string
+                                                otherLabel?: string
+                                              }>
+                                              for (const s of blockRiskSuccs) {
+                                                const other = baseTaskId(s.id)
+                                                if (other === focus) continue
+                                                if (seen.has(other)) continue
+                                                seen.add(other)
+                                                const fOwner =
+                                                  analytics.ownership.get(focus)
+                                                const oOwner =
+                                                  analytics.ownership.get(other)
+                                                cards.push({
+                                                  title: 'Neyi Bloklayabilir?',
+                                                  details: `${wbsMaps.toName(other)} planlanan başlangıcını aşma riski`,
+                                                  ascii: asciiBranchMarked(
+                                                    focus,
+                                                    other,
+                                                    'blockRisk',
+                                                    {
+                                                      causeLabel: m.name,
+                                                      effectLabel: s.name,
+                                                      causeLeafId:
+                                                        wbsMaps.firstLeafUnder(
+                                                          focus
+                                                        ) || undefined,
+                                                      effectLeafId:
+                                                        wbsMaps.firstLeafUnder(
+                                                          other
+                                                        ) || undefined,
+                                                    }
+                                                  ),
+                                                  focusName:
+                                                    wbsMaps.toName(focus),
+                                                  otherName:
+                                                    wbsMaps.toName(other),
+                                                  rel: 'blockRisk',
+                                                  focusOwner: fOwner
+                                                    ? subsNameMap.get(fOwner) ||
+                                                      fOwner
+                                                    : null,
+                                                  otherOwner: oOwner
+                                                    ? subsNameMap.get(oOwner) ||
+                                                      oOwner
+                                                    : null,
+                                                  causeLabel: m.name,
+                                                  effectLabel: s.name,
+                                                })
+                                              }
+                                              if (cards.length > 0) {
+                                                setInsightCards(cards)
+                                                setInsightIndex(0)
+                                                setInsightOpen(true)
+                                              }
+                                            }}
+                                          >
+                                            Neyi Bloklayabilir?
+                                          </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          Riskli ardıllar
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </div>
+                                  )}
+                                {typeof m.blockers === 'number' &&
+                                  m.blockers > 0 && (
+                                    <div className="text-xs text-muted-foreground">
+                                      Engelleyici: {m.blockers}
+                                    </div>
+                                  )}
                               </div>
                               <div className="text-right pr-24">
                                 <div
