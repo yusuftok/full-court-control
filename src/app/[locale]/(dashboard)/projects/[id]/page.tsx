@@ -2399,7 +2399,7 @@ export default function ProjectDashboardPage() {
                             key={m.id}
                             className="relative p-3 rounded-lg bg-muted/40 border"
                             style={{
-                              zIndex: hoveredCardId === m.id ? 600 : undefined,
+                              zIndex: hoveredCardId === m.id ? 80 : undefined,
                             }}
                             onMouseEnter={() => setHoveredCardId(m.id)}
                             onMouseLeave={() =>
@@ -2432,7 +2432,7 @@ export default function ProjectDashboardPage() {
                                     </div>
                                   </TooltipTrigger>
                                   <TooltipContent
-                                    className="max-w-[520px] p-0 z-50"
+                                    className="max-w-[520px] p-0"
                                     sideOffset={8}
                                   >
                                     <pre className="font-mono text-xs whitespace-pre bg-transparent p-2">

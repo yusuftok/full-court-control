@@ -31,7 +31,7 @@ export function Tooltip({ children }: { children: React.ReactNode }) {
   return (
     <TooltipContext.Provider value={{ open, setOpen }}>
       <span
-        className="relative z-[120] inline-block align-middle"
+        className="relative inline-block align-middle"
         // Container does not manage hover; Trigger handles it to support absolute children
       >
         {children}
@@ -69,16 +69,22 @@ export const TooltipContent = React.forwardRef<HTMLDivElement, ContentProps>(
     if (!ctx) return null
     const { open } = ctx
     if (!open) return null
+    // Use inline z-index so custom classNames can't accidentally override stacking
     return (
       <div
         ref={ref}
         role="tooltip"
         className={cn(
-          'z-[1000] select-none rounded-md border bg-popover px-2 py-1 text-xs text-popover-foreground shadow-md',
+          'select-none rounded-md border bg-popover px-2 py-1 text-xs text-popover-foreground shadow-md',
           'absolute left-1/2 -translate-x-1/2',
           className
         )}
-        style={{ marginTop: sideOffset, top: `100%`, ...style }}
+        style={{
+          marginTop: sideOffset,
+          top: `100%`,
+          zIndex: 1600,
+          ...style,
+        }}
         {...props}
       >
         {children}
