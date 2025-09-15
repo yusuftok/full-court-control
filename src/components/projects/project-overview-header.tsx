@@ -96,7 +96,6 @@ export function ProjectOverviewHeader({
     project.subcontractorIds?.length ??
     Object.values(project.subcontractors || {}).filter(Boolean).length
 
-  const remainingTasks = project.totalTasks - project.completedTasks
   // EAC ≈ BAC / CPI. If CPI < 1, EAC >= BAC olması beklenir.
   const eac = cpi > 0 ? project.budget / cpi : project.budget
   const projectedEnd = (() => {
@@ -382,9 +381,7 @@ export function ProjectOverviewHeader({
                   10 - Math.round(10 * (project.progress / 100)) - 3
                 ),
               }
-              const followPct = Math.round(
-                ((ms.upcoming + ms.overdue) / Math.max(1, ms.total)) * 100
-              )
+              // summary percentages are computed on demand in UI; no separate variable needed
               return (
                 <div className="flex flex-col gap-2">
                   {/* Order: Geciken, Yaklaşan, Kalan */}

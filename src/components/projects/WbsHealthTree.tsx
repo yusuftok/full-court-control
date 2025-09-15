@@ -4,8 +4,6 @@ import * as React from 'react'
 import type { WbsNode, OwnershipMap, Health } from '@/lib/project-analytics'
 import { Badge } from '@/components/ui/badge'
 import { flattenVisible } from '@/lib/wbs-utils'
-// Minimal typings to avoid 'any' while keeping optional virtuoso ref usage
-type VirtuosoRef = { scrollToIndex?: (args: { index: number }) => void }
 type VirtuosoCmp = React.ComponentType<{
   totalCount: number
   itemContent: (index: number) => React.ReactNode

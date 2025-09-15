@@ -19,7 +19,6 @@ import { cn } from '@/lib/utils'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 // tooltips/progress components not used here
 import { PageContainer, PageContent } from '@/components/layout/page-container'
@@ -1266,20 +1265,40 @@ export default function ProjectDashboardPage() {
     subcontractorResponsibilities.forEach(item => {
       scopeById.set(item.id, item.items)
     })
-    // Owner'a göre plan başlangıç/bitiş penceresini WBS görevlerinden çıkar
-    const windows = new Map<string, { start: number; end: number }>()
+    // Owner'a göre plan başlangıç/bitiş penceresi ve forecast özetlerini WBS görevlerinden çıkar
+    const summary = new Map<
+      string,
+      {
+        start: number
+        end: number
+        hasUnfinished: boolean
+        latestForecast?: number
+      }
+    >()
     try {
       const tasks = getWbsTasks(taskDepth)
       for (const t of tasks) {
         if (!t.owner) continue
         const s = new Date(t.startDate).getTime()
         const e = new Date(t.dueDate).getTime()
-        const cur = windows.get(t.owner)
-        if (!cur) windows.set(t.owner, { start: s, end: e })
-        else {
-          cur.start = Math.min(cur.start, s)
-          cur.end = Math.max(cur.end, e)
+        const fc = t.actualDate
+          ? undefined
+          : t.forecastDate
+            ? new Date(t.forecastDate).getTime()
+            : undefined
+        const entry = summary.get(t.owner) || {
+          start: s,
+          end: e,
+          hasUnfinished: false,
+          latestForecast: undefined,
         }
+        entry.start = Math.min(entry.start, s)
+        entry.end = Math.max(entry.end, e)
+        if (!t.actualDate) entry.hasUnfinished = true
+        if (fc != null) {
+          entry.latestForecast = Math.max(entry.latestForecast ?? fc, fc)
+        }
+        summary.set(t.owner, entry)
       }
     } catch {}
 
@@ -1291,12 +1310,18 @@ export default function ProjectDashboardPage() {
       responsibilities: scopeById.get(x.id) || [],
       // Fallback progress from SPI; if you have a dedicated progress %, inject it here.
       progressPct: Math.round(Math.max(0, Math.min(1, x.aggregate.spi)) * 100),
-      plannedStart: windows.get(x.id)?.start
-        ? new Date(windows.get(x.id)!.start).toISOString()
+      plannedStart: summary.get(x.id)?.start
+        ? new Date(summary.get(x.id)!.start).toISOString()
         : undefined,
-      plannedEnd: windows.get(x.id)?.end
-        ? new Date(windows.get(x.id)!.end).toISOString()
+      plannedEnd: summary.get(x.id)?.end
+        ? new Date(summary.get(x.id)!.end).toISOString()
         : undefined,
+      forecastFinish: summary.get(x.id)?.latestForecast
+        ? new Date(summary.get(x.id)!.latestForecast as number).toISOString()
+        : undefined,
+      allDone: summary.get(x.id)
+        ? summary.get(x.id)!.hasUnfinished === false
+        : false,
     }))
   }, [
     subcontractorOverviewData,
@@ -1427,7 +1452,7 @@ export default function ProjectDashboardPage() {
               rel === 'blocked' || rel === 'blockedRisk'
                 ? !isFocusBranch
                 : isFocusBranch
-            const wantEffectOnThisBranch = !wantCauseOnThisBranch
+            // ensure we don't add duplicate edges per base-node; actual effect flag not used further
             const deeperId = wantCauseOnThisBranch
               ? opts?.causeLeafId
               : opts?.effectLeafId
@@ -1467,13 +1492,12 @@ export default function ProjectDashboardPage() {
 
       return lines.join('\n')
     },
-    [wbsMaps]
+    [wbsMaps, wbsRoot.id]
   )
 
   // Insight modal state
   type InsightKind = 'blocked' | 'blocking' | 'blockedRisk' | 'blockRisk'
   const [insightOpen, setInsightOpen] = React.useState(false)
-  const [insightKind, setInsightKind] = React.useState<InsightKind>('blocked')
   const [insightCards, setInsightCards] = React.useState<
     Array<{
       title: string
@@ -2249,10 +2273,6 @@ export default function ProjectDashboardPage() {
                             : fcPct < 0.8
                               ? 0
                               : Math.min(97, Math.max(3, fcPct))
-                        const taskWindowEndPct = Math.max(
-                          planPctLabel,
-                          fcPctLabel
-                        )
                         const progressAbsPct = Math.max(
                           0,
                           Math.min(planPctLabel, fcPctLabel) - taskStartPct
@@ -2376,7 +2396,7 @@ export default function ProjectDashboardPage() {
                                               <button
                                                 className="underline text-blue-600 hover:text-blue-700"
                                                 onClick={() => {
-                                                  setInsightKind('blocked')
+                                                  // record cards and open insight dialog
                                                   const focus =
                                                     m.id.split('-p')[0]
                                                   const seen = new Set<string>()
@@ -2476,7 +2496,7 @@ export default function ProjectDashboardPage() {
                                               <button
                                                 className="underline text-rose-600 hover:text-rose-700"
                                                 onClick={() => {
-                                                  setInsightKind('blocking')
+                                                  // record cards and open insight dialog
                                                   const focus =
                                                     m.id.split('-p')[0]
                                                   const seen = new Set<string>()
@@ -2575,7 +2595,7 @@ export default function ProjectDashboardPage() {
                                               <button
                                                 className="underline text-amber-700 hover:text-amber-800"
                                                 onClick={() => {
-                                                  setInsightKind('blockedRisk')
+                                                  // record cards and open insight dialog
                                                   const focus =
                                                     m.id.split('-p')[0]
                                                   const seen = new Set<string>()
@@ -2674,7 +2694,7 @@ export default function ProjectDashboardPage() {
                                               <button
                                                 className="underline text-rose-700 hover:text-rose-800"
                                                 onClick={() => {
-                                                  setInsightKind('blockRisk')
+                                                  // record cards and open insight dialog
                                                   const focus =
                                                     m.id.split('-p')[0]
                                                   const seen = new Set<string>()
