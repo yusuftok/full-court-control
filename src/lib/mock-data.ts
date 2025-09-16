@@ -10,6 +10,7 @@ import {
   DivisionInstance,
   DivisionNode,
 } from '@/components/projects/types/project-types'
+import { PERFORMANCE_THRESHOLDS as T } from '@/lib/performance-thresholds'
 
 // Base project interface that matches all required structures
 export interface BaseProject {
@@ -956,6 +957,16 @@ export const getSimpleProjects = (): Project[] => {
 
     const cpi = earnedValue > 0 ? earnedValue / Math.max(actualCost, 1) : 1
     const spi = earnedValue > 0 ? earnedValue / Math.max(plannedValue, 1) : 1
+    const combined = 0.6 * cpi + 0.4 * spi
+    const derivedHealthStatus: BaseProject['healthStatus'] =
+      combined >= T.COMBINED.good
+        ? 'healthy'
+        : combined >= T.COMBINED.risky
+          ? 'warning'
+          : 'critical'
+    if (project.healthStatus !== derivedHealthStatus) {
+      project.healthStatus = derivedHealthStatus
+    }
 
     // --- Milestone summary (rename from old workflowStatus) ---
     // Aim: ~8–10 milestones per project year
@@ -1020,7 +1031,7 @@ export const getSimpleProjects = (): Project[] => {
       plannedBudgetToDate,
       totalTasks: project.totalTasks,
       completedTasks: project.completedTasks,
-      healthStatus: project.healthStatus,
+      healthStatus: derivedHealthStatus,
       riskLevel: project.riskLevel,
       qualityScore: project.qualityScore,
       manager: project.manager,
