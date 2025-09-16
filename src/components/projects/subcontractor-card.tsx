@@ -86,9 +86,9 @@ export function SubcontractorCard({
 }: SubcontractorCardProps) {
   const theme = themeByCombined(aggregate.combined)
   const progressPct = (() => {
-    // SPI = EV/PV -> yaklaşık ilerleme oranı olarak kullanılabilir
-    if (aggregate.pv <= 0) return 0
-    const pct = Math.round((aggregate.ev / aggregate.pv) * 100)
+    // Gerçek ilerleme: toplanan iş değeri (EV) / toplam sözleşme değeri (BAC)
+    if (aggregate.bac <= 0) return 0
+    const pct = Math.round((aggregate.ev / aggregate.bac) * 100)
     return Math.max(0, Math.min(100, pct))
   })()
 

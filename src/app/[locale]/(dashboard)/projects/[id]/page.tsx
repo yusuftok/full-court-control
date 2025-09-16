@@ -596,7 +596,10 @@ export default function ProjectDashboardPage() {
     const pe = simple?.endDate
       ? new Date(simple.endDate).getTime()
       : ps + 120 * 86400000
-    return generateBudgetMetricsFromWbs(wbsRoot, ps, pe, Date.now())
+    const span = Math.max(1, pe - ps)
+    const plannedCutoff = ps + span * 0.65
+    const dataDate = Math.min(Date.now(), plannedCutoff)
+    return generateBudgetMetricsFromWbs(wbsRoot, ps, pe, dataDate)
   }, [wbsRoot, simple?.startDate, simple?.endDate])
 
   const issues: Issue[] = React.useMemo(
@@ -1249,6 +1252,43 @@ export default function ProjectDashboardPage() {
     subcontractorResponsibilities.forEach(item => {
       scopeById.set(item.id, item.items)
     })
+
+    // Tüm leaf WBS düğümlerini taşerona göre grupla, ileride gecikme/aşım sayıları için kullanacağız
+    const leafMetricsByOwner = new Map<
+      string,
+      Array<{ id: string; metrics: NodeMetrics | undefined }>
+    >()
+    const collectLeaves = (node: WbsNode) => {
+      if (!node.children || node.children.length === 0) {
+        const owner = analytics.ownership.get(node.id)
+        if (owner) {
+          const arr = leafMetricsByOwner.get(owner) ?? []
+          arr.push({ id: node.id, metrics: metricsById.get(node.id) })
+          leafMetricsByOwner.set(owner, arr)
+        }
+        return
+      }
+      node.children.forEach(collectLeaves)
+    }
+    collectLeaves(wbsRoot)
+
+    const derivedIssueCounts = new Map<string, OwnerIssueSummary>()
+    const spiCutoff = T.SPI.good
+    const cpiCutoff = T.CPI.good
+    leafMetricsByOwner.forEach((leaves, owner) => {
+      let delay = 0
+      let overrun = 0
+      leaves.forEach(({ metrics }) => {
+        if (!metrics) return
+        const { ev = 0, ac = 0, pv = 0 } = metrics
+        const leafCpi = ac > 0 ? ev / ac : 0
+        const leafSpi = pv > 0 ? ev / pv : 0
+        if (leafSpi < spiCutoff) delay += 1
+        if (leafCpi < cpiCutoff) overrun += 1
+      })
+      derivedIssueCounts.set(owner, { delay, overrun })
+    })
+
     // Owner'a göre plan başlangıç/bitiş penceresi ve forecast özetlerini WBS görevlerinden çıkar
     const summary = new Map<
       string,
@@ -1286,32 +1326,49 @@ export default function ProjectDashboardPage() {
       }
     } catch {}
 
-    return subcontractorOverviewData.map(x => ({
-      id: x.id,
-      name: x.name,
-      aggregate: x.aggregate,
-      issues: x.issues,
-      responsibilities: scopeById.get(x.id) || [],
-      // Fallback progress from SPI; if you have a dedicated progress %, inject it here.
-      progressPct: Math.round(Math.max(0, Math.min(1, x.aggregate.spi)) * 100),
-      plannedStart: summary.get(x.id)?.start
-        ? new Date(summary.get(x.id)!.start).toISOString()
-        : undefined,
-      plannedEnd: summary.get(x.id)?.end
-        ? new Date(summary.get(x.id)!.end).toISOString()
-        : undefined,
-      forecastFinish: summary.get(x.id)?.latestForecast
-        ? new Date(summary.get(x.id)!.latestForecast as number).toISOString()
-        : undefined,
-      allDone: summary.get(x.id)
-        ? summary.get(x.id)!.hasUnfinished === false
-        : false,
-    }))
+    return subcontractorOverviewData.map(x => {
+      const derivedIssues = derivedIssueCounts.get(x.id)
+      const existing = x.issues
+      const mergedIssues: OwnerIssueSummary | undefined = derivedIssues
+        ? {
+            delay: derivedIssues.delay + (existing?.delay ?? 0),
+            overrun: derivedIssues.overrun + (existing?.overrun ?? 0),
+          }
+        : existing
+      const summaryEntry = summary.get(x.id)
+      const latestForecastMs =
+        summaryEntry?.latestForecast ??
+        (summaryEntry?.hasUnfinished ? summaryEntry?.end : undefined)
+      return {
+        id: x.id,
+        name: x.name,
+        aggregate: x.aggregate,
+        issues: mergedIssues,
+        responsibilities: scopeById.get(x.id) || [],
+        // Fallback progress from SPI; if you have a dedicated progress %, inject it here.
+        progressPct: Math.round(
+          Math.max(0, Math.min(1, x.aggregate.spi)) * 100
+        ),
+        plannedStart: summaryEntry?.start
+          ? new Date(summaryEntry.start).toISOString()
+          : undefined,
+        plannedEnd: summaryEntry?.end
+          ? new Date(summaryEntry.end).toISOString()
+          : undefined,
+        forecastFinish: latestForecastMs
+          ? new Date(latestForecastMs).toISOString()
+          : undefined,
+        allDone: summaryEntry ? summaryEntry.hasUnfinished === false : false,
+      }
+    })
   }, [
     subcontractorOverviewData,
     subcontractorResponsibilities,
     getWbsTasks,
     taskDepth,
+    analytics.ownership,
+    metricsById,
+    wbsRoot,
   ])
 
   const ownerLabel = (raw?: string) => {
