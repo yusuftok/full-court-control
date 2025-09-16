@@ -47,9 +47,11 @@ type PerformanceLevel = 'İyi' | 'Riskli' | 'Kritik'
 function StatusOnlyBadge({
   value,
   kind = 'COMBINED' as const,
+  levelOverride,
 }: {
-  value: number
+  value?: number
   kind?: 'CPI' | 'SPI' | 'COMBINED'
+  levelOverride?: PerformanceLevel
 }) {
   const getPerformanceLevel = (val: number): PerformanceLevel => {
     const lvl = levelFromCfg(val, kind)
@@ -67,7 +69,7 @@ function StatusOnlyBadge({
     }
   }
 
-  const level = getPerformanceLevel(value)
+  const level = levelOverride ?? getPerformanceLevel(value ?? 0)
 
   return (
     <Badge
@@ -131,14 +133,29 @@ function PerformanceBadge({
 
 // Health indicator component based on combined CPI/SPI performance
 function HealthIndicator({ project }: { project: Project }) {
-  // Calculate combined performance: 60% CPI + 40% SPI
+  // Calculate combined performance: 60% CPI + 40% SPI (fallback when status missing)
   const cpi =
     project.earnedValue > 0 ? project.earnedValue / project.actualCost : 0
   const spi =
     project.earnedValue > 0 ? project.earnedValue / project.plannedValue : 0
   const combinedPerformance = 0.6 * cpi + 0.4 * spi
 
-  return <StatusOnlyBadge value={combinedPerformance} />
+  const statusLevel: PerformanceLevel | undefined =
+    project.healthStatus === 'healthy'
+      ? 'İyi'
+      : project.healthStatus === 'warning'
+        ? 'Riskli'
+        : project.healthStatus === 'critical'
+          ? 'Kritik'
+          : undefined
+
+  return (
+    <StatusOnlyBadge
+      value={combinedPerformance}
+      kind="COMBINED"
+      levelOverride={statusLevel}
+    />
+  )
 }
 
 // Main project card component
@@ -198,7 +215,46 @@ export function ProjectCard({
     }
   }
 
-  const theme = getPerformanceTheme(combinedPerformance)
+  const theme = React.useMemo(() => {
+    const status = project.healthStatus
+    const statusTheme = (() => {
+      if (status === 'healthy') {
+        return {
+          border: 'border-l-4 border-l-green-400',
+          background: 'bg-gradient-to-br from-green-50/30 to-emerald-50/20',
+          cardStyle: 'hover:shadow-green-200/50 hover:shadow-xl',
+          textAccent: 'text-green-700',
+          animation: 'hover:scale-[1.02] transition-all duration-300',
+          progressGradient: 'linear-gradient(90deg, #10b981, #34d399)',
+          buttonGradient: 'bg-gradient-to-r from-green-600 to-emerald-600',
+        }
+      }
+      if (status === 'warning') {
+        return {
+          border: 'border-l-4 border-l-orange-400',
+          background: 'bg-gradient-to-br from-orange-50/30 to-orange-100/20',
+          cardStyle: 'hover:shadow-orange-200/50 hover:shadow-xl',
+          textAccent: 'text-orange-700',
+          animation: 'hover:scale-[1.01] transition-all duration-300',
+          progressGradient: 'linear-gradient(90deg, #ea580c, #f97316)',
+          buttonGradient: 'bg-gradient-to-r from-orange-600 to-orange-500',
+        }
+      }
+      if (status === 'critical') {
+        return {
+          border: 'border-l-4 border-l-red-400',
+          background: 'bg-gradient-to-br from-red-50/30 to-rose-50/20',
+          cardStyle: 'hover:shadow-red-200/50 hover:shadow-lg',
+          textAccent: 'text-red-700',
+          animation: 'hover:scale-[1.005] transition-all duration-200',
+          progressGradient: 'linear-gradient(90deg, #dc2626, #ef4444)',
+          buttonGradient: 'bg-gradient-to-r from-red-600 to-rose-600',
+        }
+      }
+      return getPerformanceTheme(combinedPerformance)
+    })()
+    return statusTheme
+  }, [project.healthStatus, combinedPerformance])
 
   // Helper function for individual metric boxes
   const getMetricBoxTheme = (value: number, kind: 'CPI' | 'SPI') => {
