@@ -741,6 +741,7 @@ export const MOCK_PROJECTS: DetailedProject[] = [
 
 // ------------------ Budget metrics generation from WBS ------------------
 import type { WbsNode, NodeMetrics } from '@/lib/project-analytics'
+import { computeScheduleWithAgg, type ScheduleNode } from '@/lib/wbs-schedule'
 
 function hashU32(str: string): number {
   let h = 2166136261 >>> 0
@@ -758,6 +759,69 @@ export type BudgetGenConfig = {
   cpiMax?: number
 }
 
+const clamp01 = (x: number) => Math.max(0, Math.min(1, x))
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value))
+const DAY_MS = 24 * 3600 * 1000
+
+type LeafPlan = {
+  id: string
+  baselineStart: number
+  baselineFinish: number
+  baseBudget: number
+  status: 'completed' | 'in-progress' | 'not-started'
+  hash: number
+}
+
+function buildLeafPlans(
+  root: WbsNode,
+  projectStartMs: number,
+  projectEndMs: number,
+  cfg: BudgetGenConfig = {}
+): LeafPlan[] {
+  const baseMinM = cfg.baseMinM ?? 15
+  const baseMaxM = cfg.baseMaxM ?? 120
+  const total = Math.max(1, projectEndMs - projectStartMs)
+  const leaves: WbsNode[] = []
+  const walk = (n: WbsNode) => {
+    if (!n.children || n.children.length === 0) leaves.push(n)
+    else n.children.forEach(walk)
+  }
+  walk(root)
+
+  const plans: LeafPlan[] = []
+  let idx = 0
+  for (const leaf of leaves) {
+    const h = hashU32(leaf.id)
+    const offBase = (h % 60) / 100 // 0..0.59
+    const offJitter = ((h >> 5) % 9) / 100 // 0..0.08
+    const offRatio = Math.min(0.85, offBase + offJitter)
+    const durBase = 0.18 + ((h >> 3) % 25) / 100 // 0.18..0.43
+    const durShrink = Math.max(0.55, 1 - (idx % 3) * 0.15)
+    const durRatio = Math.min(0.65, durBase * durShrink)
+    const baselineStart = projectStartMs + Math.floor(total * offRatio)
+    const baselineFinish = Math.min(
+      projectEndMs,
+      baselineStart + Math.floor(total * durRatio)
+    )
+    const baseM = baseMinM + (h % (baseMaxM - baseMinM + 1))
+    const baseBudget = baseM * 1_000_000
+    const pattern = h % 6
+    const status =
+      pattern <= 1 ? 'completed' : pattern <= 3 ? 'in-progress' : 'not-started'
+    plans.push({
+      id: leaf.id,
+      baselineStart,
+      baselineFinish,
+      baseBudget,
+      status,
+      hash: h,
+    })
+    idx++
+  }
+  return plans
+}
+
 /**
  * Deterministically generate EV/AC/PV per WBS node based on project start/end and data date.
  * Keeps numbers realistic so that CPI/SPI at owner level look consistent.
@@ -769,111 +833,322 @@ export function generateBudgetMetricsFromWbs(
   dataDateMs: number,
   cfg: BudgetGenConfig = {}
 ): Map<string, NodeMetrics> {
-  const baseMinM = cfg.baseMinM ?? 15
-  const baseMaxM = cfg.baseMaxM ?? 120
   const cpiMin = cfg.cpiMin ?? 0.85
   const cpiMax = cfg.cpiMax ?? 1.15
-
-  const total = Math.max(1, projectEndMs - projectStartMs)
   const metrics = new Map<string, NodeMetrics>()
+  const plans = buildLeafPlans(root, projectStartMs, projectEndMs, cfg)
 
-  const leaves: WbsNode[] = []
-  const walk = (n: WbsNode) => {
-    if (!n.children || n.children.length === 0) leaves.push(n)
-    else n.children.forEach(walk)
-  }
-  walk(root)
-
-  // First pass: leaves — derive baseline windows and base budgets deterministically
-  const leafTmp = new Map<
-    string,
-    {
-      s: number
-      f: number
-      B: number
-      status: 'completed' | 'in-progress' | 'not-started'
-    }
-  >()
-  let idx = 0
-  for (const l of leaves) {
-    const h = hashU32(l.id)
-    const offBase = (h % 60) / 100 // 0..0.59
-    const offJitter = ((h >> 5) % 9) / 100 // 0..0.08
-    const offRatio = Math.min(0.85, offBase + offJitter)
-    const durBase = 0.18 + ((h >> 3) % 25) / 100 // 0.18..0.43
-    const durShrink = Math.max(0.55, 1 - (idx % 3) * 0.15)
-    const durRatio = Math.min(0.65, durBase * durShrink)
-    const s = projectStartMs + Math.floor(total * offRatio)
-    const f = Math.min(projectEndMs, s + Math.floor(total * durRatio))
-    const baseM = baseMinM + (h % (baseMaxM - baseMinM + 1))
-    const B = baseM * 1_000_000
-    const pat = h % 6
-    const status =
-      pat <= 1 ? 'completed' : pat <= 3 ? 'in-progress' : 'not-started'
-    leafTmp.set(l.id, { s, f, B, status })
-    idx++
-  }
-
-  // Second pass: compute EV/PV/AC per leaf then roll up
   const nodeEv = new Map<string, number>()
   const nodeAc = new Map<string, number>()
   const nodePv = new Map<string, number>()
   const nodeBac = new Map<string, number>()
 
-  const clamp01 = (x: number) => Math.max(0, Math.min(1, x))
-
-  for (const l of leaves) {
-    const t = leafTmp.get(l.id)!
-    const blDur = Math.max(1, t.f - t.s)
-    const plan = clamp01((dataDateMs - t.s) / blDur)
-    const pv = t.B * plan
-    const bac = t.B
+  for (const plan of plans) {
+    const blDur = Math.max(1, plan.baselineFinish - plan.baselineStart)
+    const progress = clamp01((dataDateMs - plan.baselineStart) / blDur)
+    const pv = plan.baseBudget * progress
+    const bac = plan.baseBudget
     let ev = 0
-    if (t.status === 'completed') ev = t.B
-    else if (t.status === 'in-progress')
-      ev = t.B * clamp01((dataDateMs - t.s) / blDur)
-    else ev = 0
-
-    const h = hashU32('cpi-' + l.id)
+    if (plan.status === 'completed') ev = bac
+    else if (plan.status === 'in-progress') ev = bac * progress
+    const h = hashU32('cpi-' + plan.id)
     const cpi = cpiMin + ((h % 1000) / 1000) * (cpiMax - cpiMin)
-    // Avoid zero AC; when EV is 0, assume küçük bir maliyet gerçekleşmiş (~0.1*PV)
     const ac = ev > 0 ? ev / cpi : (pv * 0.1) / Math.max(0.9, cpi)
-
-    nodeEv.set(l.id, ev)
-    nodeAc.set(l.id, ac)
-    nodePv.set(l.id, pv)
-    nodeBac.set(l.id, bac)
+    nodeEv.set(plan.id, ev)
+    nodeAc.set(plan.id, ac)
+    nodePv.set(plan.id, pv)
+    nodeBac.set(plan.id, bac)
   }
 
-  // Roll up recursively
   const roll = (
-    n: WbsNode
+    node: WbsNode
   ): { ev: number; ac: number; pv: number; bac: number } => {
-    if (!n.children || n.children.length === 0) {
-      const ev = nodeEv.get(n.id) || 0
-      const ac = nodeAc.get(n.id) || 0
-      const pv = nodePv.get(n.id) || 0
-      const bac = nodeBac.get(n.id) || 0
-      metrics.set(n.id, { ev, ac, pv, bac })
+    if (!node.children || node.children.length === 0) {
+      const ev = nodeEv.get(node.id) || 0
+      const ac = nodeAc.get(node.id) || 0
+      const pv = nodePv.get(node.id) || 0
+      const bac = nodeBac.get(node.id) || 0
+      metrics.set(node.id, { ev, ac, pv, bac })
       return { ev, ac, pv, bac }
     }
-    let ev = 0,
-      ac = 0,
-      pv = 0,
-      bac = 0
-    for (const c of n.children) {
-      const r = roll(c)
-      ev += r.ev
-      ac += r.ac
-      pv += r.pv
-      bac += r.bac
+    let ev = 0
+    let ac = 0
+    let pv = 0
+    let bac = 0
+    for (const child of node.children) {
+      const sums = roll(child)
+      ev += sums.ev
+      ac += sums.ac
+      pv += sums.pv
+      bac += sums.bac
     }
-    metrics.set(n.id, { ev, ac, pv, bac })
+    metrics.set(node.id, { ev, ac, pv, bac })
     return { ev, ac, pv, bac }
   }
-  roll(root)
 
+  roll(root)
   return metrics
+}
+
+export type WbsNodeStatus = 'not-started' | 'in-progress' | 'completed'
+
+export interface WbsScheduleEntry {
+  id: string
+  baselineStart?: number
+  baselineFinish?: number
+  actualStart?: number
+  actualFinish?: number
+  forecastStart?: number
+  forecastFinish?: number
+  status: WbsNodeStatus
+  isLeaf: boolean
+  blocked?: boolean
+  blockRisk?: boolean
+  predecessors?: string[]
+}
+
+interface LeafScheduleDetail {
+  actualStart?: number
+  actualFinish?: number
+  spiHint?: number
+  predecessors: string[]
+}
+
+/**
+ * Generate deterministic schedule aggregates (baseline/actual/forecast) per WBS node.
+ * Returns map keyed by node id with schedule fields plus derived status/blocked flags.
+ */
+export function generateWbsScheduleData(
+  root: WbsNode,
+  projectStartMs: number,
+  projectEndMs: number,
+  dataDateMs: number,
+  metricsById?: Map<string, NodeMetrics>,
+  cfg: BudgetGenConfig = {}
+): Map<string, WbsScheduleEntry> {
+  const plans = buildLeafPlans(root, projectStartMs, projectEndMs, cfg)
+  const planById = new Map(plans.map(p => [p.id, p]))
+
+  const sorted = [...plans].sort((a, b) => {
+    if (a.baselineStart === b.baselineStart)
+      return a.id.localeCompare(b.id, 'tr')
+    return a.baselineStart - b.baselineStart
+  })
+
+  const leafDetails = new Map<string, LeafScheduleDetail>()
+
+  for (let i = 0; i < sorted.length; i++) {
+    const plan = sorted[i]
+    const available = sorted.slice(0, i)
+    let desired = available.length ? plan.hash % 3 : 0
+    if (
+      plan.status === 'not-started' &&
+      available.length > 0 &&
+      plan.baselineStart < dataDateMs
+    ) {
+      desired = Math.max(1, desired)
+    }
+    desired = Math.min(2, Math.min(desired, available.length))
+    const predecessors: string[] = []
+    for (let pick = 0; pick < desired && available.length > 0; pick++) {
+      const seed = (plan.hash >> (5 + pick * 5)) >>> 0
+      const idx = seed % available.length
+      const candidate = available[idx]
+      if (
+        candidate &&
+        candidate.id !== plan.id &&
+        !predecessors.includes(candidate.id)
+      ) {
+        predecessors.push(candidate.id)
+      }
+    }
+
+    const met = metricsById?.get(plan.id)
+    let spiHint: number | undefined
+    if (met && met.pv && met.pv > 0) {
+      spiHint = (met.ev ?? 0) / met.pv
+    }
+    if (!spiHint || !Number.isFinite(spiHint)) {
+      spiHint = 0.85 + ((plan.hash >> 13) % 40) / 100 // 0.85..1.24
+    }
+    spiHint = clamp(spiHint, 0.4, 1.6)
+
+    let actualStart: number | undefined
+    let actualFinish: number | undefined
+    if (plan.status === 'completed') {
+      const startShiftDays = ((plan.hash >> 7) % 7) - 3 // -3..3
+      actualStart = clamp(
+        plan.baselineStart + startShiftDays * DAY_MS,
+        projectStartMs,
+        dataDateMs - 10 * DAY_MS
+      )
+      const finishShiftDays = ((plan.hash >> 11) % 11) - 3 // -3..7
+      const minFinish = (actualStart ?? plan.baselineStart) + DAY_MS
+      const maxFinish = dataDateMs - DAY_MS
+      let candidate = plan.baselineFinish + finishShiftDays * DAY_MS
+      if (!Number.isFinite(candidate)) candidate = plan.baselineFinish
+      candidate = Math.max(candidate, minFinish)
+      actualFinish =
+        maxFinish > minFinish ? Math.min(candidate, maxFinish) : minFinish
+    } else if (plan.status === 'in-progress') {
+      const startShiftDays = ((plan.hash >> 5) % 9) - 4 // -4..4
+      actualStart = clamp(
+        plan.baselineStart + startShiftDays * DAY_MS,
+        projectStartMs,
+        dataDateMs - 5 * DAY_MS
+      )
+      const latestStart = dataDateMs - DAY_MS
+      if (actualStart > latestStart) actualStart = latestStart
+      actualStart = Math.max(projectStartMs, actualStart)
+    }
+
+    leafDetails.set(plan.id, {
+      actualStart,
+      actualFinish,
+      spiHint,
+      predecessors,
+    })
+  }
+
+  const buildScheduleTree = (node: WbsNode): ScheduleNode => {
+    const plan = planById.get(node.id)
+    if (plan) {
+      const detail = leafDetails.get(plan.id) || {
+        predecessors: [],
+      }
+      return {
+        id: plan.id,
+        baselineStart: plan.baselineStart,
+        baselineFinish: plan.baselineFinish,
+        actualStart: detail.actualStart,
+        actualFinish: detail.actualFinish,
+        spiHint: detail.spiHint,
+        predecessors: detail.predecessors.map(id => ({ taskId: id })),
+      }
+    }
+    return {
+      id: node.id,
+      children: node.children?.map(child => buildScheduleTree(child)) ?? [],
+    }
+  }
+
+  const scheduleRoot = buildScheduleTree(root)
+  const aggregated = computeScheduleWithAgg(scheduleRoot, {
+    dataDate: dataDateMs,
+    allowEarlyStart: false,
+  })
+
+  const scheduleMap = new Map<string, WbsScheduleEntry>()
+
+  aggregated.forEach((aggEntry, id) => {
+    const plan = planById.get(id)
+    if (plan) {
+      const detail = leafDetails.get(id)
+      scheduleMap.set(id, {
+        id,
+        baselineStart: aggEntry.baselineStart,
+        baselineFinish: aggEntry.baselineFinish,
+        actualStart:
+          typeof aggEntry.actualStart === 'number'
+            ? aggEntry.actualStart
+            : detail?.actualStart,
+        actualFinish:
+          typeof aggEntry.actualFinish === 'number'
+            ? aggEntry.actualFinish
+            : detail?.actualFinish,
+        forecastStart: aggEntry.forecastStart,
+        forecastFinish: aggEntry.forecastFinish,
+        status:
+          plan.status === 'completed'
+            ? 'completed'
+            : plan.status === 'in-progress'
+              ? 'in-progress'
+              : 'not-started',
+        isLeaf: true,
+        blocked: false,
+        blockRisk: false,
+        predecessors: detail?.predecessors || [],
+      })
+    } else {
+      let status: WbsNodeStatus
+      if (aggEntry.actualFinish && !aggEntry.forecastFinish)
+        status = 'completed'
+      else if (aggEntry.actualStart != null || aggEntry.forecastFinish != null)
+        status = 'in-progress'
+      else status = 'not-started'
+      scheduleMap.set(id, {
+        id,
+        baselineStart: aggEntry.baselineStart,
+        baselineFinish: aggEntry.baselineFinish,
+        actualStart: aggEntry.actualStart,
+        actualFinish: aggEntry.actualFinish,
+        forecastStart: aggEntry.forecastStart,
+        forecastFinish: aggEntry.forecastFinish,
+        status,
+        isLeaf: false,
+        blocked: false,
+        blockRisk: false,
+      })
+    }
+  })
+
+  // Determine blocked/block-risk states for leaves first
+  plans.forEach(plan => {
+    const entry = scheduleMap.get(plan.id)
+    if (!entry || entry.status !== 'not-started') return
+    const preds = entry.predecessors || []
+    let blocked = false
+    let blockRisk = false
+    const baselineStart = entry.baselineStart
+    preds.forEach(pid => {
+      const predEntry = scheduleMap.get(pid)
+      if (!predEntry) return
+      if (!blocked && baselineStart != null && baselineStart < dataDateMs) {
+        if (predEntry.status !== 'completed') blocked = true
+      }
+      if (
+        !blockRisk &&
+        baselineStart != null &&
+        baselineStart > dataDateMs &&
+        predEntry.forecastFinish != null &&
+        predEntry.forecastFinish > baselineStart
+      ) {
+        blockRisk = true
+      }
+    })
+    entry.blocked = blocked
+    entry.blockRisk = blockRisk
+  })
+
+  const propagate = (
+    node: WbsNode
+  ): { blocked: boolean; blockRisk: boolean } => {
+    const entry = scheduleMap.get(node.id)
+    let blocked = entry?.blocked ?? false
+    let blockRisk = entry?.blockRisk ?? false
+    node.children?.forEach(child => {
+      const childFlags = propagate(child)
+      blocked = blocked || childFlags.blocked
+      blockRisk = blockRisk || childFlags.blockRisk
+    })
+    if (entry) {
+      if (entry.status !== 'not-started') {
+        entry.blocked = false
+        entry.blockRisk = false
+      } else {
+        entry.blocked = blocked
+        entry.blockRisk =
+          entry.baselineStart != null && entry.baselineStart > dataDateMs
+            ? blockRisk
+            : false
+      }
+    }
+    return { blocked, blockRisk }
+  }
+
+  propagate(root)
+
+  return scheduleMap
 }
 
 // Sanitize mock milestones: unfinished items cannot have a forecast in the past

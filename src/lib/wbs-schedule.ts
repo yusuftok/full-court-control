@@ -150,6 +150,7 @@ export type ScheduleNode = {
   baselineFinish?: number
   actualStart?: number
   actualFinish?: number
+  spiHint?: number
   predecessors?: FsPred[] // only if leaf
   children?: ScheduleNode[]
 }
@@ -191,6 +192,7 @@ export function computeScheduleWithAgg(
         baselineFinish: n.baselineFinish,
         actualStart: n.actualStart,
         actualFinish: n.actualFinish,
+        spiHint: n.spiHint,
         predecessors: n.predecessors,
       })
     } else {

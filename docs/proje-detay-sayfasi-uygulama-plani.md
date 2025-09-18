@@ -18,7 +18,7 @@
 
 2) UI Bileşen İskeletleri — [x]
 - `SubcontractorOverview.tsx`: taşeron özet ızgarası, sağlık rozetleri, sorun sayıları.
-- `WbsHealthTree.tsx`: sorumluluk miraslı ağaç + ısı haritası + sorun rozetleri. Sanallaştırma tercihi `react-virtuoso` (öncelik). Özel gereksinim durumunda `@tanstack/virtual` alternatif; paket kurulamazsa `VirtualList/VirtualTable` ile geçici çözüm.
+- `wbs-tree-panel.tsx`: sorumluluk miraslı ağaç + durum/sağlık özetleri. Sanallaştırma tercihi `react-virtuoso` (öncelik). Özel gereksinim durumunda `@tanstack/virtual` alternatif; paket kurulamazsa `VirtualList/VirtualTable` ile geçici çözüm.
 - `IssueList.tsx`: filtrelenebilir tablo, “taşerona göre” / “WBS’ye göre” pivot.
 - `BudgetSchedulePanel.tsx`: CPI/SPI kartları, PV/EV/AC grafikleri (mock veri).
 

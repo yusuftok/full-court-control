@@ -19,7 +19,7 @@ Bu doküman, proje detay sayfasındaki İş Maddeleri (WBS tabanlı görevler) i
 3) Bloklanan: Başlamış (start < now) ve bitmemiş bir iş, en az bir bitmemiş (veya now’dan sonra biten) öncülü olduğu için ilerleyemiyorsa.
 4) Bloklayan: Gecikmiş (due < now) ve bitmemiş bir iş, başlatılmış bir ardılını (start < now) beklettiği durumda.
 5) Bloklanma Riski: Gelecekte başlayacak bir işin, bir öncülünün forecast bitişi bu işin başlangıcını aşıyorsa.
-6) Bloklama Riski: Bitmemiş bir işin forecast bitişi, gelecekte başlayacak bir ardılın başlangıcını aşıyorsa.
+6) Bloklama Riski: Planlanan başlangıcı veri tarihinden (data_date) sonra olan bir işin forecast bitişi, gelecekte başlayacak bir ardılın başlangıcını aşıyorsa.
 7) Öz‑nedensellik yok: Aynı WBS düğümü (baz id) hem sebep hem de sonuç olamaz.
    - Teknik olarak `base(id) = id.split('-p')[0]`. Herhangi bir `dependsOn`/`blocks` ilişkisi için `base(focus) !== base(other)` olmalıdır.
    - Bu kural hem veri üretiminde hem de görselleştirmede (rozet sırası, ASCII ağaç) uygulanır.
