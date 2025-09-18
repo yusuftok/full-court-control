@@ -27,7 +27,8 @@ function isValidOwnership(map: OwnershipMap): boolean {
 
 function isValidIssues(issues: Issue[], ids: Set<string>): boolean {
   return issues.every(i => {
-    const typeOk = i.type === 'delay' || i.type === 'overrun'
+    const typeOk =
+      i.type === 'instant' || i.type === 'acceptance' || i.type === 'planned'
     const nodeOk = ids.has(i.nodeId)
     const daysOk =
       i.daysLate === undefined ||

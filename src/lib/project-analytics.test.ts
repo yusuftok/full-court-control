@@ -62,12 +62,13 @@ describe('project-analytics', () => {
     expect(aggContract.get('s1')!.ev).toBe(15)
 
     const issues: Issue[] = [
-      { id: 'i1', nodeId: 'A1', type: 'delay' },
-      { id: 'i2', nodeId: 'B1', type: 'overrun' },
-      { id: 'i3', nodeId: 'A', type: 'delay' },
+      { id: 'i1', nodeId: 'A1', type: 'instant' },
+      { id: 'i2', nodeId: 'B1', type: 'planned' },
+      { id: 'i3', nodeId: 'A', type: 'acceptance' },
     ]
     const ownerIssue = groupIssuesByOwner(issues, ownership)
-    expect(ownerIssue.get('s1')!.delay).toBe(2)
-    expect(ownerIssue.get('s2')!.overrun).toBe(1)
+    expect(ownerIssue.get('s1')!.instant).toBe(1)
+    expect(ownerIssue.get('s1')!.acceptance).toBe(1)
+    expect(ownerIssue.get('s2')!.planned).toBe(1)
   })
 })

@@ -40,8 +40,8 @@ export function getMockAnalyticsData(): MockAnalyticsData {
   ])
 
   const issues: Issue[] = [
-    { id: 'i1', nodeId: 'foundation', type: 'overrun', costOver: 35000 },
-    { id: 'i2', nodeId: 'weak-power', type: 'delay', daysLate: 6 },
+    { id: 'i1', nodeId: 'foundation', type: 'planned', costOver: 35000 },
+    { id: 'i2', nodeId: 'weak-power', type: 'instant', daysLate: 6 },
   ]
 
   return { root, metricsById, issues }

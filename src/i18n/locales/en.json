@@ -206,8 +206,42 @@
       "spi": "SPI"
     },
     "issues": {
-      "delay": "Delay",
-      "overrun": "Budget"
+      "columns": {
+        "type": "Control Type",
+        "status": "Status",
+        "workItem": "Work Item",
+        "responsible": "Responsible",
+        "subcontractor": "Subcontractor",
+        "reporter": "Reporter"
+      },
+      "filters": {
+        "placeholder": "All",
+        "responsible": "Responsible",
+        "subcontractor": "Subcontractor",
+        "reporter": "Reporter",
+        "status": "Status",
+        "type": "Control Type",
+        "workItem": "Work Item",
+        "unassignedWorkItem": "No Linked Work Item",
+        "clear": "Clear Filters"
+      },
+      "status": {
+        "open": "Open",
+        "in-progress": "In Progress",
+        "resolved": "Resolved",
+        "closed": "Closed",
+        "on-hold": "On Hold"
+      },
+      "types": {
+        "instant": "Immediate Control",
+        "acceptance": "Acceptance Control",
+        "planned": "Planned Control"
+      },
+      "summary": {
+        "instant": "Immediate Control",
+        "acceptance": "Acceptance Control",
+        "planned": "Planned Control"
+      }
     },
     "table": {
       "type": "Type",

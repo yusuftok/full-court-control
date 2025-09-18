@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -5,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { CircularProgress } from '@/components/ui/circular-progress'
 import { PERFORMANCE_THRESHOLDS as T } from '@/lib/performance-thresholds'
 import type { OwnerAggregate, OwnerIssueSummary } from '@/lib/project-analytics'
+import { useTranslations } from 'next-intl'
 
 type Responsibility = { id: string; name: string }
 
@@ -84,7 +87,18 @@ export function SubcontractorCard({
   forecastFinish,
   allDone,
 }: SubcontractorCardProps) {
+  const t = useTranslations('projectDetail')
   const theme = themeByCombined(aggregate.combined)
+  const summaryKeys: Array<keyof OwnerIssueSummary> = [
+    'instant',
+    'acceptance',
+    'planned',
+  ]
+  const summaryLabels: Record<keyof OwnerIssueSummary, string> = {
+    instant: t('issues.summary.instant'),
+    acceptance: t('issues.summary.acceptance'),
+    planned: t('issues.summary.planned'),
+  }
   const progressPct = (() => {
     // Gerçek ilerleme: toplanan iş değeri (EV) / toplam sözleşme değeri (BAC)
     if (aggregate.bac <= 0) return 0
@@ -152,18 +166,11 @@ export function SubcontractorCard({
                 </div>
               )}
               <div className="flex items-center gap-2 flex-wrap">
-                <Badge
-                  variant="secondary"
-                  title="Gecikme sayısı (takvim gecikmesi)"
-                >
-                  Gecikme: {issues?.delay ?? 0}
-                </Badge>
-                <Badge
-                  variant="secondary"
-                  title="Bütçe aşımı sayısı (cost overrun)"
-                >
-                  Aşım: {issues?.overrun ?? 0}
-                </Badge>
+                {summaryKeys.map(key => (
+                  <Badge key={key} variant="secondary">
+                    {summaryLabels[key]}: {issues?.[key] ?? 0}
+                  </Badge>
+                ))}
               </div>
             </div>
           </div>

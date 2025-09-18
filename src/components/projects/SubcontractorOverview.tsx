@@ -26,6 +26,16 @@ export function SubcontractorOverview({
   onSelect,
 }: SubcontractorOverviewProps) {
   const t = useTranslations('projectDetail')
+  const summaryKeys: Array<keyof OwnerIssueSummary> = [
+    'instant',
+    'acceptance',
+    'planned',
+  ]
+  const summaryLabels: Record<keyof OwnerIssueSummary, string> = {
+    instant: t('issues.summary.instant'),
+    acceptance: t('issues.summary.acceptance'),
+    planned: t('issues.summary.planned'),
+  }
   const sorted = React.useMemo(
     () => [...data].sort((a, b) => b.aggregate.combined - a.aggregate.combined),
     [data]
@@ -79,13 +89,12 @@ export function SubcontractorOverview({
                 {item.aggregate.spi.toFixed(2)}
               </span>
             </div>
-            <div className="mt-2 flex items-center gap-2">
-              <Badge variant="secondary">
-                {t('issues.delay')}: {item.issues?.delay ?? 0}
-              </Badge>
-              <Badge variant="secondary">
-                {t('issues.overrun')}: {item.issues?.overrun ?? 0}
-              </Badge>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              {summaryKeys.map(key => (
+                <Badge key={key} variant="secondary">
+                  {summaryLabels[key]}: {item.issues?.[key] ?? 0}
+                </Badge>
+              ))}
             </div>
           </CardContent>
         </Card>

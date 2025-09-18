@@ -19,13 +19,13 @@ import { cn } from '@/lib/utils'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 // tooltips/progress components not used here
 import { PageContainer, PageContent } from '@/components/layout/page-container'
 import { DataTable, Column } from '@/components/data/data-table'
 import { SubcontractorsTab } from '@/components/projects/subcontractors-tab'
-import { WbsHealthTree } from '@/components/projects/WbsHealthTree'
+import { WbsTreePanel } from '@/components/projects/wbs-tree-panel'
 import { IssueList } from '@/components/projects/IssueList'
+import { WbsPathTooltip } from '@/components/projects/wbs-path-tooltip'
 import { ProjectOverviewHeader } from '@/components/projects/project-overview-header'
 import {
   buildAnalytics,
@@ -42,7 +42,10 @@ import {
   type ScheduleNode,
 } from '@/lib/wbs-schedule'
 import { mockSubcontractors } from '@/components/projects/data/mock-subcontractors'
-import { generateBudgetMetricsFromWbs } from '@/lib/mock-data'
+import {
+  generateBudgetMetricsFromWbs,
+  generateWbsScheduleData,
+} from '@/lib/mock-data'
 import { PERFORMANCE_THRESHOLDS as T } from '@/lib/performance-thresholds'
 import { getDetailedProject, getSimpleProjects } from '@/lib/mock-data'
 import { useTranslations, useLocale } from 'next-intl'
@@ -433,7 +436,6 @@ const teamColumns: Column<TeamMember>[] = [
 
 export default function ProjectDashboardPage() {
   const t = useTranslations('projectDetail')
-  const tCommon = useTranslations('common')
   const tMilestone = useTranslations('milestone')
   const locale = useLocale()
   const params = useParams()
@@ -589,7 +591,7 @@ export default function ProjectDashboardPage() {
     [simple?.name]
   )
 
-  const metricsById = React.useMemo(() => {
+  const projectTiming = React.useMemo(() => {
     const ps = simple?.startDate
       ? new Date(simple.startDate).getTime()
       : Date.now()
@@ -599,14 +601,86 @@ export default function ProjectDashboardPage() {
     const span = Math.max(1, pe - ps)
     const plannedCutoff = ps + span * 0.65
     const dataDate = Math.min(Date.now(), plannedCutoff)
-    return generateBudgetMetricsFromWbs(wbsRoot, ps, pe, dataDate)
-  }, [wbsRoot, simple?.startDate, simple?.endDate])
+    return { start: ps, end: pe, dataDate }
+  }, [simple?.startDate, simple?.endDate])
+
+  const metricsById = React.useMemo(
+    () =>
+      generateBudgetMetricsFromWbs(
+        wbsRoot,
+        projectTiming.start,
+        projectTiming.end,
+        projectTiming.dataDate
+      ),
+    [wbsRoot, projectTiming]
+  )
+
+  const wbsSchedule = React.useMemo(
+    () =>
+      generateWbsScheduleData(
+        wbsRoot,
+        projectTiming.start,
+        projectTiming.end,
+        projectTiming.dataDate,
+        metricsById
+      ),
+    [wbsRoot, projectTiming, metricsById]
+  )
 
   const issues: Issue[] = React.useMemo(
     () => [
-      { id: 'i1', nodeId: 'foundation', type: 'overrun', costOver: 40000 },
-      { id: 'i2', nodeId: 'weak-power', type: 'delay', daysLate: 8 },
-      { id: 'i3', nodeId: 'hvac', type: 'delay', daysLate: 4 },
+      {
+        id: 'i1',
+        nodeId: 'foundation',
+        type: 'planned',
+        status: 'in-progress',
+        costOver: 40000,
+        subcontractorId: 'sub-construction-1',
+        responsibleId: 'person-murat-demir',
+        responsibleName: 'Murat Demir',
+        reportedBy: 'Ayşe Kaya',
+        reportedAt: '2024-08-14',
+        title: 'Temelde beton sarfiyatı öngörünün üzerinde',
+      },
+      {
+        id: 'i2',
+        nodeId: 'hvac-ducting',
+        type: 'instant',
+        status: 'open',
+        daysLate: 8,
+        subcontractorId: 'sub-mechanical-1',
+        responsibleId: 'person-hasan-kurt',
+        responsibleName: 'Hasan Kurt',
+        reportedBy: 'Selin Acar',
+        reportedAt: '2024-08-09',
+        title: 'HVAC kanal montajında koordinasyon problemi',
+      },
+      {
+        id: 'i3',
+        nodeId: 'electrical',
+        type: 'acceptance',
+        status: 'resolved',
+        costOver: 12000,
+        subcontractorId: 'sub-electrical-1',
+        responsibleId: 'person-emre-ates',
+        responsibleName: 'Emre Ateş',
+        reportedBy: 'Nihat Korkmaz',
+        reportedAt: '2024-07-28',
+        title: 'Elektrik pano revizyonu ek maliyet yarattı',
+      },
+      {
+        id: 'i4',
+        nodeId: 'mechanical',
+        type: 'planned',
+        status: 'on-hold',
+        daysLate: 3,
+        subcontractorId: 'sub-mechanical-1',
+        responsibleId: 'person-hasan-kurt',
+        responsibleName: 'Hasan Kurt',
+        reportedBy: 'Merve Demet',
+        reportedAt: '2024-08-17',
+        title: 'Mekanik sahada saha erişim kısıtı',
+      },
     ],
     []
   )
@@ -1276,17 +1350,19 @@ export default function ProjectDashboardPage() {
     const spiCutoff = T.SPI.good
     const cpiCutoff = T.CPI.good
     leafMetricsByOwner.forEach((leaves, owner) => {
-      let delay = 0
-      let overrun = 0
+      let instant = 0
+      const acceptance = 0
+      let planned = 0
       leaves.forEach(({ metrics }) => {
         if (!metrics) return
         const { ev = 0, ac = 0, pv = 0 } = metrics
         const leafCpi = ac > 0 ? ev / ac : 0
         const leafSpi = pv > 0 ? ev / pv : 0
-        if (leafSpi < spiCutoff) delay += 1
-        if (leafCpi < cpiCutoff) overrun += 1
+        if (leafSpi < spiCutoff) planned += 1
+        if (leafCpi < cpiCutoff) instant += 1
+        // Acceptance kontrolleri için ek metrik bulunmadığından türetilmez
       })
-      derivedIssueCounts.set(owner, { delay, overrun })
+      derivedIssueCounts.set(owner, { instant, acceptance, planned })
     })
 
     // Owner'a göre plan başlangıç/bitiş penceresi ve forecast özetlerini WBS görevlerinden çıkar
@@ -1331,8 +1407,9 @@ export default function ProjectDashboardPage() {
       const existing = x.issues
       const mergedIssues: OwnerIssueSummary | undefined = derivedIssues
         ? {
-            delay: derivedIssues.delay + (existing?.delay ?? 0),
-            overrun: derivedIssues.overrun + (existing?.overrun ?? 0),
+            instant: derivedIssues.instant + (existing?.instant ?? 0),
+            acceptance: derivedIssues.acceptance + (existing?.acceptance ?? 0),
+            planned: derivedIssues.planned + (existing?.planned ?? 0),
           }
         : existing
       const summaryEntry = summary.get(x.id)
@@ -1371,7 +1448,7 @@ export default function ProjectDashboardPage() {
     wbsRoot,
   ])
 
-  const ownerLabel = (raw?: string) => {
+  const ownerLabel = (raw?: string | null) => {
     if (!raw) return undefined
     // 1) Prefer concrete subcontractor company name from mock registry
     const mapped = subsNameMap.get(raw)
@@ -1427,7 +1504,21 @@ export default function ProjectDashboardPage() {
       }
       return cur ? cur.id : null
     }
-    return { nodeById, parent, pathTo, toName, firstLeafUnder }
+    const descendantsOf = (id: string): string[] => {
+      const start = nodeById.get(id)
+      if (!start) return []
+      const acc: string[] = []
+      const stack = [...(start.children ?? [])]
+      while (stack.length) {
+        const current = stack.pop()!
+        acc.push(current.id)
+        if (current.children) {
+          stack.push(...current.children)
+        }
+      }
+      return acc
+    }
+    return { nodeById, parent, pathTo, toName, firstLeafUnder, descendantsOf }
   }, [wbsRoot])
 
   const baseTaskId = React.useCallback(
@@ -1475,6 +1566,17 @@ export default function ProjectDashboardPage() {
       return lines.join('\n')
     },
     [baseTaskId, wbsMaps]
+  )
+
+  const wbsPathHelpers = React.useMemo(
+    () => ({
+      pathLabels: (id: string) => taskPathLabels(id),
+      asciiPath: (id: string) => asciiPath(id),
+      labelFor: (id: string) => wbsMaps.toName(id),
+      pathIds: (id: string) => wbsMaps.pathTo(id).map(node => node.id),
+      descendantsOf: (id: string) => [id, ...wbsMaps.descendantsOf(id)],
+    }),
+    [taskPathLabels, asciiPath, wbsMaps]
   )
 
   const asciiBranchMarked = React.useCallback(
@@ -1604,15 +1706,12 @@ export default function ProjectDashboardPage() {
   >([])
   const [insightIndex, setInsightIndex] = React.useState(0)
 
-  type TabKey = 'overview' | 'subs' | 'wbs' | 'issues'
+  type TabKey = 'overview' | 'subs' | 'wbs' | 'issues' | 'team'
   const [activeTab, setActiveTab] = React.useState<TabKey>(
     (searchParams.get('tab') as TabKey) || 'overview'
   )
   const [selectedOwner, setSelectedOwner] = React.useState<string | null>(
     searchParams.get('subcontractorId')
-  )
-  const [view, setView] = React.useState<'contract' | 'leaf'>(
-    (searchParams.get('view') as 'contract' | 'leaf') || 'contract'
   )
   const [selectedNodeId, setSelectedNodeId] = React.useState<string | null>(
     searchParams.get('nodeId')
@@ -1659,7 +1758,7 @@ export default function ProjectDashboardPage() {
     sp.set('tab', activeTab)
     if (selectedOwner) sp.set('subcontractorId', selectedOwner)
     else sp.delete('subcontractorId')
-    sp.set('view', view)
+    sp.delete('view')
     if (selectedNodeId) sp.set('nodeId', selectedNodeId)
     else sp.delete('nodeId')
     if (wbsQuery) sp.set('q', wbsQuery)
@@ -1670,15 +1769,7 @@ export default function ProjectDashboardPage() {
     else sp.delete('msRange')
     router.replace(`?${sp.toString()}`)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    activeTab,
-    selectedOwner,
-    view,
-    selectedNodeId,
-    wbsQuery,
-    msState,
-    msRange,
-  ])
+  }, [activeTab, selectedOwner, selectedNodeId, wbsQuery, msState, msRange])
 
   if (!detailed || !simple) {
     return (
@@ -1722,6 +1813,7 @@ export default function ProjectDashboardPage() {
               { id: 'subs', label: 'Taşeronlar' },
               { id: 'wbs', label: 'İş Kırılımı' },
               { id: 'issues', label: 'Sorunlar' },
+              { id: 'team', label: 'Ekip' },
             ].map(t => (
               <button
                 key={t.id}
@@ -2139,6 +2231,7 @@ export default function ProjectDashboardPage() {
                             return false
                           }
                           const isBlockRisk = (t: WbsTask) => {
+                            if (startMsOf(t) <= nowMs) return false
                             if (fcEndMsOf(t) <= new Date(t.dueDate).getTime())
                               return false
                             for (const sid of t.blocks) {
@@ -2467,36 +2560,26 @@ export default function ProjectDashboardPage() {
                           >
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex items-center gap-2 min-w-0">
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
+                                <WbsPathTooltip
+                                  ascii={ascii}
+                                  label={labels.full}
+                                >
+                                  <div className="flex items-center gap-2 min-w-0 cursor-default">
                                     <div
-                                      className="flex items-center gap-2 min-w-0 cursor-default"
-                                      aria-label={labels.full}
+                                      className={cn(
+                                        'size-8 rounded-full flex items-center justify-center',
+                                        colorClasses
+                                      )}
                                     >
-                                      <div
-                                        className={cn(
-                                          'size-8 rounded-full flex items-center justify-center',
-                                          colorClasses
-                                        )}
-                                      >
-                                        <Calendar className="size-4" />
-                                      </div>
-                                      <h4 className="font-medium flex-1 min-w-0">
-                                        <span className="block max-w-full truncate">
-                                          {labels.short}
-                                        </span>
-                                      </h4>
+                                      <Calendar className="size-4" />
                                     </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent
-                                    className="max-w-[520px] p-0"
-                                    sideOffset={8}
-                                  >
-                                    <pre className="font-mono text-xs whitespace-pre bg-transparent p-2">
-                                      {ascii}
-                                    </pre>
-                                  </TooltipContent>
-                                </Tooltip>
+                                    <h4 className="font-medium flex-1 min-w-0">
+                                      <span className="block max-w-full truncate">
+                                        {labels.short}
+                                      </span>
+                                    </h4>
+                                  </div>
+                                </WbsPathTooltip>
                                 {m.owner && (
                                   <span className="px-1.5 py-0.5 text-[11px] rounded bg-secondary text-foreground/80">
                                     {ownerLabel(m.owner)}
@@ -3129,48 +3212,18 @@ export default function ProjectDashboardPage() {
 
         {activeTab === 'wbs' && (
           <div className="mb-8">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="flex-1 max-w-[320px]">
-                <Input
-                  placeholder={tCommon('search')}
-                  value={wbsQuery}
-                  onChange={e => setWbsQuery(e.target.value)}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  className={cn(
-                    'px-2 py-1 text-xs rounded border',
-                    view === 'contract'
-                      ? 'bg-primary text-white border-primary'
-                      : 'text-muted-foreground'
-                  )}
-                  onClick={() => setView('contract')}
-                >
-                  Kontrat Düzeyi
-                </button>
-                <button
-                  className={cn(
-                    'px-2 py-1 text-xs rounded border',
-                    view === 'leaf'
-                      ? 'bg-primary text-white border-primary'
-                      : 'text-muted-foreground'
-                  )}
-                  onClick={() => setView('leaf')}
-                >
-                  Tüm Yapraklar
-                </button>
-              </div>
-            </div>
-            <WbsHealthTree
+            <WbsTreePanel
               root={wbsRoot}
-              ownership={analytics.ownership}
+              schedule={wbsSchedule}
               nodeHealth={analytics.nodeHealth}
+              ownership={analytics.ownership}
+              selectedNodeId={selectedNodeId}
               onSelectNode={id => setSelectedNodeId(id)}
               filterOwnerId={selectedOwner}
-              view={view}
-              selectedNodeId={selectedNodeId}
               searchQuery={wbsQuery}
+              onSearchQueryChange={setWbsQuery}
+              ownerNameFor={ownerLabel}
+              onClearOwnerFilter={() => setSelectedOwner(null)}
             />
           </div>
         )}
@@ -3182,7 +3235,29 @@ export default function ProjectDashboardPage() {
               ownership={analytics.ownership}
               mode="owner"
               filterOwnerId={selectedOwner}
+              ownerNameFor={ownerLabel}
+              wbsPath={wbsPathHelpers}
             />
+          </div>
+        )}
+
+        {activeTab === 'team' && (
+          <div className="mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <HardHat className="size-5" />
+                  Ekip Üyeleri
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DataTable
+                  data={detailed.teamMembers}
+                  columns={teamColumns}
+                  emptyMessage={t('empty.team')}
+                />
+              </CardContent>
+            </Card>
           </div>
         )}
 
@@ -3299,23 +3374,6 @@ export default function ProjectDashboardPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-
-        {/* Team Members */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <HardHat className="size-5" />
-              Ekip Üyeleri
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <DataTable
-              data={detailed.teamMembers}
-              columns={teamColumns}
-              emptyMessage={t('empty.team')}
-            />
-          </CardContent>
-        </Card>
       </PageContent>
     </PageContainer>
   )

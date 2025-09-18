@@ -206,8 +206,42 @@
       "spi": "SPI"
     },
     "issues": {
-      "delay": "Gecikme",
-      "overrun": "Bütçe"
+      "columns": {
+        "type": "Kontrol Tipi",
+        "status": "Statü",
+        "workItem": "İş Kalemi",
+        "responsible": "Sorumlu",
+        "subcontractor": "Taşeron",
+        "reporter": "Rapor Eden"
+      },
+      "filters": {
+        "placeholder": "Hepsi",
+        "responsible": "Sorumlu",
+        "subcontractor": "Taşeron",
+        "reporter": "Rapor Eden",
+        "status": "Statü",
+        "type": "Kontrol Tipi",
+        "workItem": "İş Kalemi",
+        "unassignedWorkItem": "Bağlı İş Yok",
+        "clear": "Filtreleri Temizle"
+      },
+      "status": {
+        "open": "Açık",
+        "in-progress": "Devam Ediyor",
+        "resolved": "Çözüldü",
+        "closed": "Kapandı",
+        "on-hold": "Beklemede"
+      },
+      "types": {
+        "instant": "Anlık Kontrol",
+        "acceptance": "Kabul Kontrolü",
+        "planned": "Planlı Kontrol"
+      },
+      "summary": {
+        "instant": "Anlık Kontrol",
+        "acceptance": "Kabul Kontrolü",
+        "planned": "Planlı Kontrol"
+      }
     },
     "table": {
       "type": "Tür",

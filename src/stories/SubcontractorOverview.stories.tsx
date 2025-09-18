@@ -31,19 +31,19 @@ const data = [
     id: 'sub-construction-1',
     name: 'Özkan İnşaat',
     aggregate: mkAgg(0.88, 0.83, 0.95),
-    issues: { delay: 2, overrun: 1 } as OwnerIssueSummary,
+    issues: { instant: 1, acceptance: 1, planned: 2 } as OwnerIssueSummary,
   },
   {
     id: 'sub-electrical-1',
     name: 'Volt Elektrik',
     aggregate: mkAgg(0.97, 1.01, 0.92),
-    issues: { delay: 0, overrun: 0 } as OwnerIssueSummary,
+    issues: { instant: 0, acceptance: 0, planned: 0 } as OwnerIssueSummary,
   },
   {
     id: 'sub-mechanical-1',
     name: 'Termo Mekanik',
     aggregate: mkAgg(0.92, 0.94, 0.9),
-    issues: { delay: 1, overrun: 0 } as OwnerIssueSummary,
+    issues: { instant: 0, acceptance: 1, planned: 1 } as OwnerIssueSummary,
   },
 ]
 

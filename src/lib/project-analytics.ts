@@ -24,7 +24,13 @@ export interface NodeSums {
 export type OwnershipMap = Map<string, SubcontractorId | null>
 export type NodeSumsMap = Map<string, NodeSums>
 
-export type IssueType = 'delay' | 'overrun'
+export type IssueType = 'instant' | 'acceptance' | 'planned'
+export type IssueStatus =
+  | 'open'
+  | 'in-progress'
+  | 'resolved'
+  | 'closed'
+  | 'on-hold'
 export interface Issue {
   id: string
   nodeId: string
@@ -35,6 +41,14 @@ export interface Issue {
   costOver?: number
   cpi?: number
   spi?: number
+  title?: string
+  description?: string
+  status?: IssueStatus
+  responsibleId?: string | null
+  responsibleName?: string
+  reportedBy?: string
+  reportedById?: string | null
+  reportedAt?: string
 }
 
 // Resolve ownership with the "closest assigned ancestor" rule.
@@ -181,8 +195,9 @@ export function aggregateByOwnerContractLevel(
 }
 
 export interface OwnerIssueSummary {
-  delay: number
-  overrun: number
+  instant: number
+  acceptance: number
+  planned: number
 }
 
 export function groupIssuesByOwner(
@@ -193,9 +208,18 @@ export function groupIssuesByOwner(
   for (const issue of issues) {
     const owner = issue.subcontractorId ?? ownership.get(issue.nodeId)
     if (!owner) continue
-    const prev = out.get(owner) || { delay: 0, overrun: 0 }
-    if (issue.type === 'delay') prev.delay += 1
-    else prev.overrun += 1
+    const prev = out.get(owner) || { instant: 0, acceptance: 0, planned: 0 }
+    switch (issue.type) {
+      case 'instant':
+        prev.instant += 1
+        break
+      case 'acceptance':
+        prev.acceptance += 1
+        break
+      case 'planned':
+        prev.planned += 1
+        break
+    }
     out.set(owner, prev)
   }
   return out
