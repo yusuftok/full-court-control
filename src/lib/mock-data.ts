@@ -96,6 +96,8 @@ export interface TeamMember {
   tasksCompleted: number
   hoursWorked: number
   status: 'active' | 'on-leave' | 'off-site'
+  subcontractor?: string | null
+  phone?: string | null
 }
 
 // Equipment removed from project scope
@@ -239,6 +241,8 @@ export const MOCK_PROJECTS: DetailedProject[] = [
         tasksCompleted: 45,
         hoursWorked: 320,
         status: 'active',
+        subcontractor: 'Mega İnşaat A.Ş.',
+        phone: '+90 532 000 0101',
       },
       {
         id: 't2',
@@ -247,6 +251,8 @@ export const MOCK_PROJECTS: DetailedProject[] = [
         tasksCompleted: 38,
         hoursWorked: 280,
         status: 'active',
+        subcontractor: 'Mega İnşaat A.Ş.',
+        phone: '+90 532 000 0102',
       },
     ],
     mainContractorTeam: {
@@ -337,6 +343,8 @@ export const MOCK_PROJECTS: DetailedProject[] = [
         tasksCompleted: 42,
         hoursWorked: 290,
         status: 'active',
+        subcontractor: 'Yüksel İnşaat A.Ş.',
+        phone: '+90 532 100 0201',
       },
       {
         id: 't5',
@@ -345,6 +353,8 @@ export const MOCK_PROJECTS: DetailedProject[] = [
         tasksCompleted: 35,
         hoursWorked: 250,
         status: 'active',
+        subcontractor: 'Yüksel İnşaat A.Ş.',
+        phone: '+90 532 100 0202',
       },
     ],
     mainContractorTeam: {
@@ -431,6 +441,8 @@ export const MOCK_PROJECTS: DetailedProject[] = [
         tasksCompleted: 55,
         hoursWorked: 380,
         status: 'active',
+        subcontractor: 'Metro İnşaat Ltd.',
+        phone: '+90 532 200 0301',
       },
     ],
     mainContractorTeam: {
@@ -501,6 +513,8 @@ export const MOCK_PROJECTS: DetailedProject[] = [
         tasksCompleted: 65,
         hoursWorked: 420,
         status: 'off-site',
+        subcontractor: 'Karayolları İnş. A.Ş.',
+        phone: '+90 532 300 0401',
       },
     ],
     mainContractorTeam: {
@@ -586,6 +600,8 @@ export const MOCK_PROJECTS: DetailedProject[] = [
         tasksCompleted: 25,
         hoursWorked: 180,
         status: 'active',
+        subcontractor: 'Sağlık İnşaat A.Ş.',
+        phone: '+90 532 400 0501',
       },
       {
         id: 't9',
@@ -594,6 +610,8 @@ export const MOCK_PROJECTS: DetailedProject[] = [
         tasksCompleted: 18,
         hoursWorked: 150,
         status: 'active',
+        subcontractor: 'Sağlık İnşaat A.Ş.',
+        phone: '+90 532 400 0502',
       },
     ],
     mainContractorTeam: {
@@ -664,6 +682,8 @@ export const MOCK_PROJECTS: DetailedProject[] = [
         tasksCompleted: 20,
         hoursWorked: 120,
         status: 'on-leave',
+        subcontractor: 'Antalya İnşaat Ltd.',
+        phone: '+90 532 500 0601',
       },
     ],
     mainContractorTeam: {

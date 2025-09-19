@@ -66,9 +66,11 @@ interface TeamMember {
   id: string
   name: string
   role: string
-  tasksCompleted: number
-  hoursWorked: number
   status: 'active' | 'on-leave' | 'off-site'
+  tasksCompleted?: number
+  hoursWorked?: number
+  subcontractor?: string | null
+  phone?: string | null
 }
 
 // Equipment type removed from scope
@@ -398,16 +400,16 @@ const teamColumns: Column<TeamMember>[] = [
     sortable: true,
   },
   {
-    id: 'tasksCompleted',
-    header: 'Tamamlanan',
-    accessor: 'tasksCompleted',
+    id: 'subcontractor',
+    header: 'Taşeron',
+    accessor: (row: TeamMember) => row.subcontractor ?? '-',
     sortable: true,
   },
   {
-    id: 'hoursWorked',
-    header: 'Saat',
-    accessor: (row: TeamMember) => `${row.hoursWorked}h`,
-    sortable: true,
+    id: 'phone',
+    header: 'Telefon',
+    accessor: (row: TeamMember) => row.phone ?? '-',
+    sortable: false,
   },
   {
     id: 'status',
@@ -485,9 +487,9 @@ export default function ProjectDashboardPage() {
               name: 'Kolonlar',
               assignedSubcontractorId: 'sub-construction-1',
               children: [
-                { id: 'columns-rebar', name: 'Kolon Donatı' },
-                { id: 'columns-formwork', name: 'Kolon Kalıp' },
-                { id: 'columns-concrete', name: 'Kolon Beton' },
+                { id: 'columns-rebar', name: 'Kolon Donatı Ana' },
+                { id: 'columns-formwork', name: 'Kolon Kalıp Ana' },
+                { id: 'columns-concrete', name: 'Kolon Beton Ana' },
               ],
             },
             {
@@ -552,7 +554,14 @@ export default function ProjectDashboardPage() {
               ],
             },
             { id: 'lighting', name: 'Aydınlatma' },
-            { id: 'automation', name: 'Otomasyon' },
+            {
+              id: 'automation',
+              name: 'Otomasyon Sistemleri',
+              children: [
+                { id: 'automation-controls', name: 'Kontrol Panelleri' },
+                { id: 'automation-integration', name: 'Saha Entegrasyonu' },
+              ],
+            },
           ],
         },
         {
@@ -1448,28 +1457,31 @@ export default function ProjectDashboardPage() {
     wbsRoot,
   ])
 
-  const ownerLabel = (raw?: string | null) => {
-    if (!raw) return undefined
-    // 1) Prefer concrete subcontractor company name from mock registry
-    const mapped = subsNameMap.get(raw)
-    if (mapped) return mapped
-    // 2) Try i18n fallback for non-id slugs (kept for backwards compatibility)
-    const slug = raw
-      .replaceAll('İ', 'I')
-      .replaceAll('ı', 'i')
-      .normalize('NFD')
-      .replace(/\p{Diacritic}/gu, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '')
-    const key = `owner.${slug}`
-    const translated = tMilestone(key as never)
-    if (translated === key || translated === `milestone.${key}`) {
-      // 3) Humanize raw as last resort
-      return raw.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-    }
-    return translated
-  }
+  const ownerLabel = React.useCallback(
+    (raw?: string | null) => {
+      if (!raw) return undefined
+      // 1) Prefer concrete subcontractor company name from mock registry
+      const mapped = subsNameMap.get(raw)
+      if (mapped) return mapped
+      // 2) Try i18n fallback for non-id slugs (kept for backwards compatibility)
+      const slug = raw
+        .replaceAll('İ', 'I')
+        .replaceAll('ı', 'i')
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
+      const key = `owner.${slug}`
+      const translated = tMilestone(key as never)
+      if (translated === key || translated === `milestone.${key}`) {
+        // 3) Humanize raw as last resort
+        return raw.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+      }
+      return translated
+    },
+    [subsNameMap, tMilestone]
+  )
 
   // Build WBS lookup helpers for showing path excerpts
   const wbsMaps = React.useMemo(() => {
@@ -1685,25 +1697,137 @@ export default function ProjectDashboardPage() {
     [wbsMaps, wbsRoot.id]
   )
 
+  const openInsightCards = React.useCallback((cards: InsightCard[]) => {
+    if (cards.length === 0) return
+    setInsightCards(cards)
+    setInsightIndex(0)
+    setInsightOpen(true)
+  }, [])
+
+  const buildScheduleInsights = React.useCallback(
+    (nodeId: string, mode: 'blocked' | 'blockRisk'): InsightCard[] => {
+      const visited = new Set<string>()
+      const gather = (id: string): InsightCard[] => {
+        if (visited.has(id)) return []
+        visited.add(id)
+        const entry = wbsSchedule.get(id)
+        if (entry) {
+          const preds = entry.predecessors ?? []
+          const focusName = wbsMaps.toName(id)
+          const focusOwnerLabel =
+            ownerLabel(analytics.ownership.get(id) ?? null) ?? null
+          const focusLeaf = wbsMaps.firstLeafUnder(id) || undefined
+          const baselineStart = entry.baselineStart ?? null
+          const cards: InsightCard[] = preds.reduce<InsightCard[]>(
+            (acc, pid) => {
+              const predEntry = wbsSchedule.get(pid)
+              if (!predEntry) return acc
+              const otherName = wbsMaps.toName(pid)
+              const otherOwnerLabel =
+                ownerLabel(analytics.ownership.get(pid) ?? null) ?? null
+              if (mode === 'blocked') {
+                if (predEntry.status === 'completed') return acc
+                acc.push({
+                  title: 'Neden Bloklu?',
+                  details: `${otherName} işi tamamlanmadı`,
+                  ascii: asciiBranchMarked(id, pid, 'blocked', {
+                    causeLabel: otherName,
+                    effectLabel: focusName,
+                    causeLeafId: wbsMaps.firstLeafUnder(pid) || undefined,
+                    effectLeafId: focusLeaf,
+                  }),
+                  focusName,
+                  otherName,
+                  rel: 'blocked',
+                  focusOwner: focusOwnerLabel,
+                  otherOwner: otherOwnerLabel,
+                  causeLabel: otherName,
+                  effectLabel: focusName,
+                  focusLabel: focusName,
+                  otherLabel: otherName,
+                })
+              } else {
+                if (
+                  baselineStart == null ||
+                  baselineStart <= projectTiming.dataDate ||
+                  predEntry.forecastFinish == null ||
+                  predEntry.forecastFinish <= baselineStart
+                ) {
+                  return acc
+                }
+                acc.push({
+                  title: 'Neden Bloklanabilir?',
+                  details: `${otherName} forecast bitişi bu işin planlanan başlangıcını aşıyor`,
+                  ascii: asciiBranchMarked(id, pid, 'blockedRisk', {
+                    causeLabel: otherName,
+                    effectLabel: focusName,
+                    causeLeafId: wbsMaps.firstLeafUnder(pid) || undefined,
+                    effectLeafId: focusLeaf,
+                  }),
+                  focusName,
+                  otherName,
+                  rel: 'blockedRisk',
+                  focusOwner: focusOwnerLabel,
+                  otherOwner: otherOwnerLabel,
+                  causeLabel: otherName,
+                  effectLabel: focusName,
+                  focusLabel: focusName,
+                  otherLabel: otherName,
+                })
+              }
+              return acc
+            },
+            []
+          )
+          if (cards.length > 0) return cards
+        }
+        const node = wbsMaps.nodeById.get(id)
+        if (!node?.children) return []
+        for (const child of node.children) {
+          const result = gather(child.id)
+          if (result.length > 0) return result
+        }
+        return []
+      }
+      return gather(nodeId)
+    },
+    [
+      wbsSchedule,
+      wbsMaps,
+      ownerLabel,
+      analytics.ownership,
+      asciiBranchMarked,
+      projectTiming.dataDate,
+    ]
+  )
+
+  const handleScheduleInsightRequest = React.useCallback(
+    (payload: { nodeId: string; mode: 'blocked' | 'blockRisk' }) => {
+      const cards = buildScheduleInsights(payload.nodeId, payload.mode)
+      openInsightCards(cards)
+    },
+    [buildScheduleInsights, openInsightCards]
+  )
+
   // Insight modal state
   type InsightKind = 'blocked' | 'blocking' | 'blockedRisk' | 'blockRisk'
+
+  type InsightCard = {
+    title: string
+    details?: string
+    ascii: string
+    focusName: string
+    otherName: string
+    rel: InsightKind
+    focusOwner?: string | null
+    otherOwner?: string | null
+    causeLabel?: string
+    effectLabel?: string
+    focusLabel?: string
+    otherLabel?: string
+  }
   const [insightOpen, setInsightOpen] = React.useState(false)
-  const [insightCards, setInsightCards] = React.useState<
-    Array<{
-      title: string
-      details?: string
-      ascii: string
-      focusName: string
-      otherName: string
-      rel: InsightKind
-      focusOwner?: string | null
-      otherOwner?: string | null
-      causeLabel?: string
-      effectLabel?: string
-      focusLabel?: string
-      otherLabel?: string
-    }>
-  >([])
+  const [insightCards, setInsightCards] = React.useState<InsightCard[]>([])
   const [insightIndex, setInsightIndex] = React.useState(0)
 
   type TabKey = 'overview' | 'subs' | 'wbs' | 'issues' | 'team'
@@ -2657,11 +2781,7 @@ export default function ProjectDashboardPage() {
                                                   otherLabel: p.name,
                                                 })
                                               }
-                                              if (cards.length > 0) {
-                                                setInsightCards(cards)
-                                                setInsightIndex(0)
-                                                setInsightOpen(true)
-                                              }
+                                              openInsightCards(cards)
                                             }}
                                           >
                                             Neden Bloklu?
@@ -2745,11 +2865,7 @@ export default function ProjectDashboardPage() {
                                                   otherLabel: s.name,
                                                 })
                                               }
-                                              if (cards.length > 0) {
-                                                setInsightCards(cards)
-                                                setInsightIndex(0)
-                                                setInsightOpen(true)
-                                              }
+                                              openInsightCards(cards)
                                             }}
                                           >
                                             Neyi Blokluyor?
@@ -2831,11 +2947,7 @@ export default function ProjectDashboardPage() {
                                                   effectLabel: m.name,
                                                 })
                                               }
-                                              if (cards.length > 0) {
-                                                setInsightCards(cards)
-                                                setInsightIndex(0)
-                                                setInsightOpen(true)
-                                              }
+                                              openInsightCards(cards)
                                             }}
                                           >
                                             Neden Bloklanabilir?
@@ -2917,11 +3029,7 @@ export default function ProjectDashboardPage() {
                                                   effectLabel: s.name,
                                                 })
                                               }
-                                              if (cards.length > 0) {
-                                                setInsightCards(cards)
-                                                setInsightIndex(0)
-                                                setInsightOpen(true)
-                                              }
+                                              openInsightCards(cards)
                                             }}
                                           >
                                             Neyi Bloklayabilir?
@@ -3224,6 +3332,7 @@ export default function ProjectDashboardPage() {
               onSearchQueryChange={setWbsQuery}
               ownerNameFor={ownerLabel}
               onClearOwnerFilter={() => setSelectedOwner(null)}
+              onRequestInsight={handleScheduleInsightRequest}
             />
           </div>
         )}

@@ -113,6 +113,10 @@ export interface WbsTreePanelProps {
   onSearchQueryChange?: (value: string) => void
   ownerNameFor?: (ownerId: string | null | undefined) => string | undefined
   onClearOwnerFilter?: () => void
+  onRequestInsight?: (payload: {
+    nodeId: string
+    mode: 'blocked' | 'blockRisk'
+  }) => void
 }
 
 function formatDate(value?: number) {
@@ -140,6 +144,7 @@ export function WbsTreePanel({
   onSearchQueryChange,
   ownerNameFor,
   onClearOwnerFilter,
+  onRequestInsight,
 }: WbsTreePanelProps) {
   const normalizedQuery = searchQuery.trim().toLowerCase()
   const [expanded, setExpanded] = React.useState<Set<string>>(
@@ -583,20 +588,56 @@ export function WbsTreePanel({
                 {selectedEntry.status === 'not-started' && (
                   <>
                     {selectedEntry.blocked && (
-                      <Badge
-                        variant="outline"
-                        className="rounded-full border-none bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700 shadow-sm ring-1 ring-inset ring-rose-200/70"
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onRequestInsight?.({
+                            nodeId: activeId,
+                            mode: 'blocked',
+                          })
+                        }
+                        onMouseEnter={() =>
+                          onRequestInsight?.({
+                            nodeId: activeId,
+                            mode: 'blocked',
+                          })
+                        }
+                        onFocus={() =>
+                          onRequestInsight?.({
+                            nodeId: activeId,
+                            mode: 'blocked',
+                          })
+                        }
+                        className="rounded-full border-none bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700 shadow-sm ring-1 ring-inset ring-rose-200/70 transition hover:bg-rose-100/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-200"
                       >
                         Bloklanmış
-                      </Badge>
+                      </button>
                     )}
                     {selectedEntry.blockRisk && (
-                      <Badge
-                        variant="outline"
-                        className="rounded-full border-none bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 shadow-sm ring-1 ring-inset ring-amber-200/70"
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onRequestInsight?.({
+                            nodeId: activeId,
+                            mode: 'blockRisk',
+                          })
+                        }
+                        onMouseEnter={() =>
+                          onRequestInsight?.({
+                            nodeId: activeId,
+                            mode: 'blockRisk',
+                          })
+                        }
+                        onFocus={() =>
+                          onRequestInsight?.({
+                            nodeId: activeId,
+                            mode: 'blockRisk',
+                          })
+                        }
+                        className="rounded-full border-none bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 shadow-sm ring-1 ring-inset ring-amber-200/70 transition hover:bg-amber-100/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200"
                       >
                         Bloklanma Riski
-                      </Badge>
+                      </button>
                     )}
                   </>
                 )}
